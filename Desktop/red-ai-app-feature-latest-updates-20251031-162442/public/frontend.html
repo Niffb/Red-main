@@ -753,6 +753,12 @@
             background: rgba(239, 68, 68, 0.2);
             border-color: #ef4444;
             color: #ef4444;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+        }
+        
+        #chat-window .capture-button.active:hover {
+            background: rgba(239, 68, 68, 0.3);
+            transform: scale(1.05);
         }
 
         /* ChatGPT-style Quick Actions Overlay Dropdown */
@@ -3993,38 +3999,53 @@
         // Current captured screenshot
         let currentCapturedScreenshot = null;
         
-        // Capture button functionality - captures immediately and highlights button
+        // Capture button functionality - toggle between capture and cancel
         if (captureBtn) {
             captureBtn.addEventListener('click', async () => {
-            // Add visual feedback during capture
-            const originalOpacity = captureBtn.style.opacity;
-            captureBtn.style.opacity = '0.5';
-            
-            try {
-                console.log('📸 Capturing screenshot...');
-                const captureStart = performance.now();
-                const screenshotBuffer = await window.electronAPI.captureScreenshot('high');
-                const captureTime = performance.now() - captureStart;
-                console.log(`✅ Screenshot captured in ${captureTime.toFixed(0)}ms`);
+                // Check if already captured - if so, cancel/undo
+                if (currentCapturedScreenshot !== null) {
+                    console.log('🔄 Canceling screenshot capture...');
+                    currentCapturedScreenshot = null;
+                    captureBtn.classList.remove('active');
+                    
+                    // Brief visual feedback for cancel
+                    captureBtn.style.transform = 'scale(0.9)';
+                    setTimeout(() => {
+                        captureBtn.style.transform = '';
+                    }, 150);
+                    
+                    return; // Exit early - toggle off complete
+                }
                 
-                // Store screenshot data
-                currentCapturedScreenshot = screenshotBuffer;
+                // Not captured yet - proceed with capture
+                const originalOpacity = captureBtn.style.opacity;
+                captureBtn.style.opacity = '0.5';
                 
-                // Highlight button to indicate capture is ready
-                captureBtn.classList.add('active');
-                
-                // Brief visual pulse to confirm capture
-                captureBtn.style.opacity = '1';
-                captureBtn.style.transform = 'scale(1.1)';
-                setTimeout(() => {
-                    captureBtn.style.transform = '';
-                }, 150);
-            } catch (error) {
-                console.error('Failed to capture screenshot:', error);
-                currentCapturedScreenshot = null;
-                captureBtn.classList.remove('active');
-                captureBtn.style.opacity = originalOpacity;
-            }
+                try {
+                    console.log('📸 Capturing screenshot...');
+                    const captureStart = performance.now();
+                    const screenshotBuffer = await window.electronAPI.captureScreenshot('high');
+                    const captureTime = performance.now() - captureStart;
+                    console.log(`✅ Screenshot captured in ${captureTime.toFixed(0)}ms`);
+                    
+                    // Store screenshot data
+                    currentCapturedScreenshot = screenshotBuffer;
+                    
+                    // Highlight button to indicate capture is ready
+                    captureBtn.classList.add('active');
+                    
+                    // Brief visual pulse to confirm capture
+                    captureBtn.style.opacity = '1';
+                    captureBtn.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        captureBtn.style.transform = '';
+                    }, 150);
+                } catch (error) {
+                    console.error('Failed to capture screenshot:', error);
+                    currentCapturedScreenshot = null;
+                    captureBtn.classList.remove('active');
+                    captureBtn.style.opacity = originalOpacity;
+                }
             });
         } else {
             console.error('❌ captureBtn not found');
