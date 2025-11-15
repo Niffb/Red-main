@@ -1,0 +1,34 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+realtimesst.log
+
+# Build outputs
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# MCP runtime
+.mcp-servers/running.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+tmp/
+temp/

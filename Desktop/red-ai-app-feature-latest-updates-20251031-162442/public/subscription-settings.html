@@ -1,0 +1,410 @@
+<!-- Subscription & Database Settings Section -->
+<style>
+.subscription-settings-panel {
+  padding: 20px;
+}
+
+.subscription-section {
+  margin-bottom: 30px;
+  background: rgba(30, 30, 30, 0.5);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.subscription-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.subscription-info-card {
+  background: rgba(40, 40, 40, 0.8);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.subscription-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.subscription-tier-badge {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.tier-free {
+  background: rgba(128, 128, 128, 0.2);
+  color: #999;
+}
+
+.tier-basic {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+.tier-pro {
+  background: rgba(147, 51, 234, 0.2);
+  color: #9333ea;
+}
+
+.tier-enterprise {
+  background: rgba(234, 179, 8, 0.2);
+  color: #eab308;
+}
+
+.subscription-status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.status-active {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.status-inactive {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.subscription-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.subscription-detail-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+}
+
+.subscription-detail-value {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.db-connection-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(40, 40, 40, 0.6);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot.connected {
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+.status-dot.disconnected {
+  background: #6b7280;
+}
+
+.db-status-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.db-connection-info {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-left: auto;
+}
+
+.settings-input-group {
+  margin-bottom: 16px;
+}
+
+.settings-input-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 8px;
+}
+
+.settings-text-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(40, 40, 40, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+}
+
+.settings-text-input:focus {
+  outline: none;
+  border-color: rgba(102, 126, 234, 0.6);
+}
+
+.settings-checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-btn-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.settings-btn-primary {
+  flex: 1;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.settings-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.settings-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.settings-btn-secondary {
+  flex: 1;
+  padding: 10px 20px;
+  background: rgba(40, 40, 40, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.settings-btn-secondary:hover {
+  background: rgba(50, 50, 50, 0.9);
+}
+
+.settings-btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.feature-item {
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background: rgba(34, 197, 94, 0.1);
+  border-left: 3px solid #22c55e;
+  border-radius: 4px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.limits-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.limit-item {
+  padding: 12px;
+  background: rgba(40, 40, 40, 0.6);
+  border-radius: 8px;
+}
+
+.limit-label {
+  display: block;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 4px;
+}
+
+.limit-value {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+</style>
+
+<div class="subscription-settings-panel">
+  <!-- User Login Section -->
+  <div id="login-section" class="subscription-section">
+    <h4 class="subscription-section-title">Sign In to Your Account</h4>
+    <p style="font-size: 12px; color: rgba(255, 255, 255, 0.6); margin-bottom: 20px;">
+      Sign in to access your subscription and features
+    </p>
+    
+    <div class="settings-input-group">
+      <label class="settings-input-label">Email Address *</label>
+      <input type="email" id="login-email" class="settings-text-input" placeholder="your@email.com" required>
+    </div>
+
+    <div class="settings-input-group">
+      <label class="settings-input-label">Password *</label>
+      <input type="password" id="login-password" class="settings-text-input" placeholder="••••••••" required>
+    </div>
+
+    <div id="login-error" style="display: none; color: #ef4444; font-size: 12px; margin-bottom: 12px;"></div>
+
+    <div class="settings-btn-group">
+      <button id="login-btn" class="settings-btn-primary">Sign In</button>
+    </div>
+
+    <div style="text-align: center; margin-top: 16px;">
+      <p style="font-size: 12px; color: rgba(255, 255, 255, 0.5);">
+        Don't have an account? 
+        <a href="#" id="show-register-link" style="color: #667eea; text-decoration: none;">Register here</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- User Registration Section (Hidden by default) -->
+  <div id="register-section" class="subscription-section" style="display: none;">
+    <h4 class="subscription-section-title">Create New Account</h4>
+    <p style="font-size: 12px; color: rgba(255, 255, 255, 0.6); margin-bottom: 20px;">
+      Register to get started with a Free account
+    </p>
+    
+    <div class="settings-input-group">
+      <label class="settings-input-label">Full Name *</label>
+      <input type="text" id="register-name" class="settings-text-input" placeholder="John Doe" required>
+    </div>
+
+    <div class="settings-input-group">
+      <label class="settings-input-label">Email Address *</label>
+      <input type="email" id="register-email" class="settings-text-input" placeholder="your@email.com" required>
+    </div>
+
+    <div class="settings-input-group">
+      <label class="settings-input-label">Password *</label>
+      <input type="password" id="register-password" class="settings-text-input" placeholder="••••••••" required>
+    </div>
+
+    <div class="settings-input-group">
+      <label class="settings-input-label">Confirm Password *</label>
+      <input type="password" id="register-confirm-password" class="settings-text-input" placeholder="••••••••" required>
+    </div>
+
+    <div id="register-error" style="display: none; color: #ef4444; font-size: 12px; margin-bottom: 12px;"></div>
+
+    <div class="settings-btn-group">
+      <button id="register-btn" class="settings-btn-primary">Create Account</button>
+    </div>
+
+    <div style="text-align: center; margin-top: 16px;">
+      <p style="font-size: 12px; color: rgba(255, 255, 255, 0.5);">
+        Already have an account? 
+        <a href="#" id="show-login-link" style="color: #667eea; text-decoration: none;">Sign in here</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Current Subscription (Hidden until logged in) -->
+  <div id="subscription-info-section" class="subscription-section" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h4 class="subscription-section-title" style="margin-bottom: 0;">Current Subscription</h4>
+      <button id="logout-btn" class="settings-btn-secondary" style="flex: none; padding: 8px 16px;">Logout</button>
+    </div>
+
+    <div class="subscription-info-card">
+      <div class="subscription-header">
+        <div>
+          <h3 id="subscription-tier-text" style="margin: 0; font-size: 18px; color: rgba(255, 255, 255, 0.95);">Free Tier</h3>
+          <p id="user-email-display" style="margin: 5px 0 0 0; font-size: 12px; color: rgba(255, 255, 255, 0.5);">Not logged in</p>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span id="subscription-tier-badge" class="subscription-tier-badge tier-free">FREE</span>
+          <span id="subscription-status-badge" class="subscription-status-badge status-active">Active</span>
+        </div>
+      </div>
+      
+      <div style="margin-top: 20px;">
+        <h5 style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin-bottom: 10px;">Features</h5>
+        <ul id="subscription-features" class="feature-list">
+          <li class="feature-item">Loading...</li>
+        </ul>
+      </div>
+      
+      <div style="margin-top: 20px;">
+        <h5 style="font-size: 13px; color: rgba(255, 255, 255, 0.7); margin-bottom: 10px;">Usage & Limits</h5>
+        <div id="subscription-limits" class="limits-container">
+          <div class="limit-item">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Usage Statistics (Hidden until logged in) -->
+  <div id="usage-stats-section" class="subscription-section" style="display: none;">
+    <h4 class="subscription-section-title">Current Usage</h4>
+    
+    <div id="usage-stats-container" class="limits-container">
+      <div class="limit-item">
+        <span class="limit-label">Messages Today:</span>
+        <span id="usage-messages" class="limit-value">0 / 20</span>
+      </div>
+      <div class="limit-item">
+        <span class="limit-label">Active Workflows:</span>
+        <span id="usage-workflows" class="limit-value">0 / 2</span>
+      </div>
+      <div class="limit-item">
+        <span class="limit-label">Transcription:</span>
+        <span id="usage-transcription" class="limit-value">0 hrs</span>
+      </div>
+      <div class="limit-item">
+        <span class="limit-label">MCP Connections:</span>
+        <span id="usage-mcp" class="limit-value">0</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button id="refresh-usage-btn" class="settings-btn-secondary">Refresh Usage Stats</button>
+    </div>
+  </div>
+</div>
+
+<!-- Load subscription settings JavaScript -->
+<script src="subscription-settings.js"></script>
+
+
+
+
+
+
+
+
+

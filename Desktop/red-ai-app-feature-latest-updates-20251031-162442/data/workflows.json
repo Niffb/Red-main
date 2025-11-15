@@ -1,0 +1,22 @@
+[
+  {
+    "id": "workflow_1761062985032",
+    "name": "Summarise ",
+    "description": "Summarise texts in chat and save to notion ",
+    "enabled": true,
+    "trigger": {
+      "type": "keyword",
+      "keywords": [
+        "summarise"
+      ]
+    },
+    "actions": [
+      {
+        "type": "ai_prompt",
+        "prompt": "Everytime I ask you to summarise I want you to add the content we just spoke about and the content to my notion page and this is my page id 293baa65716281f09527d714f25eb8b2 "
+      }
+    ],
+    "createdAt": 1761062985032,
+    "updatedAt": 1762377850785
+  }
+]
