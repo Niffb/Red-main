@@ -1,8 +1,8 @@
 // Transcription Window - Deepgram Real-time Integration
 console.log('🎙️ Transcription window loaded (Deepgram)');
-
-// State
-let isRecording = false;
+    
+    // State
+    let isRecording = false;
 let audioContext = null;
 let mediaStream = null;
 let processor = null;
@@ -12,7 +12,7 @@ let transcriptBuffer = [];
 let fullTranscript = '';
 let wordCount = 0;
 
-// DOM Elements
+    // DOM Elements
 const elements = {
     stepReady: document.getElementById('step-ready'),
     stepRecording: document.getElementById('step-recording'),
@@ -40,8 +40,8 @@ const elements = {
     workflowContainer: document.getElementById('workflow-container')
 };
 
-// Initialize
-function init() {
+    // Initialize
+    function init() {
     setupEventListeners();
     setupTranscriptionListeners();
 }
@@ -71,10 +71,10 @@ function setupTranscriptionListeners() {
     window.electronAPI.onTranscriptionError((error) => {
         console.error('❌ Transcription error:', error);
         alert(`Transcription error: ${error.message}`);
-        stopRecording();
-    });
-}
-
+                stopRecording();
+            });
+        }
+        
 // Start Recording
 async function startRecording() {
     try {
@@ -125,13 +125,13 @@ async function startRecording() {
 
         // Start Deepgram transcription
         const result = await window.electronAPI.transcriptionStart();
-        
+            
         if (!result.success) {
             throw new Error(result.error || 'Failed to start transcription');
         }
-
-        // Update UI
-        isRecording = true;
+            
+            // Update UI
+            isRecording = true;
         transcriptBuffer = [];
         fullTranscript = '';
         wordCount = 0;
@@ -140,19 +140,19 @@ async function startRecording() {
         showStep('recording');
         startTimer();
         clearTranscript();
-
-        console.log('✅ Recording started successfully');
-        
-    } catch (error) {
+            
+            console.log('✅ Recording started successfully');
+            
+        } catch (error) {
         console.error('❌ Failed to start recording:', error);
         alert(`Failed to start recording: ${error.message}\n\nPlease check microphone permissions.`);
         cleanupAudio();
         elements.startBtn.disabled = false;
+        }
     }
-}
 
-// Stop Recording
-async function stopRecording() {
+    // Stop Recording
+    async function stopRecording() {
     try {
         console.log('🛑 Stopping recording...');
         isRecording = false;
@@ -173,17 +173,17 @@ async function stopRecording() {
         // Show goal input step
         if (fullTranscript && fullTranscript.trim().length > 0) {
             showGoalStep();
-        } else {
+            } else {
             alert('No audio was transcribed. Please try again.');
             resetToStart();
-        }
-        
-    } catch (error) {
-        console.error('❌ Error stopping recording:', error);
+            }
+            
+        } catch (error) {
+            console.error('❌ Error stopping recording:', error);
         cleanupAudio();
         resetToStart();
+        }
     }
-}
 
 // Cleanup Audio Resources
 function cleanupAudio() {
@@ -220,8 +220,8 @@ function updateTranscript(data) {
     if (placeholder) {
         placeholder.style.display = 'none';
     }
-
-    if (isFinal) {
+        
+        if (isFinal) {
         // Add to buffer and display
         transcriptBuffer.push(text);
         
@@ -239,7 +239,7 @@ function updateTranscript(data) {
         if (interimEl) {
             interimEl.remove();
         }
-    } else {
+        } else {
         // Show interim text
         let interimEl = elements.transcriptText.querySelector('.interim');
         if (!interimEl) {
@@ -252,10 +252,10 @@ function updateTranscript(data) {
 
     // Auto-scroll
     elements.transcriptText.parentElement.scrollTop = elements.transcriptText.parentElement.scrollHeight;
-}
+    }
 
-// Clear Transcript
-function clearTranscript() {
+    // Clear Transcript
+    function clearTranscript() {
     elements.transcriptText.innerHTML = '';
     const placeholder = elements.transcriptText.parentElement.querySelector('.transcript-placeholder');
     if (placeholder) {
@@ -274,15 +274,15 @@ function stopTimer() {
     if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
+        }
     }
-}
 
 function updateTimer() {
     const elapsed = Math.floor((Date.now() - startTime) / 1000);
     const minutes = Math.floor(elapsed / 60);
     const seconds = elapsed % 60;
     elements.timer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
+    }
 
 // Show Goal Step
 function showGoalStep() {
@@ -305,7 +305,7 @@ async function generateWorkflow() {
     if (!goal) {
         alert('Please enter your goal to generate a workflow.');
         return;
-    }
+        }
 
     try {
         elements.generateWorkflowBtn.disabled = true;
@@ -313,15 +313,18 @@ async function generateWorkflow() {
         
         showStep('workflow');
         
+        // Show loading animation
+        showLoadingAnimation();
+        
         const result = await window.electronAPI.transcriptionCreateWorkflow(fullTranscript, goal);
-        
-        if (result.success) {
-            displayWorkflow(result.workflow);
-        } else {
+            
+            if (result.success) {
+                displayWorkflow(result.workflow);
+            } else {
             throw new Error(result.error || 'Failed to generate workflow');
-        }
-        
-    } catch (error) {
+            }
+            
+        } catch (error) {
         console.error('❌ Error generating workflow:', error);
         alert(`Failed to generate workflow: ${error.message}`);
         showStep('goal');
@@ -331,40 +334,70 @@ async function generateWorkflow() {
     }
 }
 
-// Display Workflow
-function displayWorkflow(workflow) {
-    elements.workflowContainer.innerHTML = '';
-    
-    const workflowHTML = `
-        <div class="workflow-result">
-            <div class="workflow-header">
-                <h3>${workflow.title || 'Your Workflow'}</h3>
-                <p>${workflow.description || ''}</p>
+// Show Loading Animation
+function showLoadingAnimation() {
+    elements.workflowContainer.innerHTML = `
+        <div class="loading-spinner">
+            <div class="loading-spinner-icon">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
             </div>
-            
-            <div class="workflow-steps">
-                ${workflow.steps.map((step, index) => `
-                    <div class="workflow-step">
-                        <div class="step-number">${index + 1}</div>
-                        <div class="step-content-inner">
-                            <h4>${step.title || step.action}</h4>
-                            ${step.description ? `<p>${step.description}</p>` : ''}
-                            ${step.details ? `<ul>${step.details.map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
-                        </div>
-                    </div>
-                `).join('')}
+            <h3>Generating Workflow</h3>
+            <p>Analyzing your transcript and creating actionable steps</p>
+            <div class="loading-dots">
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
             </div>
-            
-            ${workflow.notes ? `
-                <div class="workflow-notes">
-                    <strong>Notes:</strong> ${workflow.notes}
-                </div>
-            ` : ''}
         </div>
     `;
+    }
+
+    // Display Workflow
+    function displayWorkflow(workflow) {
+    // Fade out loading animation
+    elements.workflowContainer.style.opacity = '0';
     
-    elements.workflowContainer.innerHTML = workflowHTML;
-}
+    setTimeout(() => {
+        elements.workflowContainer.innerHTML = '';
+        
+        const workflowHTML = `
+            <div class="workflow-result">
+                <div class="workflow-header">
+                    <h3>${workflow.title || 'Your Workflow'}</h3>
+                    <p>${workflow.description || ''}</p>
+                </div>
+                
+                <div class="workflow-steps">
+                    ${workflow.steps.map((step, index) => `
+            <div class="workflow-step">
+                            <div class="step-number">${index + 1}</div>
+                            <div class="step-content-inner">
+                                <h4>${step.title || step.action}</h4>
+                                ${step.description ? `<p>${step.description}</p>` : ''}
+                                ${step.details ? `<ul>${step.details.map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                ${workflow.notes ? `
+                    <div class="workflow-notes">
+                        <strong>Notes:</strong> ${workflow.notes}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        
+        elements.workflowContainer.innerHTML = workflowHTML;
+        
+        // Fade in workflow result
+        setTimeout(() => {
+            elements.workflowContainer.style.opacity = '1';
+        }, 50);
+    }, 300);
+    }
 
 // Navigation Functions
 function showStep(step) {
@@ -401,7 +434,7 @@ function resetToStart() {
     elements.goalInput.value = '';
     
     showStep('ready');
-}
+    }
 
 // Modal Functions
 function showModal(modal) {
@@ -422,7 +455,7 @@ function copyTranscriptToClipboard() {
         console.error('Failed to copy:', err);
         alert('Failed to copy transcript');
     });
-}
+    }
 
 // Utility Functions
 function countWords(text) {

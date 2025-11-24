@@ -1,22 +1,19 @@
 [
   {
-    "id": "workflow_1761062985032",
-    "name": "Summarise ",
-    "description": "Summarise texts in chat and save to notion ",
+    "id": "workflow_1763236410201",
+    "name": "Daily Morning Greeting",
+    "description": "Test daily schedule trigger",
     "enabled": true,
     "trigger": {
-      "type": "keyword",
-      "keywords": [
-        "summarise"
-      ]
+      "type": "manual"
     },
     "actions": [
       {
         "type": "ai_prompt",
-        "prompt": "Everytime I ask you to summarise I want you to add the content we just spoke about and the content to my notion page and this is my page id 293baa65716281f09527d714f25eb8b2 "
+        "prompt": "Generate a motivational morning quote"
       }
     ],
-    "createdAt": 1761062985032,
-    "updatedAt": 1762377850785
+    "createdAt": 1763236410201,
+    "updatedAt": 1763375927326
   }
 ]

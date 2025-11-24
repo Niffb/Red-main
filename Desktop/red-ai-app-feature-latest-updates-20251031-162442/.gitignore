@@ -3,24 +3,13 @@
 .env.local
 .env.*.local
 
-# Logs
-*.log
-logs/
-realtimesst.log
-
-# Build outputs
-dist/
-build/
-
 # Dependencies
 node_modules/
+package-lock.json
 
-# MCP runtime
-.mcp-servers/running.json
-
-# OS
-.DS_Store
-Thumbs.db
+# Build output
+dist/
+build/
 
 # IDE
 .vscode/
@@ -29,6 +18,19 @@ Thumbs.db
 *.swo
 *~
 
-# Temporary files
-tmp/
-temp/
+# OS
+.DS_Store
+Thumbs.db
+
+# MCP
+.mcp-servers/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Other
+.Trash/
+

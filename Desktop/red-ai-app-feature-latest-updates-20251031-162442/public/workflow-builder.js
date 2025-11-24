@@ -1,6 +1,7 @@
 // Workflow Builder JavaScript - Redesigned
 // Based on Reference Image with Full Functionality
 
+// IMPORTANT: Functions MUST be in global scope for inline onclick handlers to work
 (function() {
     'use strict';
     
@@ -36,7 +37,14 @@
         // Setup event listeners
         setupEventListeners();
         
+        // Verify global functions are registered
         console.log('✅ Workflow Builder ready');
+        console.log('📋 Global functions registered:', {
+            runWorkflow: typeof window.runWorkflow,
+            editWorkflow: typeof window.editWorkflow,
+            deleteWorkflowCard: typeof window.deleteWorkflowCard,
+            toggleWorkflow: typeof window.toggleWorkflow
+        });
     }
     
     function setupEventListeners() {
@@ -155,7 +163,12 @@
     // Render workflow grid
     function renderWorkflowGrid() {
         const gridEl = document.getElementById('workflow-grid');
-        if (!gridEl) return;
+        if (!gridEl) {
+            console.error('❌ workflow-grid element not found!');
+            return;
+        }
+        
+        console.log(`📋 Rendering ${workflows.length} workflows...`);
         
         if (workflows.length === 0) {
             gridEl.innerHTML = `
@@ -171,7 +184,7 @@
         }
         
         gridEl.innerHTML = workflows.map(workflow => `
-            <div class="workflow-card">
+            <div class="workflow-card" data-workflow-id="${workflow.id}">
                 <div class="workflow-card-header">
                     <div class="workflow-card-actions">
                         <label class="workflow-card-toggle" onclick="event.stopPropagation();">
@@ -193,23 +206,142 @@
                         <span>last execution: Never run</span>
                     </div>
                     <div class="workflow-card-buttons">
-                        <button class="workflow-card-btn primary" onclick="runWorkflow('${workflow.id}')">
+                        <button class="workflow-card-btn primary btn-run-workflow" data-workflow-id="${workflow.id}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
                             </svg>
                             Start
                         </button>
-                        <button class="workflow-card-btn" onclick="editWorkflow('${workflow.id}')">
+                        <button class="workflow-card-btn btn-edit-workflow" data-workflow-id="${workflow.id}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
                             Edit
                         </button>
+                        <button class="workflow-card-btn danger btn-delete-workflow" data-workflow-id="${workflow.id}" data-workflow-name="${workflow.name.replace(/"/g, '&quot;')}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            Delete
+                        </button>
                     </div>
                 </div>
             </div>
         `).join('');
+        
+        // Attach event listeners using event delegation
+        attachWorkflowCardListeners();
+    }
+    
+    // Attach event listeners to workflow cards using event delegation (only once)
+    let workflowGridListenersAttached = false;
+    function attachWorkflowCardListeners() {
+        if (workflowGridListenersAttached) {
+            console.log('⚠️ Event listeners already attached, skipping...');
+            return;
+        }
+        
+        const gridEl = document.getElementById('workflow-grid');
+        if (!gridEl) {
+            console.error('❌ workflow-grid element not found, cannot attach listeners!');
+            return;
+        }
+        
+        // Use event delegation - listen on the grid, handle clicks on buttons
+        gridEl.addEventListener('click', async (e) => {
+            const target = e.target.closest('button');
+            if (!target) return;
+            
+            const workflowId = target.getAttribute('data-workflow-id');
+            if (!workflowId) return;
+            
+            console.log('🖱️ Button clicked:', target.className, 'Workflow ID:', workflowId);
+            
+            if (target.classList.contains('btn-run-workflow')) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('▶️ START button clicked for workflow:', workflowId);
+                
+                // Call the actual workflow execution
+                try {
+                    console.log('📡 Calling workflowExecute API from event listener...');
+                    const result = await window.electronAPI.workflowExecute(workflowId, {});
+                    console.log('📦 Got result from event listener:', result);
+                    
+                    if (result.success) {
+                        console.log('✅ Workflow executed successfully:', result);
+                        
+                        // Switch to chat window first
+                        switchToChatWindow();
+                        
+                        // Wait a moment for the window to switch
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                        
+                        // Display result in chat (with loading animation)
+                        await displayWorkflowResultInChat(result.execution);
+                        
+                        // Also update executions tab
+                        await loadExecutions();
+                    } else {
+                        console.error('❌ Workflow execution failed:', result.error);
+                        alert('❌ Workflow execution failed:\n' + result.error);
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to run workflow from event listener:', error);
+                    console.error('Error stack:', error.stack);
+                    alert('❌ Failed to run workflow:\n' + error.message);
+                }
+            } else if (target.classList.contains('btn-edit-workflow')) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('✏️ EDIT button clicked for workflow:', workflowId);
+                
+                // Load workflow using the existing editWorkflow function
+                try {
+                    const result = await window.electronAPI.workflowGet(workflowId);
+                    if (result.success) {
+                        currentWorkflow = result.workflow;
+                        openWorkflowEditor();
+                    } else {
+                        console.error('Failed to load workflow:', result.error);
+                        alert('❌ Failed to load workflow: ' + result.error);
+                    }
+                } catch (error) {
+                    console.error('Failed to load workflow:', error);
+                    alert('❌ Failed to load workflow: ' + error.message);
+                }
+            } else if (target.classList.contains('btn-delete-workflow')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const workflowName = target.getAttribute('data-workflow-name');
+                console.log('🗑️ DELETE button clicked for workflow:', workflowId, 'Name:', workflowName);
+                
+                // Delete workflow
+                if (!confirm(`Delete workflow "${workflowName}"?\n\nThis action cannot be undone.`)) {
+                    return;
+                }
+                
+                try {
+                    const result = await window.electronAPI.workflowDelete(workflowId);
+                    if (result.success) {
+                        console.log('✅ Workflow deleted successfully');
+                        alert('✅ Workflow deleted successfully');
+                        await loadWorkflows();
+                    } else {
+                        console.error('❌ Delete failed:', result.error);
+                        alert('❌ Failed to delete workflow:\n' + result.error);
+                    }
+                } catch (error) {
+                    console.error('❌ Delete error:', error);
+                    alert('❌ Failed to delete workflow:\n' + error.message);
+                }
+            }
+        });
+        
+        workflowGridListenersAttached = true;
+        console.log('✅ Event listeners attached to workflow grid');
     }
     
     // Render executions list
@@ -268,17 +400,58 @@
     
     // Run workflow
     window.runWorkflow = async function(id) {
+        console.log('🚀 runWorkflow function called!');
+        console.log('▶️ Running workflow with ID:', id, 'Type:', typeof id);
+        
+        if (!id) {
+            console.error('❌ No workflow ID provided!');
+            alert('❌ Error: No workflow ID');
+            return;
+        }
+        
         try {
+            console.log('📡 Calling workflowExecute API...');
+            // The preload expects (id, context) as separate parameters
             const result = await window.electronAPI.workflowExecute(id, {});
+            console.log('📦 Got result:', result);
+            
             if (result.success) {
-                alert('Workflow executed successfully!');
+                console.log('✅ Workflow executed successfully:', result);
+                alert('✅ Workflow executed successfully!\n\nCheck the Executions tab to see results.');
                 await loadExecutions();
+                switchTab('executions'); // Show executions tab
             } else {
-                alert('Workflow execution failed: ' + result.error);
+                console.error('❌ Workflow execution failed:', result.error);
+                alert('❌ Workflow execution failed:\n' + result.error);
             }
         } catch (error) {
-            console.error('Failed to run workflow:', error);
-            alert('Failed to run workflow');
+            console.error('❌ Failed to run workflow:', error);
+            console.error('Error stack:', error.stack);
+            alert('❌ Failed to run workflow:\n' + error.message);
+        }
+    };
+    
+    // Delete workflow from card
+    window.deleteWorkflowCard = async function(id, name) {
+        if (!confirm(`Delete workflow "${name}"?\n\nThis action cannot be undone.`)) {
+            return;
+        }
+        
+        console.log('🗑️ Deleting workflow:', id);
+        try {
+            // The preload expects just the id as a parameter
+            const result = await window.electronAPI.workflowDelete(id);
+            if (result.success) {
+                console.log('✅ Workflow deleted successfully');
+                alert('✅ Workflow deleted successfully');
+                await loadWorkflows();
+            } else {
+                console.error('❌ Failed to delete workflow:', result.error);
+                alert('❌ Failed to delete workflow: ' + result.error);
+            }
+        } catch (error) {
+            console.error('❌ Error deleting workflow:', error);
+            alert('❌ Error deleting workflow: ' + error.message);
         }
     };
     
@@ -289,9 +462,13 @@
             if (result.success) {
                 currentWorkflow = result.workflow;
                 openWorkflowEditor();
+            } else {
+                console.error('Failed to load workflow:', result.error);
+                alert('Failed to load workflow: ' + result.error);
             }
         } catch (error) {
             console.error('Failed to load workflow:', error);
+            alert('Failed to load workflow: ' + error.message);
         }
     };
     
@@ -371,13 +548,54 @@
                 </div>
             `;
         } else if (triggerType === 'schedule') {
-            const schedule = currentWorkflow.trigger?.schedule || '';
+            const schedule = currentWorkflow.trigger?.schedule || {};
+            const frequency = schedule.frequency || 'daily';
+            const time = schedule.time || '09:00';
+            const daysOfWeek = schedule.daysOfWeek || [];
+            const dayOfMonth = schedule.dayOfMonth || '1';
+            
             container.innerHTML = `
                 <div class="workflow-field" style="margin-top: 16px;">
-                    <label>Schedule (cron expression)</label>
-                    <input type="text" id="trigger-schedule" class="workflow-input" 
-                           value="${schedule}" 
-                           placeholder="e.g., 0 0 * * * (daily at midnight)">
+                    <label>Frequency</label>
+                    <select id="schedule-frequency" class="workflow-select" onchange="updateScheduleOptions()">
+                        <option value="daily" ${frequency === 'daily' ? 'selected' : ''}>Daily</option>
+                        <option value="weekly" ${frequency === 'weekly' ? 'selected' : ''}>Weekly</option>
+                        <option value="monthly" ${frequency === 'monthly' ? 'selected' : ''}>Monthly</option>
+                    </select>
+                </div>
+                
+                <div class="workflow-field" style="margin-top: 12px;">
+                    <label>Time</label>
+                    <input type="time" id="schedule-time" class="workflow-input" value="${time}">
+                </div>
+                
+                <div id="schedule-extra-options" style="margin-top: 12px;">
+                    ${frequency === 'weekly' ? `
+                        <div class="workflow-field">
+                            <label>Days of Week</label>
+                            <div class="days-of-week-selector">
+                                ${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => `
+                                    <label class="day-checkbox">
+                                        <input type="checkbox" value="${idx + 1}" 
+                                               ${daysOfWeek.includes(idx + 1) ? 'checked' : ''}
+                                               class="schedule-day-checkbox">
+                                        <span>${day}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${frequency === 'monthly' ? `
+                        <div class="workflow-field">
+                            <label>Day of Month</label>
+                            <select id="schedule-day-of-month" class="workflow-select">
+                                ${Array.from({length: 31}, (_, i) => i + 1).map(day => `
+                                    <option value="${day}" ${dayOfMonth == day ? 'selected' : ''}>${day}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         } else {
@@ -389,6 +607,11 @@
     function onTriggerTypeChange() {
         renderTriggerConfig();
     }
+    
+    // Update schedule options when frequency changes
+    window.updateScheduleOptions = function() {
+        renderTriggerConfig();
+    };
     
     // Render actions
     function renderActions() {
@@ -753,9 +976,21 @@
                     .filter(i => i);
             }
         } else if (triggerType === 'schedule') {
-            const scheduleInput = document.getElementById('trigger-schedule');
-            if (scheduleInput) {
-                currentWorkflow.trigger.schedule = scheduleInput.value.trim();
+            const frequency = document.getElementById('schedule-frequency')?.value || 'daily';
+            const time = document.getElementById('schedule-time')?.value || '09:00';
+            
+            currentWorkflow.trigger.schedule = {
+                frequency,
+                time
+            };
+            
+            if (frequency === 'weekly') {
+                const selectedDays = Array.from(document.querySelectorAll('.schedule-day-checkbox:checked'))
+                    .map(cb => parseInt(cb.value));
+                currentWorkflow.trigger.schedule.daysOfWeek = selectedDays.length > 0 ? selectedDays : [1]; // Default to Monday
+            } else if (frequency === 'monthly') {
+                const dayOfMonth = document.getElementById('schedule-day-of-month')?.value || '1';
+                currentWorkflow.trigger.schedule.dayOfMonth = dayOfMonth;
             }
         }
         
@@ -871,6 +1106,94 @@
                 <pre style="margin-top: 12px;">${error.message}</pre>
             `;
         }
+    }
+    
+    // Helper function to display workflow result in chat
+    async function displayWorkflowResultInChat(execution) {
+        console.log('📤 Displaying workflow result in chat:', execution);
+        
+        // Check if addMessage function exists in the parent window
+        if (typeof window.addMessage !== 'function') {
+            console.error('❌ addMessage function not found in window');
+            return;
+        }
+        
+        // Get the workflow name
+        const workflow = workflows.find(w => w.id === execution.workflowId);
+        const workflowName = workflow ? workflow.name : 'Workflow';
+        
+        // First, show a loading message
+        const loadingMsg = window.addMessage(`⏳ ${workflowName} is running...`, 'ai', false);
+        
+        // Wait a moment for the loading animation
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Remove the loading message
+        if (loadingMsg && loadingMsg.parentNode) {
+            loadingMsg.remove();
+        }
+        
+        // Build the result message - ONLY show the actual output, not metadata
+        let resultMessage = '';
+        
+        if (execution.success && execution.results && execution.results.length > 0) {
+            execution.results.forEach((result) => {
+                // Extract the actual action type and result
+                const actionType = result.action?.type || result.type;
+                const actionResult = result.result;
+                
+                if (actionType === 'ai_prompt' && actionResult) {
+                    // For AI prompts, just show the response text
+                    const response = actionResult.response || actionResult;
+                    resultMessage += `${response}\n\n`;
+                } else if (actionType === 'mcp_tool' && actionResult) {
+                    // For MCP tools, show the tool output
+                    resultMessage += `**MCP Tool Result:**\n\`\`\`json\n${JSON.stringify(actionResult, null, 2)}\n\`\`\`\n\n`;
+                } else if (actionType === 'notification' && actionResult) {
+                    // For notifications, show the message
+                    const message = actionResult.message || actionResult;
+                    resultMessage += `${message}\n\n`;
+                } else if (actionType === 'http_request' && actionResult) {
+                    // For HTTP requests, show formatted response
+                    resultMessage += `**HTTP Response:**\n\`\`\`json\n${JSON.stringify(actionResult.data || actionResult, null, 2)}\n\`\`\`\n\n`;
+                } else {
+                    // Fallback: show raw result
+                    resultMessage += `${JSON.stringify(actionResult, null, 2)}\n\n`;
+                }
+            });
+        } else if (!execution.success) {
+            // If workflow failed, show error message
+            resultMessage = `❌ Workflow failed: ${execution.error || 'Unknown error'}`;
+            if (execution.errors && execution.errors.length > 0) {
+                resultMessage += `\n\nErrors:\n${execution.errors.join('\n')}`;
+            }
+        } else {
+            // No results
+            resultMessage = '✅ Workflow completed successfully with no output.';
+        }
+        
+        // Trim any extra whitespace
+        resultMessage = resultMessage.trim();
+        
+        // Add the message to chat with typewriter effect
+        window.addMessage(resultMessage, 'ai', true);
+        console.log('✅ Workflow result added to chat');
+    }
+    
+    // Helper function to switch to chat window
+    function switchToChatWindow() {
+        console.log('🔀 Switching to chat window');
+        
+        // Find the chat nav item
+        const chatNavItem = document.querySelector('.nav-item[data-target="chat-window"]');
+        if (!chatNavItem) {
+            console.error('❌ Chat nav item not found');
+            return;
+        }
+        
+        // Trigger a click on the chat nav item
+        chatNavItem.click();
+        console.log('✅ Switched to chat window');
     }
     
     console.log('✅ Workflow Builder loaded');

@@ -1,9 +1,7 @@
-const fetch = require('node-fetch');
-
 class TranscriptionAIService {
   constructor() {
-    // Use gemini-2.5-flash (latest, available in v1 API)
-    this.model = 'gemini-2.5-flash';
+    // Use same SDK and model as workflow executor
+    this.model = 'gemini-2.0-flash-exp';
   }
 
   async generateWorkflowSuggestion(transcriptionText, userGoal) {
@@ -17,94 +15,93 @@ class TranscriptionAIService {
     
     console.log('✅ Using Gemini API key:', apiKey.substring(0, 10) + '...');
 
-    const prompt = `You are an AI workflow assistant. A user has transcribed the following content and wants to achieve a specific goal.
+    const prompt = `You are an AI workflow assistant. Create a simple, actionable workflow based on this transcription and goal.
 
-TRANSCRIPTION:
-${transcriptionText}
+TRANSCRIPTION: ${transcriptionText}
 
-USER'S GOAL:
-${userGoal}
+GOAL: ${userGoal}
 
-Based on the transcription content and the user's goal, suggest a practical workflow with 2-5 actionable steps. Each step should be specific, measurable, and directly related to achieving the goal using insights from the transcription.
+Create a workflow with 3-4 short, practical steps. Keep descriptions brief (1-2 sentences max).
 
-Respond in JSON format:
+Return ONLY valid JSON in this exact format (no extra text):
 {
-  "workflowTitle": "Brief workflow title",
-  "summary": "2-3 sentence explanation of how this workflow helps achieve the goal",
+  "workflowTitle": "Brief title (max 6 words)",
+  "summary": "One sentence summary",
   "steps": [
     {
-      "title": "Step title",
-      "description": "Detailed action to take",
-      "estimatedTime": "e.g., 10 minutes"
+      "title": "Step 1 title (max 5 words)",
+      "description": "One sentence action",
+      "estimatedTime": "5 minutes"
     }
   ],
-  "relevantContext": ["Key insight 1 from transcription", "Key insight 2"]
+  "relevantContext": ["Key insight 1", "Key insight 2"]
 }`;
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1/models/${this.model}:generateContent?key=${apiKey}`;
-    console.log('🔗 Calling Gemini API:', endpoint.replace(apiKey, 'API_KEY_HIDDEN'));
+    console.log('🔗 Calling Gemini API with SDK...');
     
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          role: 'user',
-          parts: [{ text: prompt }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 2048
+    // Use the same SDK as workflow executor
+    try {
+      const { GoogleGenerativeAI } = require('@google/generative-ai');
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const geminiModel = genAI.getGenerativeModel({ model: this.model });
+      
+      const result = await geminiModel.generateContent(prompt);
+      const response = result.response;
+      const textResponse = response.text();
+      
+      console.log('✅ Gemini API response received');
+      console.log('📝 Raw AI response length:', textResponse.length, 'chars');
+      
+      let workflow;
+      
+      // Try to parse as JSON
+      try {
+        // First, try to parse the entire response as JSON
+        workflow = JSON.parse(textResponse);
+        console.log('✅ Parsed JSON directly');
+      } catch (directParseError) {
+        console.log('⚠️ Direct JSON parse failed, extracting from markdown...');
+        
+        // Extract JSON from markdown code blocks or find raw JSON
+        let jsonMatch = null;
+        
+        const codeBlockMatch = textResponse.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+        if (codeBlockMatch) {
+          jsonMatch = codeBlockMatch[1].trim();
+        } else {
+          const firstBrace = textResponse.indexOf('{');
+          const lastBrace = textResponse.lastIndexOf('}');
+
+          if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            jsonMatch = textResponse.substring(firstBrace, lastBrace + 1);
+          } else {
+            throw new Error('Invalid AI response format - no JSON found');
+          }
         }
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('❌ Gemini API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorData
-      });
-      throw new Error(`Gemini API error (${response.status}): ${errorData.error?.message || response.statusText}`);
+        
+        workflow = JSON.parse(jsonMatch);
+        console.log('✅ Successfully parsed extracted JSON');
     }
 
-    const data = await response.json();
-    console.log('✅ Gemini API response received');
-    
-    if (!data.candidates || !data.candidates[0]) {
-      console.error('❌ No candidates in response:', data);
-      throw new Error('No workflow suggestions generated');
+      // Transform to expected UI format
+      const formattedWorkflow = {
+        title: workflow.workflowTitle || 'Your Workflow',
+        description: workflow.summary || '',
+        steps: workflow.steps.map((step, index) => ({
+          title: step.title,
+          description: step.description,
+          details: step.estimatedTime ? [`Estimated time: ${step.estimatedTime}`] : []
+        })),
+        notes: workflow.relevantContext ? workflow.relevantContext.join(' • ') : ''
+      };
+      
+      console.log('✅ Workflow formatted:', formattedWorkflow.steps.length, 'steps');
+      return formattedWorkflow;
+    } catch (error) {
+      console.error('❌ Error calling Gemini API:', error);
+      throw new Error('Failed to generate workflow: ' + error.message);
     }
-    
-    const textResponse = data.candidates[0].content.parts[0].text;
-    console.log('📝 Raw AI response:', textResponse.substring(0, 200) + '...');
-    
-    // Extract JSON from response (handle markdown code blocks)
-    const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.error('❌ No JSON found in response');
-      throw new Error('Invalid AI response format');
-    }
-    
-    const workflow = JSON.parse(jsonMatch[0]);
-    
-    // Transform to expected UI format
-    const formattedWorkflow = {
-      title: workflow.workflowTitle || 'Your Workflow',
-      description: workflow.summary || '',
-      steps: workflow.steps.map((step, index) => ({
-        title: step.title,
-        description: step.description,
-        details: step.estimatedTime ? [`Estimated time: ${step.estimatedTime}`] : []
-      })),
-      notes: workflow.relevantContext ? workflow.relevantContext.join(' • ') : ''
-    };
-    
-    console.log('✅ Workflow formatted:', formattedWorkflow.steps.length, 'steps');
-    return formattedWorkflow;
   }
 }
 
 module.exports = new TranscriptionAIService();
-

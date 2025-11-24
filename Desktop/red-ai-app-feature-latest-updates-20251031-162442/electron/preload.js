@@ -98,6 +98,16 @@ window.electronAPI = {
     ipcRenderer.on('mcp-event', listener);
     return () => ipcRenderer.removeListener('mcp-event', listener);
   },
+
+  // OAuth Authentication
+  authGetCurrentUser: () => ipcRenderer.invoke('auth-get-current-user'),
+  authRefreshUserData: () => ipcRenderer.invoke('auth-refresh-user-data'),
+  authLogout: () => ipcRenderer.invoke('auth-logout'),
+  
+  // Generic event listener (used for auth-error)
+  on: (channel, callback) => {
+    ipcRenderer.on(channel, (event, ...args) => callback(...args));
+  },
   
   // Workflow APIs
   workflowCreate: (workflow) => ipcRenderer.invoke('workflow-create', workflow),

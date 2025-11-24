@@ -107,7 +107,13 @@ const ALLOWED_IPC_CHANNELS = new Set([
   'transcription-delete',
   
   // Environment variables
-  'get-env-var'
+  'get-env-var',
+  
+  // OAuth Authentication
+  'auth-get-current-user',
+  'auth-refresh-user-data',
+  'auth-logout',
+  'auth-error'
 ]);
 
 /**

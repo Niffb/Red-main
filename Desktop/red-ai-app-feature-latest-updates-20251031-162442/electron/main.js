@@ -8,7 +8,22 @@ const sharp = require('sharp');
 const { v4: uuidv4 } = require('uuid');
 
 // Load environment variables from .env file
-dotenv.config();
+const isDev = !app.isPackaged;
+const envPath = isDev
+  ? path.join(__dirname, '../.env')
+  : path.join(process.resourcesPath, '.env');
+
+console.log('📁 Loading .env from:', envPath);
+const envResult = dotenv.config({ path: envPath });
+
+if (envResult.error) {
+  console.error('❌ Failed to load .env file:', envResult.error);
+} else {
+  console.log('✅ .env file loaded successfully');
+  // Log loaded keys for debugging (safely)
+  const loadedKeys = Object.keys(envResult.parsed || {});
+  console.log('🔑 Environment variables loaded:', loadedKeys.join(', '));
+}
 
 // Web Speech API will be used in renderer process instead of native dependencies
 
@@ -17,6 +32,8 @@ const settingsManager = require('./settings-manager');
 const mongoDBService = require('./mongodb-service');
 const subscriptionManager = require('./subscription-manager');
 const { sanitizeString, validateInput } = require('./ipc-security');
+const protocolHandler = require('./protocol-handler');
+const authManager = require('./auth-manager');
 
 // Gemini Live service variables
 let geminiLiveProcess = null;
@@ -52,7 +69,7 @@ class MCPServerManager {
 
     try {
       console.log(`🔌 Starting MCP server '${serverName}'...`);
-      
+
       const serverInfo = {
         config,
         status: 'starting',
@@ -82,13 +99,13 @@ class MCPServerManager {
       serverProcess.on('exit', (code, signal) => {
         console.log(`🔌 MCP server '${serverName}' exited (code: ${code}, signal: ${signal})`);
         serverInfo.status = 'stopped';
-        
+
         // Auto-restart if it crashed unexpectedly
         if (code !== 0 && serverInfo.status !== 'stopping') {
           console.log(`🔄 Attempting to restart MCP server '${serverName}'...`);
           this._restartServer(serverName, serverInfo);
         }
-        
+
         this._emit('server-exit', { serverName, code, signal });
       });
 
@@ -96,11 +113,11 @@ class MCPServerManager {
       let stdoutBuffer = '';
       serverProcess.stdout.on('data', (data) => {
         stdoutBuffer += data.toString();
-        
+
         // Process complete JSON lines
         const lines = stdoutBuffer.split('\n');
         stdoutBuffer = lines.pop(); // Keep incomplete line in buffer
-        
+
         for (const line of lines) {
           if (line.trim()) {
             try {
@@ -123,12 +140,12 @@ class MCPServerManager {
 
       // Give the process a moment to start
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Mark as running so IPC handler can send messages
       // Status will be updated after successful initialization
       serverInfo.status = 'running';
       console.log(`✅ MCP server '${serverName}' process started and ready for initialization`);
-      
+
       return {
         success: true,
         serverName,
@@ -152,7 +169,7 @@ class MCPServerManager {
    */
   async removeServer(serverName) {
     const serverInfo = this.servers.get(serverName);
-    
+
     if (!serverInfo) {
       return {
         success: false,
@@ -167,7 +184,7 @@ class MCPServerManager {
       // Kill the process
       if (serverInfo.process) {
         serverInfo.process.kill('SIGTERM');
-        
+
         // Force kill after 5 seconds
         setTimeout(() => {
           if (serverInfo.process && !serverInfo.process.killed) {
@@ -179,7 +196,7 @@ class MCPServerManager {
 
       this.servers.delete(serverName);
       this._emit('server-removed', { serverName });
-      
+
       console.log(`✅ MCP server '${serverName}' stopped`);
       return { success: true };
 
@@ -203,7 +220,7 @@ class MCPServerManager {
       if (!serverInfo) {
         return { error: `Server '${serverName}' not found` };
       }
-      
+
       return {
         serverName,
         status: serverInfo.status,
@@ -234,7 +251,7 @@ class MCPServerManager {
    */
   getAllTools() {
     const registry = {};
-    
+
     for (const [serverName, serverInfo] of this.servers.entries()) {
       for (const tool of serverInfo.tools) {
         const toolKey = `${serverName}_${tool.name}`;
@@ -246,7 +263,7 @@ class MCPServerManager {
         };
       }
     }
-    
+
     return registry;
   }
 
@@ -258,7 +275,7 @@ class MCPServerManager {
    */
   async sendToServer(serverName, message) {
     const serverInfo = this.servers.get(serverName);
-    
+
     if (!serverInfo) {
       throw new Error(`Server '${serverName}' not found`);
     }
@@ -370,17 +387,17 @@ class MCPServerManager {
    */
   async _waitForReady(serverName, timeout) {
     const startTime = Date.now();
-    
+
     while (Date.now() - startTime < timeout) {
       const serverInfo = this.servers.get(serverName);
       if (!serverInfo) return false;
-      
+
       if (serverInfo.status === 'error') return false;
       if (serverInfo.tools.length > 0) return true;
-      
+
       await new Promise(resolve => setTimeout(resolve, 100));
     }
-    
+
     return false;
   }
 
@@ -416,16 +433,16 @@ class MCPServerManager {
    */
   async shutdown() {
     console.log('🔌 Shutting down all MCP servers...');
-    
+
     const shutdownPromises = [];
     for (const serverName of this.servers.keys()) {
       shutdownPromises.push(this.removeServer(serverName));
     }
-    
+
     await Promise.all(shutdownPromises);
     console.log('✅ All MCP servers shut down');
   }
-  
+
   /**
    * Save currently running servers to restore later
    */
@@ -440,23 +457,23 @@ class MCPServerManager {
           });
         }
       }
-      
+
       const fs = require('fs');
       const path = require('path');
       const configPath = path.join(__dirname, '../.mcp-servers/running.json');
       const dir = path.dirname(configPath);
-      
+
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
-      
+
       fs.writeFileSync(configPath, JSON.stringify({ servers: runningServers }, null, 2));
       console.log(`💾 Saved ${runningServers.length} running MCP servers`);
     } catch (error) {
       console.error('❌ Failed to save running servers:', error);
     }
   }
-  
+
   /**
    * Restore previously running servers
    */
@@ -465,28 +482,28 @@ class MCPServerManager {
       const fs = require('fs');
       const path = require('path');
       const configPath = path.join(__dirname, '../.mcp-servers/running.json');
-      
+
       if (!fs.existsSync(configPath)) {
         console.log('ℹ️ No saved MCP servers to restore');
         return;
       }
-      
+
       const data = fs.readFileSync(configPath, 'utf8');
       const { servers } = JSON.parse(data);
-      
+
       if (!servers || servers.length === 0) {
         console.log('ℹ️ No running servers to restore');
         return;
       }
-      
+
       console.log(`🔄 Restoring ${servers.length} MCP servers...`);
-      
+
       for (const { name, config } of servers) {
         try {
           console.log(`  🔌 Restarting '${name}'...`);
-          
+
           const result = await this.addServer(name, config);
-          
+
           if (result.success) {
             // Initialize the server
             const initMessage = {
@@ -502,20 +519,20 @@ class MCPServerManager {
                 }
               }
             };
-            
+
             await this.sendToServer(name, initMessage);
             await this.sendToServer(name, {
               jsonrpc: '2.0',
               method: 'notifications/initialized'
             });
-            
+
             console.log(`  ✅ '${name}' restored`);
           }
         } catch (error) {
           console.error(`  ❌ Failed to restore '${name}':`, error.message);
         }
       }
-      
+
       console.log('✅ MCP server restoration complete');
     } catch (error) {
       console.error('❌ Failed to restore running servers:', error);
@@ -546,18 +563,18 @@ function waitForGeminiRunning(timeoutMs = 5000) {
   });
 }
 
-// Load environment variables from .env file
-const envPath = path.join(__dirname, '../.env');
-console.log('📁 Loading .env from:', envPath);
+// Load environment variables from .env file - MOVED TO TOP
+// const envPath = path.join(__dirname, '../.env');
+// console.log('📁 Loading .env from:', envPath);
 
-const dotenvResult = dotenv.config({ path: envPath });
-if (dotenvResult.error) {
-  console.error('❌ Error loading .env file:', dotenvResult.error.message);
-  console.log('📝 Please ensure .env file exists in project root with: GEMINI_API_KEY=your_api_key_here');
-} else {
-  console.log('✅ .env file loaded successfully');
-  console.log('🔑 Environment variables loaded:', Object.keys(dotenvResult.parsed || {}).join(', '));
-}
+// const dotenvResult = dotenv.config({ path: envPath });
+// if (dotenvResult.error) {
+//   console.error('❌ Error loading .env file:', dotenvResult.error.message);
+//   console.log('📝 Please ensure .env file exists in project root with: GEMINI_API_KEY=your_api_key_here');
+// } else {
+//   console.log('✅ .env file loaded successfully');
+//   console.log('🔑 Environment variables loaded:', Object.keys(dotenvResult.parsed || {}).join(', '));
+// }
 
 // Ensure GEMINI_API_KEY is loaded
 if (!process.env.GEMINI_API_KEY) {
@@ -572,7 +589,7 @@ let isDragging = false;
 let dragOffset = { x: 0, y: 0 };
 
 // Replace electron-is-dev with a simple implementation
-const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === undefined;
+// const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === undefined;
 
 // Performance optimizations
 const ipcCache = new Map();
@@ -592,7 +609,7 @@ process.on('uncaughtException', (err) => {
 // Demo response system for faster demo interactions
 const checkForDemoQuery = (message) => {
   const lowerMessage = message.toLowerCase();
-  
+
   // Capability queries
   const capabilityPatterns = [
     /(?:hey|hi|hello).*red.*(?:what.*can.*you.*do|what.*are.*your.*capabilities|what.*can.*you.*help.*with|tell.*me.*about.*yourself|what.*do.*you.*do)/i,
@@ -600,7 +617,7 @@ const checkForDemoQuery = (message) => {
     /what.*can.*red.*do/i,
     /tell.*me.*about.*red/i
   ];
-  
+
   // Demo-specific queries
   const demoPatterns = [
     /(?:hey|hi|hello).*red.*(?:demo|show.*me|example)/i,
@@ -608,10 +625,10 @@ const checkForDemoQuery = (message) => {
     /what.*is.*this.*app/i,
     /red.*glass.*demo/i
   ];
-  
+
   return {
-    isDemo: capabilityPatterns.some(pattern => pattern.test(lowerMessage)) || 
-            demoPatterns.some(pattern => pattern.test(lowerMessage)),
+    isDemo: capabilityPatterns.some(pattern => pattern.test(lowerMessage)) ||
+      demoPatterns.some(pattern => pattern.test(lowerMessage)),
     type: capabilityPatterns.some(pattern => pattern.test(lowerMessage)) ? 'capabilities' : 'demo'
   };
 };
@@ -670,7 +687,7 @@ This is a live demo of RED GLASS's core capabilities:
 
 What would you like to demonstrate first?`
   };
-  
+
   return responses[queryType] || responses.capabilities;
 };
 
@@ -723,7 +740,7 @@ function setCachedResult(key, data) {
     data,
     timestamp: Date.now()
   });
-  
+
   // Clean up old cache entries
   if (ipcCache.size > 100) {
     const oldestKey = ipcCache.keys().next().value;
@@ -736,9 +753,9 @@ function batchIpcCall(key, handler, ...args) {
     if (!ipcBatchQueue.has(key)) {
       ipcBatchQueue.set(key, []);
     }
-    
+
     ipcBatchQueue.get(key).push({ handler, args, resolve, reject });
-    
+
     // Process batch after timeout
     setTimeout(() => {
       processBatch(key);
@@ -749,10 +766,10 @@ function batchIpcCall(key, handler, ...args) {
 async function processBatch(key) {
   const batch = ipcBatchQueue.get(key);
   if (!batch || batch.length === 0) return;
-  
+
   ipcBatchQueue.delete(key);
   performanceMetrics.batchedCalls += batch.length;
-  
+
   // Process all calls in the batch
   for (const { handler, args, resolve, reject } of batch) {
     try {
@@ -767,7 +784,7 @@ async function processBatch(key) {
 function checkFirstRun() {
   const userDataPath = app.getPath('userData');
   const firstRunFlagPath = path.join(userDataPath, '.red-glass-initialized');
-  
+
   try {
     // Check if the flag file exists
     if (!fs.existsSync(firstRunFlagPath)) {
@@ -788,37 +805,13 @@ function checkFirstRun() {
     // Default to first run behavior if we can't determine
     isFirstRun = true;
   }
-  
+
   return isFirstRun;
 }
 
 // Check authentication status
 function checkAuthStatus() {
-  try {
-    const userDataPath = app.getPath('userData');
-    const authFilePath = path.join(userDataPath, '.red-glass-auth');
-    
-    if (fs.existsSync(authFilePath)) {
-      const authData = JSON.parse(fs.readFileSync(authFilePath, 'utf8'));
-      
-      // Check if auth data is still valid (not expired)
-      if (authData.user && authData.expiresAt && new Date(authData.expiresAt) > new Date()) {
-        currentUser = authData.user;
-        isAuthenticated = true;
-        console.log('✅ User authenticated:', currentUser.email);
-        return true;
-      } else {
-        // Auth expired, remove file
-        fs.unlinkSync(authFilePath);
-      }
-    }
-  } catch (error) {
-    console.error('⚠️ Error checking auth status:', error);
-  }
-  
-  isAuthenticated = false;
-  currentUser = null;
-  return false;
+  return authManager.isAuthenticated();
 }
 
 // Save authentication data
@@ -826,19 +819,19 @@ function saveAuthData(user) {
   try {
     const userDataPath = app.getPath('userData');
     const authFilePath = path.join(userDataPath, '.red-glass-auth');
-    
+
     const authData = {
       user: user,
       authenticatedAt: new Date().toISOString(),
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days
     };
-    
+
     fs.mkdirSync(userDataPath, { recursive: true });
     fs.writeFileSync(authFilePath, JSON.stringify(authData, null, 2));
-    
+
     currentUser = user;
     isAuthenticated = true;
-    
+
     console.log('✅ Authentication data saved for:', user.email);
   } catch (error) {
     console.error('❌ Error saving auth data:', error);
@@ -850,14 +843,14 @@ function clearAuthData() {
   try {
     const userDataPath = app.getPath('userData');
     const authFilePath = path.join(userDataPath, '.red-glass-auth');
-    
+
     if (fs.existsSync(authFilePath)) {
       fs.unlinkSync(authFilePath);
     }
-    
+
     currentUser = null;
     isAuthenticated = false;
-    
+
     console.log('✅ Authentication data cleared');
   } catch (error) {
     console.error('❌ Error clearing auth data:', error);
@@ -865,85 +858,109 @@ function clearAuthData() {
 }
 
 // Create authentication window
-function createAuthWindow() {
+async function createAuthWindow() {
   if (authWindow) {
     authWindow.focus();
     return;
   }
 
   authWindow = new BrowserWindow({
-    width: 480,
-    height: 680,
-    minWidth: 400,
-    minHeight: 600,
+    width: 500,
+    height: 600,
     frame: false,
     show: true,
     transparent: true,
     alwaysOnTop: true,
     resizable: false,
-    hasShadow: false,
-    skipTaskbar: false,
     backgroundColor: '#00000000',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true,
-      preload: path.join(__dirname, 'preload.js'),
-      backgroundThrottling: false,
-      webSecurity: false
+      preload: path.join(__dirname, 'preload.js')
     }
   });
 
-  // Load the sign-in screen
-  authWindow.loadFile(path.join(__dirname, '../public/signin-screen.html'));
+  // Load the OAuth loading screen
+  authWindow.loadFile(path.join(__dirname, '../public/auth-loading.html'));
 
-  // Center the window
+  // Center window
   const { screen } = require('electron');
   const primaryDisplay = screen.getPrimaryDisplay();
   const { width, height } = primaryDisplay.workAreaSize;
   const { x: displayX, y: displayY } = primaryDisplay.workArea;
-  
+
   const windowWidth = authWindow.getSize()[0];
   const windowHeight = authWindow.getSize()[1];
-  
+
   const centerX = Math.floor(displayX + (width / 2) - (windowWidth / 2));
   const centerY = Math.floor(displayY + (height / 2) - (windowHeight / 2));
-  
+
   authWindow.setPosition(centerX, centerY);
 
-  // Handle window closed
+  try {
+    // Start OAuth flow
+    console.log('🔐 Starting OAuth authentication...');
+    const user = await authManager.startAuthFlow(protocolHandler);
+
+    console.log('✅ User authenticated:', user.email);
+
+    // Show success screen briefly
+    authWindow.loadFile(path.join(__dirname, '../public/auth-success.html'));
+
+    // Update global state
+    currentUser = user;
+    isAuthenticated = true;
+
+    // Wait 1.5 seconds then create main window
+    setTimeout(() => {
+      if (authWindow) {
+        authWindow.close();
+      }
+      createWindow();
+    }, 1500);
+
+  } catch (error) {
+    console.error('❌ OAuth authentication failed:', error);
+
+    if (authWindow && !authWindow.isDestroyed()) {
+      authWindow.webContents.send('auth-error', {
+        error: error.message || 'Authentication failed'
+      });
+    }
+
+    // Show error and allow retry
+    setTimeout(() => {
+      if (authWindow && !authWindow.isDestroyed()) {
+        authWindow.loadFile(path.join(__dirname, '../public/auth-loading.html'));
+        // Retry after 2 seconds
+        setTimeout(() => createAuthWindow(), 2000);
+      }
+    }, 3000);
+  }
+
   authWindow.on('closed', () => {
     authWindow = null;
-    
-    // If user closed auth window without authenticating, quit app
     if (!isAuthenticated) {
       console.log('🚪 Authentication cancelled, quitting app');
       app.quit();
     }
   });
-
-  // Add console logging from auth window
-  authWindow.webContents.on('console-message', (event, level, message) => {
-    console.log('Auth Window:', message);
-  });
-
-  console.log('🔐 Authentication window created');
 }
 
 
 // Helper function to safely send IPC messages with performance tracking
 function safeSendToRenderer(channel, data) {
   const startTime = Date.now();
-  
+
   try {
     if (mainWindow && mainWindow.webContents && !mainWindow.webContents.isDestroyed()) {
       mainWindow.webContents.send(channel, data);
-      
+
       // Update performance metrics
       const responseTime = Date.now() - startTime;
-      performanceMetrics.averageResponseTime = 
+      performanceMetrics.averageResponseTime =
         (performanceMetrics.averageResponseTime + responseTime) / 2;
-      
+
       return true;
     }
     return false;
@@ -956,16 +973,16 @@ function safeSendToRenderer(channel, data) {
 // Helper function to safely send IPC messages to ask window
 function safeSendToAskWindow(channel, data) {
   const startTime = Date.now();
-  
+
   try {
     if (askWindow && askWindow.webContents && !askWindow.webContents.isDestroyed()) {
       askWindow.webContents.send(channel, data);
-      
+
       // Update performance metrics
       const responseTime = Date.now() - startTime;
-      performanceMetrics.averageResponseTime = 
+      performanceMetrics.averageResponseTime =
         (performanceMetrics.averageResponseTime + responseTime) / 2;
-      
+
       return true;
     }
     return false;
@@ -980,43 +997,43 @@ function safeSendToAskWindow(channel, data) {
 // Function to restore single window layout
 function restoreSingleWindowLayout() {
   if (!mainWindow) return;
-  
+
   const primaryDisplay = screen.getPrimaryDisplay();
   const { width, height } = primaryDisplay.workAreaSize;
   const { x: displayX, y: displayY } = primaryDisplay.workArea;
-  
+
   // Restore main window to center with larger invisible background
   const windowWidth = 750; // Updated to match new window size
   const windowHeight = 500; // Larger height to provide space for content windows
   const centerX = Math.floor(displayX + (width / 2) - (windowWidth / 2));
   const centerY = Math.floor(displayY + (height / 2) - (windowHeight / 2));
-  
+
   mainWindow.setBounds({
     x: centerX,
     y: centerY,
     width: windowWidth,
     height: windowHeight
   });
-  
+
   console.log('📐 Restored single window layout');
 }
 
 function createWindow() {
   // Check if this is the first run before creating window
   checkFirstRun();
-  
+
   // Check authentication status
   const isAuthValid = checkAuthStatus();
-  
+
   // If not authenticated, show auth window instead of main window
   if (!isAuthValid) {
     console.log('🔐 User not authenticated, showing sign-in screen');
     createAuthWindow();
     return;
   }
-  
+
   console.log('✅ User authenticated, creating main window');
-  
+
   // Create the browser window with a larger invisible background for content windows
   mainWindow = new BrowserWindow({
     width: 750, // Increased width to accommodate wider content windows
@@ -1066,44 +1083,44 @@ function createWindow() {
   // If this is the first run, set up the window for visibility immediately
   if (isFirstRun) {
     // First run - configuring window for immediate visibility
-    
+
     // Position window in center of the screen
     const { screen } = require('electron');
     const primaryDisplay = screen.getPrimaryDisplay();
     const { width, height } = primaryDisplay.workAreaSize;
     const { x: displayX, y: displayY } = primaryDisplay.workArea;
-    
+
     const windowWidth = mainWindow.getSize()[0];
     const windowHeight = mainWindow.getSize()[1];
-    
+
     // Calculate center position
     const centerX = Math.floor(displayX + (width / 2) - (windowWidth / 2));
     const centerY = Math.floor(displayY + (height / 2) - (windowHeight / 2));
-    
+
     // Ensure window is within screen bounds
     const x = Math.max(displayX, Math.min(centerX, displayX + width - windowWidth));
     const y = Math.max(displayY, Math.min(centerY, displayY + height - windowHeight));
-    
+
     // Configure window for maximum visibility
     mainWindow.setAlwaysOnTop(true);
     mainWindow.setVisibleOnAllWorkspaces(true);
     mainWindow.setSkipTaskbar(false);
     mainWindow.setOpacity(1.0);
     mainWindow.setPosition(x, y);
-    
+
     // Set visible state
     isVisible = true;
-    
+
     // Focus the window
     mainWindow.focus();
     mainWindow.moveTop();
-    
+
     // macOS-specific visibility fixes
     if (process.platform === 'darwin') {
       app.focus({ steal: true });
       mainWindow.setFullScreenable(false);
     }
-    
+
     // Send show animation event to renderer when ready
     mainWindow.webContents.once('did-finish-load', () => {
       safeSendToRenderer('app-animation', 'show');
@@ -1120,7 +1137,7 @@ function createWindow() {
 
   // Initialize tray icon
   createTray();
-  
+
   // Register global shortcut
   registerShortcut();
 
@@ -1132,7 +1149,7 @@ function createTray() {
   // Use the RED ICON for the tray
   const iconPath = path.join(__dirname, '../public/icon-32.png');
   let trayIcon;
-  
+
   if (fs.existsSync(iconPath)) {
     trayIcon = nativeImage.createFromPath(iconPath);
     // Make icon template on macOS for better menu bar integration
@@ -1150,21 +1167,21 @@ function createTray() {
 
   tray = new Tray(trayIcon);
   const contextMenu = Menu.buildFromTemplate([
-    { 
-      label: 'Open Red Glass', 
+    {
+      label: 'Open Red Glass',
       click: () => {
         toggleWindow();
-      } 
+      }
     },
     { type: 'separator' },
-    { 
-      label: 'Quit', 
+    {
+      label: 'Quit',
       click: () => {
         app.quit();
-      } 
+      }
     }
   ]);
-  
+
   tray.setToolTip('Red Glass');
   tray.setContextMenu(contextMenu);
 }
@@ -1188,7 +1205,7 @@ function registerShortcut() {
   if (!ret) {
     console.log('❌ Main shortcut registration failed - app may need accessibility permissions');
     console.log('🔧 On macOS: System Preferences > Security & Privacy > Privacy > Accessibility');
-    
+
     // Show window immediately for testing if shortcut fails (but not on first run since it's already shown)
     if (!isFirstRun) {
       setTimeout(() => {
@@ -1198,7 +1215,7 @@ function registerShortcut() {
   } else {
     // Main global shortcut registered successfully
   }
-  
+
   // Add a fallback show command for debugging (but not on first run since it's already shown)
   if (!isFirstRun) {
     setTimeout(() => {
@@ -1237,84 +1254,89 @@ function registerShortcut() {
 
 function toggleWindow() {
   console.log('🔄 toggleWindow called, isVisible:', isVisible);
-  
+
   if (isVisible) {
     console.log('🙈 Hiding window');
-    
+
     // Send hide animation event to renderer
     safeSendToRenderer('app-animation', 'hide');
-    
+
     // Wait for animation to complete before hiding
     setTimeout(() => {
       mainWindow.hide();
       isVisible = false;
     }, 300); // Match animation duration
-    
+
   } else {
     console.log('👁️ Showing window');
-    
+
+    if (!mainWindow) {
+      console.error('❌ mainWindow is not defined in toggleWindow');
+      return;
+    }
+
     // Position window in center of the screen with multiple positioning strategies
     const { screen } = require('electron');
     const primaryDisplay = screen.getPrimaryDisplay();
     const { width, height } = primaryDisplay.workAreaSize;
     const { x: displayX, y: displayY } = primaryDisplay.workArea;
-    
+
     const windowWidth = mainWindow.getSize()[0];
     const windowHeight = mainWindow.getSize()[1];
-    
+
     // Calculate center position
     const centerX = Math.floor(displayX + (width / 2) - (windowWidth / 2));
     const centerY = Math.floor(displayY + (height / 2) - (windowHeight / 2));
-    
+
     // Ensure window is within screen bounds
     const x = Math.max(displayX, Math.min(centerX, displayX + width - windowWidth));
     const y = Math.max(displayY, Math.min(centerY, displayY + height - windowHeight));
-    
+
     // Position window at calculated coordinates
-    
+
     // Configure window for maximum visibility
     mainWindow.setAlwaysOnTop(true);
     mainWindow.setVisibleOnAllWorkspaces(true);
     mainWindow.setSkipTaskbar(false);
     mainWindow.setOpacity(1.0);
-    
+
     // Set position before showing
     mainWindow.setPosition(x, y);
-    
+
     // Show window
     mainWindow.show();
     mainWindow.focus();
     mainWindow.moveTop();
-    
+
     // macOS-specific visibility fixes
     if (process.platform === 'darwin') {
       app.focus({ steal: true });
       mainWindow.setFullScreenable(false);
-      
+
       // Delayed focus to ensure it takes effect
       setTimeout(() => {
         mainWindow.focus();
         mainWindow.moveTop();
       }, 50);
     }
-    
+
     // Send show animation event to renderer
     safeSendToRenderer('app-animation', 'show');
-    
+
     // Verify window is actually visible and fix if needed
     setTimeout(() => {
       const isWindowVisible = mainWindow.isVisible();
       const isMinimized = mainWindow.isMinimized();
       const opacity = mainWindow.getOpacity();
       const bounds = mainWindow.getBounds();
-      
+
       console.log('🔍 Window state check:');
       console.log('  - isVisible:', isWindowVisible);
       console.log('  - isMinimized:', isMinimized);
       console.log('  - opacity:', opacity);
       console.log('  - bounds:', bounds);
       console.log('  - alwaysOnTop:', mainWindow.isAlwaysOnTop());
-      
+
       if (!isWindowVisible || isMinimized || opacity < 1.0) {
         console.log('⚠️ Window not properly visible, attempting to fix...');
         mainWindow.restore();
@@ -1324,19 +1346,19 @@ function toggleWindow() {
         mainWindow.setOpacity(1.0);
         mainWindow.setVisibleOnAllWorkspaces(true);
         mainWindow.setAlwaysOnTop(true);
-        
+
         // On macOS, try additional focus methods
         if (process.platform === 'darwin') {
           app.focus({ steal: true });
           mainWindow.focus();
         }
-        
+
         console.log('✅ Window visibility fix attempted');
       } else {
         console.log('✅ Window is properly visible');
       }
     }, 250);
-    
+
     isVisible = true;
   }
 }
@@ -1355,11 +1377,11 @@ async function captureScreenshot(quality = 'medium') {
         return cached.data;
       }
     }
-    
+
     // Update rate limiting
     lastScreenshotTime = now;
     screenshotRequestCount++;
-    
+
     // Check cache first (valid for 30 seconds for faster pre-capture)
     const cacheKey = `screenshot_${quality}`;
     const cached = screenshotCache.get(cacheKey);
@@ -1372,7 +1394,7 @@ async function captureScreenshot(quality = 'medium') {
     const captureStart = Date.now();
     const screenshotData = await captureScreenshotElectron();
     const captureTime = Date.now() - captureStart;
-    
+
     if (!screenshotData) {
       throw new Error('Failed to capture screenshot');
     }
@@ -1381,7 +1403,7 @@ async function captureScreenshot(quality = 'medium') {
     const processStart = Date.now();
     const processedImage = await processScreenshot(screenshotData, quality);
     const processTime = Date.now() - processStart;
-    
+
     // Cache the result
     screenshotCache.set(cacheKey, {
       data: processedImage,
@@ -1401,9 +1423,9 @@ async function captureScreenshot(quality = 'medium') {
 async function captureScreenshotMacOS() {
   return new Promise((resolve, reject) => {
     const tempPath = path.join(__dirname, 'temp_screenshot.png');
-    
+
     const screencapture = spawn('screencapture', ['-x', '-t', 'png', tempPath]);
-    
+
     screencapture.on('close', (code) => {
       if (code === 0) {
         try {
@@ -1461,8 +1483,8 @@ async function processScreenshot(imageData, quality = 'medium') {
     // Use JPEG with fast compression settings for speed
     const processedBuffer = await sharp(imageData, { failOnError: false })
       .resize({ height: settings.height, fit: 'inside', withoutEnlargement: true })
-      .jpeg({ 
-        quality: settings.quality, 
+      .jpeg({
+        quality: settings.quality,
         mozjpeg: false, // Disable mozjpeg for faster processing
         progressive: false // Disable progressive for faster encoding
       })
@@ -1535,17 +1557,17 @@ function createAskWindow() {
 async function handleScreenCaptureShortcut() {
   try {
     console.log('📸 Handling Screen Capture shortcut...');
-    
+
     // Show main window if it's not visible
     if (!isVisible) {
       toggleWindow();
       // Wait for window to be shown
       await new Promise(resolve => setTimeout(resolve, 100));
     }
-    
+
     // Send screen capture trigger to main window
     safeSendToRenderer('trigger-screen-capture');
-    
+
   } catch (error) {
     console.error('❌ Screen Capture shortcut failed:', error);
   }
@@ -1556,7 +1578,7 @@ async function handleScreenCaptureShortcut() {
 async function handleAskAboutScreen(question = null) {
   try {
     console.log('🤔 Handling Ask About Screen request...');
-    
+
     // Create Ask Window if it doesn't exist
     if (!askWindow) {
       createAskWindow();
@@ -1569,7 +1591,7 @@ async function handleAskAboutScreen(question = null) {
 
     // Capture screenshot
     const screenshot = await captureScreenshot('medium');
-    
+
     // Send screenshot and context to Ask Window
     safeSendToAskWindow('screenshot-captured', {
       screenshot,
@@ -1579,7 +1601,7 @@ async function handleAskAboutScreen(question = null) {
 
   } catch (error) {
     console.error('❌ Ask About Screen failed:', error);
-    
+
     if (askWindow) {
       safeSendToAskWindow('screenshot-error', {
         error: error.message
@@ -1607,20 +1629,20 @@ function getCachedScreenBounds() {
 // Handle window movement for dragging (legacy delta-based)
 ipcMain.handle('move-window', async (event, deltaX, deltaY) => {
   if (!mainWindow) return;
-  
+
   const [currentX, currentY] = mainWindow.getPosition();
-  
+
   // Calculate new position
   const newX = currentX + deltaX;
   const newY = currentY + deltaY;
-  
+
   // Get cached screen bounds for performance
   const { x: screenX, y: screenY, width: screenWidth, height: screenHeight } = getCachedScreenBounds();
   const [windowWidth, windowHeight] = mainWindow.getSize();
-  
+
   // Apply boundary constraints to keep window visible
   const minVisibleArea = 100;
-  
+
   // Clamp position to screen bounds
   const clampedX = Math.max(
     screenX - windowWidth + minVisibleArea,
@@ -1630,21 +1652,21 @@ ipcMain.handle('move-window', async (event, deltaX, deltaY) => {
     screenY - windowHeight + minVisibleArea,
     Math.min(screenY + screenHeight - minVisibleArea, newY)
   );
-  
+
   mainWindow.setPosition(clampedX, clampedY);
 });
 
 // Handle absolute window positioning for smooth dragging
 ipcMain.handle('set-window-position', async (event, x, y) => {
   if (!mainWindow) return;
-  
+
   // Get cached screen bounds for performance
   const { x: screenX, y: screenY, width: screenWidth, height: screenHeight } = getCachedScreenBounds();
   const [windowWidth, windowHeight] = mainWindow.getSize();
-  
+
   // Apply boundary constraints to keep window visible
   const minVisibleArea = 100;
-  
+
   // Clamp position to screen bounds
   const clampedX = Math.max(
     screenX - windowWidth + minVisibleArea,
@@ -1654,14 +1676,14 @@ ipcMain.handle('set-window-position', async (event, x, y) => {
     screenY - windowHeight + minVisibleArea,
     Math.min(screenY + screenHeight - minVisibleArea, y)
   );
-  
+
   mainWindow.setPosition(clampedX, clampedY);
 });
 
 // Get current window position
 ipcMain.handle('get-window-position', async (event) => {
   if (!mainWindow) return { x: 0, y: 0 };
-  
+
   const [x, y] = mainWindow.getPosition();
   return { x, y };
 });
@@ -1670,13 +1692,13 @@ ipcMain.handle('get-window-position', async (event) => {
 ipcMain.handle('resize-window', async (event, width, height) => {
   if (mainWindow) {
     const currentBounds = mainWindow.getBounds();
-    
+
     // Ensure dimensions are within constraints
     width = Math.max(400, Math.min(800, width));
     height = Math.max(80, Math.min(800, height));
-    
+
     mainWindow.setSize(width, height);
-    
+
     console.log(`🔄 Window resized to ${width}x${height}`);
     return { width, height };
   }
@@ -1687,19 +1709,19 @@ ipcMain.handle('move-ask-window', async (event, deltaX, deltaY) => {
   if (askWindow) {
     const [currentX, currentY] = askWindow.getPosition();
     const [windowWidth, windowHeight] = askWindow.getSize();
-    
+
     // Get screen bounds
     const primaryDisplay = screen.getPrimaryDisplay();
     const { x: screenX, y: screenY, width: screenWidth, height: screenHeight } = primaryDisplay.workArea;
-    
+
     // Calculate new position
     let newX = currentX + deltaX;
     let newY = currentY + deltaY;
-    
+
     // Apply boundary constraints to keep window visible
     // Allow dragging slightly off-screen but keep at least 100px visible
     const minVisibleArea = 100;
-    
+
     // Left boundary - keep right edge at least minVisibleArea pixels from left screen edge
     newX = Math.max(screenX - windowWidth + minVisibleArea, newX);
     // Right boundary - keep left edge at least minVisibleArea pixels from right screen edge  
@@ -1708,7 +1730,7 @@ ipcMain.handle('move-ask-window', async (event, deltaX, deltaY) => {
     newY = Math.max(screenY - windowHeight + minVisibleArea, newY);
     // Bottom boundary - keep top edge at least minVisibleArea pixels from bottom screen edge
     newY = Math.min(screenY + screenHeight - minVisibleArea, newY);
-    
+
     askWindow.setPosition(newX, newY);
   }
 });
@@ -1727,13 +1749,13 @@ ipcMain.handle('ask-about-screen', async (event, question) => {
   const startTime = Date.now();
   try {
     console.log('🤔 Processing Ask About Screen request with question:', question);
-    
+
     // Capture screenshot
     const captureStart = Date.now();
     const screenshot = await captureScreenshot('medium');
     const captureTime = Date.now() - captureStart;
     console.log(`📸 Screenshot captured in ${captureTime}ms (size: ${(screenshot.length / 1024).toFixed(1)}KB)`);
-    
+
     // Use the existing API with screen context
     const apiStart = Date.now();
     const response = await callOpenRouterAPIWithScreen({
@@ -1743,10 +1765,10 @@ ipcMain.handle('ask-about-screen', async (event, question) => {
     });
     const apiTime = Date.now() - apiStart;
     const totalTime = Date.now() - startTime;
-    
+
     console.log(`🤖 AI response generated in ${apiTime}ms (total: ${totalTime}ms)`);
     return response;
-    
+
   } catch (error) {
     const totalTime = Date.now() - startTime;
     console.error(`❌ Ask About Screen failed after ${totalTime}ms:`, error);
@@ -1763,32 +1785,32 @@ async function startGeminiLiveService() {
 
   return new Promise((resolve, reject) => {
     const pythonPath = path.join(__dirname, '../live.py');
-    
+
     console.log('🚀 Starting Gemini Live service...');
     console.log('📂 Python script path:', pythonPath);
-    
+
     // Check if GEMINI_API_KEY is set
     console.log('🔑 Checking GEMINI_API_KEY...');
     console.log('🔑 API Key present:', !!process.env.GEMINI_API_KEY);
     console.log('🔑 API Key length:', process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0);
-    
+
     if (!process.env.GEMINI_API_KEY) {
       console.error('❌ GEMINI_API_KEY environment variable not set');
       console.error('💡 Try restarting with: export GEMINI_API_KEY=$(cat .env | grep GEMINI_API_KEY | cut -d\'=\' -f2) && npm start');
       resolve({ success: false, error: 'GEMINI_API_KEY not configured' });
       return;
     }
-    
+
     // Start the Python process in Electron mode
     geminiLiveProcess = spawn('python3', [pythonPath, '--mode', 'electron'], {
       stdio: ['pipe', 'pipe', 'pipe'],
-      env: { 
-        ...process.env, 
+      env: {
+        ...process.env,
         PYTHONUNBUFFERED: '1',
-        GEMINI_API_KEY: process.env.GEMINI_API_KEY 
+        GEMINI_API_KEY: process.env.GEMINI_API_KEY
       }
     });
-    
+
     // Handle process output
     geminiLiveProcess.stdout.on('data', (data) => {
       const output = data.toString().trim();
@@ -1797,7 +1819,7 @@ async function startGeminiLiveService() {
         try {
           const event = JSON.parse(output);
           handleGeminiLiveEvent(event);
-          
+
           // Check if service is ready
           if (event.type === 'ready') {
             geminiLiveReady = true;
@@ -1809,29 +1831,29 @@ async function startGeminiLiveService() {
         }
       }
     });
-    
+
     geminiLiveProcess.stderr.on('data', (data) => {
       const errorOutput = data.toString().trim();
       console.error('🤖 Gemini Live stderr:', errorOutput);
-      
+
       // Check for specific errors
       if (errorOutput.includes('ValueError') || errorOutput.includes('Missing key inputs')) {
         console.error('❌ API Key error detected in Python service');
         resolve({ success: false, error: 'API key not properly passed to Python service' });
       }
     });
-    
+
     geminiLiveProcess.on('close', (code) => {
       console.log(`🤖 Gemini Live process exited with code ${code}`);
       geminiLiveProcess = null;
       geminiLiveReady = false;
     });
-    
+
     geminiLiveProcess.on('error', (error) => {
       console.error('🤖 Failed to start Gemini Live service:', error);
       resolve({ success: false, error: error.message });
     });
-    
+
     // Timeout after 30 seconds
     setTimeout(() => {
       if (!geminiLiveReady) {
@@ -1844,7 +1866,7 @@ async function startGeminiLiveService() {
 
 function handleGeminiLiveEvent(event) {
   console.log('🤖 Gemini Live Event:', event.type, event.data);
-  
+
   switch (event.type) {
     case 'ready':
       geminiLiveReady = true;
@@ -1934,10 +1956,10 @@ async function stopGeminiLiveService() {
   if (!geminiLiveProcess) {
     return { success: true, alreadyStopped: true };
   }
-  
+
   try {
     await sendToGeminiLive('stop');
-    
+
     // Give it time to clean up
     setTimeout(() => {
       if (geminiLiveProcess) {
@@ -1946,7 +1968,7 @@ async function stopGeminiLiveService() {
         geminiLiveReady = false;
       }
     }, 2000);
-    
+
     return { success: true };
   } catch (error) {
     console.error('🤖 Error stopping Gemini Live service:', error);
@@ -1964,21 +1986,21 @@ async function callOpenRouterAPIWithScreen({ message, screenshot, conversationHi
       console.log('🎬 Demo query detected, providing pre-generated response');
       return getDemoResponse(isDemoQuery.type);
     }
-    
+
     // OpenRouter API configuration - using provided API key
     const apiKey = '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';
     const fetch = require('node-fetch');
-    
+
     // Build messages array with context
     const buildStart = Date.now();
     const messages = [];
-    
+
     // Add system prompt with screen context
     messages.push({
       role: 'system',
       content: 'You are Red Glass, an intelligent AI assistant. The user has provided a screenshot of their screen as visual context to help answer their question. Use the screenshot only as supplementary context when it\'s relevant to answering their question. Focus primarily on answering the user\'s question directly. Only describe or reference what\'s on screen if it\'s directly relevant to their question. If the question doesn\'t require visual context, answer it normally without mentioning the screenshot.'
     });
-    
+
     // Add recent conversation history for context
     if (conversationHistory && conversationHistory.length > 0) {
       conversationHistory.forEach(msg => {
@@ -1990,7 +2012,7 @@ async function callOpenRouterAPIWithScreen({ message, screenshot, conversationHi
         }
       });
     }
-    
+
     // Add current message with screenshot as context
     // Note: Put text first so the question is the primary focus
     messages.push({
@@ -2009,7 +2031,7 @@ async function callOpenRouterAPIWithScreen({ message, screenshot, conversationHi
       ]
     });
     const buildTime = Date.now() - buildStart;
-    
+
     // Use faster model - claude-3.5-haiku-20241022 is much faster than gpt-4o
     const requestStart = Date.now();
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -2027,29 +2049,29 @@ async function callOpenRouterAPIWithScreen({ message, screenshot, conversationHi
         max_tokens: 800 // Increased slightly since we want proper answers, not just descriptions
       })
     });
-    
+
     const requestTime = Date.now() - requestStart;
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`OpenRouter API error (${requestTime}ms):`, response.status, errorText);
       throw new Error(`OpenRouter API Error (${response.status}): ${errorText}`);
     }
-    
+
     const parseStart = Date.now();
     const data = await response.json();
     const parseTime = Date.now() - parseStart;
     const totalTime = Date.now() - startTime;
-    
+
     console.log(`🔌 API: build=${buildTime}ms, request=${requestTime}ms, parse=${parseTime}ms, total=${totalTime}ms`);
-    
+
     if (!data.choices || !data.choices.length || !data.choices[0].message) {
       console.error('Unexpected OpenRouter API response format:', data);
       throw new Error('Received an unexpected response format from OpenRouter API.');
     }
-    
+
     return data.choices[0].message.content;
-    
+
   } catch (error) {
     const totalTime = Date.now() - startTime;
     console.error(`Error calling OpenRouter API after ${totalTime}ms:`, error);
@@ -2074,7 +2096,7 @@ ipcMain.handle('should-hide-ask-window', async (event) => {
 // Handle AI API calls (Gemini Live) - New implementation
 ipcMain.handle('call-deepseek-api', async (event, message) => {
   performanceMetrics.ipcCalls++;
-  
+
   try {
     // Check for demo queries first to provide fast responses
     const isDemoQuery = checkForDemoQuery(message || '');
@@ -2082,7 +2104,7 @@ ipcMain.handle('call-deepseek-api', async (event, message) => {
       console.log('🎬 Demo query detected, providing pre-generated response');
       return getDemoResponse(isDemoQuery.type);
     }
-    
+
     // Start Gemini Live service if not running
     if (!geminiLiveProcess || !geminiLiveReady) {
       console.log('🤖 Starting Gemini Live service for chat...');
@@ -2091,16 +2113,16 @@ ipcMain.handle('call-deepseek-api', async (event, message) => {
         return `Sorry, I couldn't start the AI service: ${startResult.error}`;
       }
     }
-    
+
     // Send message to Gemini Live
     const sendResult = await sendToGeminiLive('message', { text: message });
     if (!sendResult.success) {
       return `Sorry, I couldn't send your message: ${sendResult.error}`;
     }
-    
+
     // For now, return a placeholder - real responses will come via events
     return 'Message sent to Gemini Live. Response will arrive via real-time events.';
-    
+
   } catch (error) {
     console.error('Error calling Gemini Live:', error);
     return `Sorry, I encountered an error while processing your request: ${error.message}`;
@@ -2116,7 +2138,7 @@ ipcMain.handle('call-deepseek-api-with-screen', async (event, { message, screens
       console.log('🎬 Demo query detected, providing pre-generated response');
       return getDemoResponse(isDemoQuery.type);
     }
-    
+
     // Start Gemini Live service if not running
     if (!geminiLiveProcess || !geminiLiveReady) {
       console.log('🤖 Starting Gemini Live service for screen analysis...');
@@ -2125,17 +2147,17 @@ ipcMain.handle('call-deepseek-api-with-screen', async (event, { message, screens
         return `Sorry, I couldn't start the AI service: ${startResult.error}`;
       }
     }
-    
+
     // Gemini Live will automatically capture screen, so we just send the message
     // The screen capture is handled by the live.py service
     const sendResult = await sendToGeminiLive('message', { text: message || 'What can you see on my screen? Please analyze and explain what\'s visible.' });
     if (!sendResult.success) {
       return `Sorry, I couldn't send your message: ${sendResult.error}`;
     }
-    
+
     // For now, return a placeholder - real responses will come via events
     return 'Message sent to Gemini Live with screen context. Response will arrive via real-time events.';
-    
+
   } catch (error) {
     console.error('Error calling Gemini Live with screen context:', error);
     return `Sorry, I encountered an error while analyzing your screen: ${error.message}`;
@@ -2151,7 +2173,7 @@ ipcMain.handle('start-gemini-live', async (event, options = {}) => {
   try {
     console.log('🤖 Starting Gemini Live service with options:', options);
     const result = await startGeminiLiveService();
-    
+
     if (result.success && !result.alreadyRunning) {
       // Start the session with specified options
       // Force default to no capture unless explicitly requested
@@ -2162,7 +2184,7 @@ ipcMain.handle('start-gemini-live', async (event, options = {}) => {
       };
       await sendToGeminiLive('start', { options: startOptions });
     }
-    
+
     return result;
   } catch (error) {
     console.error('Error starting Gemini Live service:', error);
@@ -2185,17 +2207,17 @@ ipcMain.handle('stop-gemini-live', async (event) => {
 ipcMain.handle('send-to-gemini-live', async (event, commandOrMessage) => {
   try {
     console.log('🤖 Sending to Gemini Live:', commandOrMessage);
-    
+
     // If it's a string, treat it as a command
     if (typeof commandOrMessage === 'string') {
       return await sendToGeminiLive(commandOrMessage);
     }
-    
+
     // If it's an object with text, treat it as a message
     if (commandOrMessage && commandOrMessage.text) {
       return await sendToGeminiLive('message', { text: commandOrMessage.text });
     }
-    
+
     // Otherwise, treat the whole thing as a message
     return await sendToGeminiLive('message', { text: commandOrMessage });
   } catch (error) {
@@ -2214,28 +2236,28 @@ ipcMain.handle('ai-text', async (event, { text, imageBase64 = null, mimeType = '
     if (!apiKey) {
       return { success: false, error: 'GEMINI_API_KEY not configured' };
     }
-    
+
     console.log(`💬 [Chat History] Received ${conversationHistory.length} previous messages for context`);
-    
+
     // 🆕 Helper function to clean JSON Schema for Gemini
     // Gemini doesn't support: $schema, additionalProperties, and other extended JSON Schema fields
     function cleanSchemaForGemini(schema) {
       if (!schema || typeof schema !== 'object') {
         return schema;
       }
-      
+
       // Create a clean copy
       const cleaned = {};
-      
+
       // Fields that Gemini accepts
       const allowedFields = ['type', 'properties', 'required', 'items', 'description', 'enum'];
-      
+
       for (const [key, value] of Object.entries(schema)) {
         // Skip fields that Gemini doesn't support
         if (key === '$schema' || key === 'additionalProperties') {
           continue;
         }
-        
+
         // Only include allowed fields at root level
         if (allowedFields.includes(key)) {
           if (key === 'properties' && typeof value === 'object') {
@@ -2252,15 +2274,15 @@ ipcMain.handle('ai-text', async (event, { text, imageBase64 = null, mimeType = '
           }
         }
       }
-      
+
       return cleaned;
     }
-    
+
     // 🆕 GET AVAILABLE MCP TOOLS
     const mcpTools = mcpManager.getAllTools();
     const functionDeclarations = [];
     const toolNameMapping = {}; // Map normalized names (all underscores) to original keys
-    
+
     for (const [toolKey, toolInfo] of Object.entries(mcpTools)) {
       // Clean the input schema to remove fields Gemini doesn't support
       const cleanedSchema = cleanSchemaForGemini(toolInfo.inputSchema) || {
@@ -2268,35 +2290,35 @@ ipcMain.handle('ai-text', async (event, { text, imageBase64 = null, mimeType = '
         properties: {},
         required: []
       };
-      
+
       // Normalize tool name: replace ALL hyphens with underscores
       // e.g., "notion_create-pages" → "notion_create_pages"
       const normalizedName = toolKey.replace(/-/g, '_');
-      
+
       // Store mapping from normalized name back to original key
       toolNameMapping[normalizedName] = toolKey;
-      
+
       functionDeclarations.push({
         name: normalizedName,
         description: toolInfo.description || `Execute ${toolKey}`,
         parameters: cleanedSchema
       });
     }
-    
+
     console.log(`🔧 [MCP-Chat] Tool name mapping:`, toolNameMapping);
-    
+
     console.log(`🔧 [MCP-Chat] Loaded ${functionDeclarations.length} MCP tools for Gemini`);
-    
+
     const fetch = require('node-fetch');
     // Use gemini-2.0-flash-exp: confirmed to work in v1beta with function calling
     // Note: Has 50 requests/day limit, but it's the only stable model for v1beta function calling
     const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=' + encodeURIComponent(apiKey);
-    
+
     const initialParts = [{ text }];
     if (imageBase64) {
       initialParts.push({ inline_data: { mime_type: mimeType, data: imageBase64 } });
     }
-    
+
     // 🆕 BUILD REQUEST WITH TOOLS
     const body = {
       contents: [
@@ -2452,11 +2474,11 @@ Your tools are your hands. Use them.
         function_declarations: functionDeclarations
       }] : undefined
     };
-    
+
     // 🆕 FUNCTION CALLING LOOP
     // Build conversation history with previous messages
     let geminiHistory = [];
-    
+
     // Add previous conversation context if provided
     if (conversationHistory && conversationHistory.length > 0) {
       console.log(`📝 [Chat History] Adding ${conversationHistory.length} previous messages to context`);
@@ -2467,19 +2489,19 @@ Your tools are your hands. Use them.
         });
       }
     }
-    
+
     // Add current message with optional image
     geminiHistory.push({ role: 'user', parts: initialParts });
-    
+
     let maxIterations = 5; // Prevent infinite loops
     let iteration = 0;
     let toolsUsed = []; // Track tools used for UI display
-    
+
     while (iteration < maxIterations) {
       iteration++;
-      
+
       console.log(`🤖 [MCP-Chat] Gemini request iteration ${iteration}`);
-      
+
       const requestBody = {
         contents: geminiHistory,
         // Include system instruction in every request
@@ -2628,61 +2650,61 @@ Your tools are your hands. Use them.
           function_declarations: functionDeclarations
         }] : undefined
       };
-      
-    const resp = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+
+      const resp = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
-    });
-      
-    if (!resp.ok) {
-      const errText = await resp.text();
-      throw new Error(`${resp.status} ${resp.statusText}: ${errText}`);
-    }
-      
-    const data = await resp.json();
-    const candidates = data?.candidates || [];
-      
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text();
+        throw new Error(`${resp.status} ${resp.statusText}: ${errText}`);
+      }
+
+      const data = await resp.json();
+      const candidates = data?.candidates || [];
+
       if (candidates.length === 0) {
         throw new Error('No candidates in Gemini response');
       }
-      
+
       const modelParts = candidates[0]?.content?.parts || [];
-      
+
       // Add model response to conversation history
       geminiHistory.push({
         role: 'model',
         parts: modelParts
       });
-      
+
       // 🆕 CHECK IF GEMINI WANTS TO CALL A FUNCTION
       const functionCalls = modelParts.filter(p => p.functionCall);
-      
+
       if (functionCalls.length === 0) {
         // No function calls - we have the final text response
         const textParts = modelParts.filter(p => p.text);
-    const output = textParts.map(p => p.text || '').join('');
+        const output = textParts.map(p => p.text || '').join('');
         console.log(`✅ [MCP-Chat] Final response received (${toolsUsed.length} tools used)`);
-        return { 
-          success: true, 
+        return {
+          success: true,
           result: output,
           toolsUsed: toolsUsed // Include tool usage info for UI
         };
       }
-      
+
       // 🆕 EXECUTE FUNCTION CALLS
       const functionResponseParts = [];
-      
+
       for (const functionCallPart of functionCalls) {
         const functionCall = functionCallPart.functionCall;
         const toolName = functionCall.name;
         const toolArgs = functionCall.args || {};
-        
+
         console.log(`🔧 [MCP-Chat] Gemini wants to use tool: ${toolName}`, toolArgs);
-        
+
         // Use the mapping to get the original toolKey (with hyphens preserved)
         const originalToolKey = toolNameMapping[toolName];
-        
+
         if (!originalToolKey) {
           const availableTools = Object.keys(toolNameMapping);
           console.error(`❌ [MCP-Chat] Tool not found in mapping: ${toolName}`);
@@ -2690,31 +2712,31 @@ Your tools are your hands. Use them.
           console.error(`📋 Original tool keys:`, Object.keys(mcpTools));
           throw new Error(`Tool ${toolName} not found. Available: ${availableTools.join(', ')}`);
         }
-        
+
         // Look up the tool info using the original key (with hyphens)
         const toolInfo = mcpTools[originalToolKey];
-        
+
         if (!toolInfo) {
           console.error(`❌ [MCP-Chat] Tool info not found for key: ${originalToolKey}`);
           throw new Error(`Tool info not found for ${originalToolKey}`);
         }
-        
+
         const serverName = toolInfo.server;
         const actualToolName = toolInfo.name;
-        
+
         console.log(`🔧 [MCP-Chat] Resolved: ${toolName} → ${originalToolKey} → server: ${serverName}, tool: ${actualToolName}`);
-        
+
         let toolResult;
         let toolError = null;
-        
+
         try {
           // Get server status first
           const serverStatus = mcpManager.getServerStatus(serverName);
-          
+
           if (!serverStatus || serverStatus.status !== 'running') {
             throw new Error(`MCP server '${serverName}' is not running`);
           }
-          
+
           // Execute the tool via MCP
           const execution = await mcpManager.sendToServer(serverName, {
             jsonrpc: '2.0',
@@ -2725,14 +2747,14 @@ Your tools are your hands. Use them.
               arguments: toolArgs
             }
           });
-          
+
           if (execution.error) {
             throw new Error(execution.error.message || JSON.stringify(execution.error));
           }
-          
+
           toolResult = execution.result || { success: true };
           console.log(`✅ [MCP-Chat] Tool executed successfully:`, toolResult);
-          
+
           // Track tool usage
           toolsUsed.push({
             name: toolName,
@@ -2742,15 +2764,15 @@ Your tools are your hands. Use them.
             result: toolResult,
             success: true
           });
-          
+
         } catch (error) {
           console.error(`❌ [MCP-Chat] Tool execution failed:`, error);
           toolError = error.message;
-          toolResult = { 
+          toolResult = {
             error: error.message,
             details: 'The tool execution failed. Please check if the MCP server is running and the parameters are correct.'
           };
-          
+
           // Track failed tool usage
           toolsUsed.push({
             name: toolName,
@@ -2761,7 +2783,7 @@ Your tools are your hands. Use them.
             success: false
           });
         }
-        
+
         // Add function response part
         functionResponseParts.push({
           functionResponse: {
@@ -2770,24 +2792,24 @@ Your tools are your hands. Use them.
           }
         });
       }
-      
+
       // Add function responses to conversation history
       geminiHistory.push({
         role: 'user',
         parts: functionResponseParts
       });
-      
+
       // Continue loop to get Gemini's next response
     }
-    
+
     // If we hit max iterations, return what we have
     console.warn(`⚠️ [MCP-Chat] Max iterations reached (${maxIterations})`);
-    return { 
-      success: true, 
+    return {
+      success: true,
       result: 'The request was too complex and required too many tool calls. Please try breaking it into smaller requests.',
       toolsUsed: toolsUsed
     };
-    
+
   } catch (error) {
     console.error('Gemini text error:', error);
     return { success: false, error: error.message };
@@ -2811,7 +2833,7 @@ ipcMain.handle('ai-vision', async (event, { text, imageBase64, mimeType = 'image
       if (text) parts.push({ text });
       if (imageBase64) parts.push({ inline_data: { mime_type: mimeType, data: imageBase64 } });
       const body = { contents: [{ role: 'user', parts }] };
-      
+
       // Retry logic for 503 errors
       let lastError = null;
       for (let attempt = 0; attempt < 2; attempt++) {
@@ -2821,7 +2843,7 @@ ipcMain.handle('ai-vision', async (event, { text, imageBase64, mimeType = 'image
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
           });
-          
+
           if (resp.ok) {
             const data = await resp.json();
             const candidates = data?.candidates || [];
@@ -2831,7 +2853,7 @@ ipcMain.handle('ai-vision', async (event, { text, imageBase64, mimeType = 'image
             console.log(`✅ Gemini Vision API succeeded in ${totalTime}ms`);
             return { success: true, result: output };
           }
-          
+
           // If 503 and not last attempt, wait and retry
           if (resp.status === 503 && attempt < 1) {
             const waitTime = 500 * (attempt + 1); // 500ms, 1000ms
@@ -2840,7 +2862,7 @@ ipcMain.handle('ai-vision', async (event, { text, imageBase64, mimeType = 'image
             lastError = new Error(`${resp.status} ${resp.statusText}`);
             continue;
           }
-          
+
           // Other errors or last attempt
           const errText = await resp.text();
           lastError = new Error(`${resp.status} ${resp.statusText}: ${errText}`);
@@ -2854,7 +2876,7 @@ ipcMain.handle('ai-vision', async (event, { text, imageBase64, mimeType = 'image
           break;
         }
       }
-      
+
       // If Gemini failed, fall back to OpenRouter
       console.log('⚠️ Gemini Vision API failed, falling back to OpenRouter...');
     }
@@ -2862,7 +2884,7 @@ ipcMain.handle('ai-vision', async (event, { text, imageBase64, mimeType = 'image
     // Fallback to OpenRouter API
     const openRouterKey = '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';
     const fetch = require('node-fetch'); // eslint-disable-line no-redeclare
-    
+
     const messages = [{
       role: 'user',
       content: [
@@ -2878,7 +2900,7 @@ ipcMain.handle('ai-vision', async (event, { text, imageBase64, mimeType = 'image
         }
       ]
     }];
-    
+
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -2894,21 +2916,21 @@ ipcMain.handle('ai-vision', async (event, { text, imageBase64, mimeType = 'image
         max_tokens: 800
       })
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`OpenRouter API Error (${response.status}): ${errorText}`);
     }
-    
+
     const data = await response.json();
     if (!data.choices || !data.choices.length || !data.choices[0].message) {
       throw new Error('Unexpected OpenRouter API response format');
     }
-    
+
     const totalTime = Date.now() - startTime;
     console.log(`✅ OpenRouter Vision API succeeded in ${totalTime}ms (fallback)`);
     return { success: true, result: data.choices[0].message.content };
-    
+
   } catch (error) {
     const totalTime = Date.now() - startTime;
     console.error(`❌ Vision API error after ${totalTime}ms:`, error);
@@ -2957,11 +2979,11 @@ ipcMain.handle('check-gemini-live-service', async (event) => {
 ipcMain.handle('send-gemini-command', async (event, command) => {
   try {
     console.log('🎙️ Sending Gemini command:', command);
-    
+
     if (command && command.command) {
       return await sendToGeminiLive(command.command, command);
     }
-    
+
     return { success: false, error: 'Invalid command format' };
   } catch (error) {
     console.error('Error sending Gemini command:', error);
@@ -2974,7 +2996,7 @@ ipcMain.handle('save-transcript', async (event, transcriptText) => {
   try {
     const { dialog } = require('electron');
     const fs = require('fs').promises;
-    
+
     const result = await dialog.showSaveDialog({
       title: 'Save Transcript',
       defaultPath: `transcript-${Date.now()}.txt`,
@@ -2983,13 +3005,13 @@ ipcMain.handle('save-transcript', async (event, transcriptText) => {
         { name: 'All Files', extensions: ['*'] }
       ]
     });
-    
+
     if (!result.canceled && result.filePath) {
       await fs.writeFile(result.filePath, transcriptText, 'utf8');
       console.log('💾 Transcript saved to:', result.filePath);
       return { success: true, filePath: result.filePath };
     }
-    
+
     return { success: false, canceled: true };
   } catch (error) {
     console.error('Error saving transcript:', error);
@@ -3001,10 +3023,10 @@ ipcMain.handle('save-transcript', async (event, transcriptText) => {
 ipcMain.handle('attach-transcript-to-chat', async (event, transcriptText) => {
   try {
     console.log('📎 Attaching transcript to chat');
-    
+
     // Forward to renderer to insert into chat
     safeSendToRenderer('insert-transcript-to-chat', { text: transcriptText });
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error attaching transcript to chat:', error);
@@ -3027,7 +3049,7 @@ ipcMain.handle('mcp-add-server', async (event, { serverName, command, args, env 
       args: args || [],
       env: env || {}
     });
-    
+
     if (result.success) {
       try {
         // Initialize the server (send initialize request)
@@ -3045,13 +3067,13 @@ ipcMain.handle('mcp-add-server', async (event, { serverName, command, args, env 
             }
           }
         };
-        
+
         console.log(`🔌 Sending initialize request to '${serverName}'...`);
         const initResponse = await mcpManager.sendToServer(serverName, initMessage);
-        
+
         if (initResponse.result) {
           console.log(`✅ Server '${serverName}' initialized`);
-          
+
           // Send initialized notification
           const serverInfo = mcpManager.servers.get(serverName);
           if (serverInfo && serverInfo.process) {
@@ -3060,7 +3082,7 @@ ipcMain.handle('mcp-add-server', async (event, { serverName, command, args, env 
               method: 'notifications/initialized'
             }) + '\n');
           }
-          
+
           // List tools
           mcpRequestId++;
           const toolsMessage = {
@@ -3068,7 +3090,7 @@ ipcMain.handle('mcp-add-server', async (event, { serverName, command, args, env 
             id: mcpRequestId,
             method: 'tools/list'
           };
-          
+
           console.log(`🔌 Requesting tools from '${serverName}'...`);
           const toolsResponse = await mcpManager.sendToServer(serverName, toolsMessage);
           if (toolsResponse.result && toolsResponse.result.tools) {
@@ -3087,7 +3109,7 @@ ipcMain.handle('mcp-add-server', async (event, { serverName, command, args, env 
         console.error(`❌ Error initializing server '${serverName}':`, initError);
         result.error = `Initialization error: ${initError.message}`;
         result.success = false;
-        
+
         // Mark server as error state
         const serverInfo = mcpManager.servers.get(serverName);
         if (serverInfo) {
@@ -3096,7 +3118,7 @@ ipcMain.handle('mcp-add-server', async (event, { serverName, command, args, env 
         }
       }
     }
-    
+
     return result;
   } catch (error) {
     console.error('Error adding MCP server:', error);
@@ -3157,7 +3179,7 @@ ipcMain.handle('mcp-get-tools', async (event) => {
 ipcMain.handle('mcp-execute-tool', async (event, { server, tool, params }) => {
   try {
     console.log(`🔌 IPC: Executing tool '${tool}' on server '${server}'...`);
-    
+
     mcpRequestId++;
     const message = {
       jsonrpc: '2.0',
@@ -3168,9 +3190,9 @@ ipcMain.handle('mcp-execute-tool', async (event, { server, tool, params }) => {
         arguments: params || {}
       }
     };
-    
+
     const response = await mcpManager.sendToServer(server, message);
-    
+
     if (response.result) {
       return {
         success: true,
@@ -3214,7 +3236,7 @@ ipcMain.handle('mcp-get-server-tools', async (event, { serverName }) => {
         error: `Server '${serverName}' not found`
       };
     }
-    
+
     return {
       success: true,
       server: serverName,
@@ -3243,7 +3265,7 @@ ipcMain.handle('mcp-list-servers', async (event) => {
         lastError: info.lastError
       });
     }
-    
+
     return {
       success: true,
       servers
@@ -3413,16 +3435,19 @@ function loadApiKeysFromSettings() {
   }
 }
 
+// Initialize protocol handler for OAuth
+protocolHandler.initialize();
+
 app.whenReady().then(async () => {
   console.log('👋 Welcome back - starting in background');
-  
+
   // Load API keys from settings
   loadApiKeysFromSettings();
 
 
   createWindow();
   createTray();
-  
+
   // Register global shortcuts
   registerShortcut();
 
@@ -3487,7 +3512,7 @@ async function callDeepSeekAPIForWorkflow(message) {
   try {
     const apiKey = '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';
     const fetch = require('node-fetch');
-    
+
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -3508,18 +3533,18 @@ async function callDeepSeekAPIForWorkflow(message) {
         max_tokens: 1000
       })
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`API Error (${response.status}): ${errorText}`);
     }
-    
+
     const data = await response.json();
-    
+
     if (!data.choices || !data.choices.length || !data.choices[0].message) {
       throw new Error('Unexpected API response format');
     }
-    
+
     return data.choices[0].message.content;
   } catch (error) {
     throw error;
@@ -3537,13 +3562,13 @@ async function executeWorkflowStep(step, input, context = {}) {
       } catch (error) {
         return { success: false, error: error.message, context };
       }
-      
+
     case 'transform':
       // Transform text using simple string operations
       try {
         let output = input;
         const transformations = step.content.split('\n').filter(t => t.trim());
-        
+
         for (const transform of transformations) {
           if (transform.startsWith('replace:')) {
             const [, find, replace] = transform.split(':');
@@ -3556,12 +3581,12 @@ async function executeWorkflowStep(step, input, context = {}) {
             output = output.trim();
           }
         }
-        
+
         return { success: true, output, context };
       } catch (error) {
         return { success: false, error: error.message, context };
       }
-      
+
     case 'condition':
       // Simple condition check
       try {
@@ -3572,7 +3597,7 @@ async function executeWorkflowStep(step, input, context = {}) {
       } catch (error) {
         return { success: false, error: error.message, context };
       }
-      
+
     case 'delay':
       // Add delay
       try {
@@ -3582,7 +3607,7 @@ async function executeWorkflowStep(step, input, context = {}) {
       } catch (error) {
         return { success: false, error: error.message, context };
       }
-      
+
     default:
       return { success: false, error: `Unknown step type: ${step.type}`, context };
   }
@@ -3597,13 +3622,13 @@ ipcMain.handle('save-workflow', async (event, workflow) => {
   try {
     const workflows = await loadWorkflows();
     const existingIndex = workflows.findIndex(w => w.id === workflow.id);
-    
+
     if (existingIndex >= 0) {
       workflows[existingIndex] = workflow;
     } else {
       workflows.push(workflow);
     }
-    
+
     await saveWorkflows(workflows);
     return { success: true };
   } catch (error) {
@@ -3626,34 +3651,34 @@ ipcMain.handle('execute-workflow', async (event, workflowId, input) => {
   try {
     const workflows = await loadWorkflows();
     const workflow = workflows.find(w => w.id === workflowId);
-    
+
     if (!workflow) {
       throw new Error('Workflow not found');
     }
-    
+
     let currentInput = input;
     let context = {};
     const results = [];
-    
+
     for (const step of workflow.steps) {
       const result = await executeWorkflowStep(step, currentInput, context);
       results.push(result);
-      
+
       if (!result.success) {
         throw new Error(`Step failed: ${result.error}`);
       }
-      
+
       currentInput = result.output;
       context = result.context;
     }
-    
+
     return {
       success: true,
       output: currentInput,
       results,
       workflow: workflow.name
     };
-    
+
   } catch (error) {
     throw error;
   }
@@ -3688,15 +3713,15 @@ app.on('will-quit', async () => {
   // Cleanup MCP servers
   console.log('🧹 Cleaning up MCP servers...');
   await mcpManager.shutdown();
-  
+
   // Cleanup RealtimeSTT server
   console.log('🧹 Cleaning up RealtimeSTT server...');
   await stopRealtimeSTTServer();
-  
-  
+
+
   // Unregister all shortcuts when quitting
   globalShortcut.unregisterAll();
-}); 
+});
 
 // ================================
 // ENHANCED WORKFLOW SCHEDULER SYSTEM
@@ -3782,41 +3807,41 @@ async function executeEnhancedWorkflowStep(step, input, context = {}) {
       } catch (error) {
         return { success: false, error: error.message, context };
       }
-      
+
     case 'fetch':
       // Fetch data from external sources
       try {
         const config = step.config || {};
         let fetchedData = '';
-        
+
         if (config.type === 'bitcoin-price') {
           // Fetch Bitcoin price
           const fetch = require('node-fetch');
           const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
           const data = await response.json();
           fetchedData = `Bitcoin price: $${data.bitcoin.usd.toLocaleString()} USD`;
-          
+
         } else if (config.type === 'crypto-prices') {
           // Fetch multiple cryptocurrency prices
           const cryptos = config.cryptos || ['bitcoin', 'ethereum'];
           const fetch = require('node-fetch');
           const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${cryptos.join(',')}&vs_currencies=usd`);
           const data = await response.json();
-          
-          const prices = Object.entries(data).map(([crypto, price]) => 
+
+          const prices = Object.entries(data).map(([crypto, price]) =>
             `${crypto.charAt(0).toUpperCase() + crypto.slice(1)}: $${price.usd.toLocaleString()}`
           ).join('\n');
           fetchedData = `Cryptocurrency Prices:\n${prices}`;
-          
+
         } else if (config.type === 'weather') {
           // Fetch weather data (example implementation)
           const location = config.location || 'New York';
           fetchedData = `Weather for ${location}: Sunny, 72°F (This is a demo - integrate with weather API)`;
-          
+
         } else if (config.type === 'news') {
           // Fetch news headlines (example implementation)
           fetchedData = `Latest News Headlines:\n1. Tech industry updates\n2. Market movements\n3. Global events (This is a demo - integrate with news API)`;
-          
+
         } else if (config.type === 'custom-url') {
           // Fetch data from custom URL
           const url = config.url;
@@ -3829,21 +3854,21 @@ async function executeEnhancedWorkflowStep(step, input, context = {}) {
             throw new Error('No URL specified for custom fetch');
           }
         }
-        
+
         const output = step.content ? step.content.replace('{{input}}', input).replace('{{data}}', fetchedData) : fetchedData;
         return { success: true, output, context: { ...context, fetchedData } };
-        
+
       } catch (error) {
         return { success: false, error: error.message, context };
       }
-      
+
     case 'notification':
       // Send system notification
       try {
         const { Notification } = require('electron');
         const title = step.config?.title || 'Red Glass Workflow';
         const body = step.content.replace('{{input}}', input);
-        
+
         if (Notification.isSupported()) {
           new Notification({
             title: title,
@@ -3851,12 +3876,12 @@ async function executeEnhancedWorkflowStep(step, input, context = {}) {
             icon: path.join(__dirname, '../public/icon.png') // Add icon if available
           }).show();
         }
-        
+
         return { success: true, output: input, context };
       } catch (error) {
         return { success: false, error: error.message, context };
       }
-      
+
     case 'webhook':
       // Send data to webhook URL
       try {
@@ -3864,14 +3889,14 @@ async function executeEnhancedWorkflowStep(step, input, context = {}) {
         if (!webhookUrl) {
           throw new Error('No webhook URL specified');
         }
-        
+
         const payload = {
           input: input,
           context: context,
           timestamp: new Date().toISOString(),
           workflowStep: step.id
         };
-        
+
         const fetch = require('node-fetch');
         const response = await fetch(webhookUrl, {
           method: 'POST',
@@ -3880,20 +3905,20 @@ async function executeEnhancedWorkflowStep(step, input, context = {}) {
           },
           body: JSON.stringify(payload)
         });
-        
+
         const result = await response.text();
         return { success: true, output: result || input, context };
-        
+
       } catch (error) {
         return { success: false, error: error.message, context };
       }
-      
+
     case 'transform':
       // Transform text using simple string operations
       try {
         let output = input;
         const transformations = step.content.split('\n').filter(t => t.trim());
-        
+
         for (const transform of transformations) {
           if (transform.startsWith('replace:')) {
             const [, find, replace] = transform.split(':');
@@ -3911,18 +3936,18 @@ async function executeEnhancedWorkflowStep(step, input, context = {}) {
             output = output.replace('{{datetime}}', now.toLocaleString());
           }
         }
-        
+
         return { success: true, output, context };
       } catch (error) {
         return { success: false, error: error.message, context };
       }
-      
+
     case 'condition':
       // Enhanced condition check
       try {
         const condition = step.content.replace('{{input}}', input);
         const config = step.config || {};
-        
+
         let passes = false;
         if (config.type === 'contains') {
           passes = input.toLowerCase().includes(config.value.toLowerCase());
@@ -3932,7 +3957,7 @@ async function executeEnhancedWorkflowStep(step, input, context = {}) {
           const operator = config.operator || 'gt';
           const value = parseInt(config.value) || 0;
           const inputLength = input.length;
-          
+
           switch (operator) {
             case 'gt': passes = inputLength > value; break;
             case 'lt': passes = inputLength < value; break;
@@ -3943,12 +3968,12 @@ async function executeEnhancedWorkflowStep(step, input, context = {}) {
           // Default: check if condition is not empty
           passes = condition.trim().length > 0;
         }
-        
+
         return { success: true, output: input, context: { ...context, conditionPassed: passes } };
       } catch (error) {
         return { success: false, error: error.message, context };
       }
-      
+
     case 'delay':
       // Add delay
       try {
@@ -3958,7 +3983,7 @@ async function executeEnhancedWorkflowStep(step, input, context = {}) {
       } catch (error) {
         return { success: false, error: error.message, context };
       }
-      
+
     default:
       // Fallback to original workflow step execution
       return await executeWorkflowStep(step, input, context);
@@ -3969,14 +3994,14 @@ async function executeEnhancedWorkflowStep(step, input, context = {}) {
 async function executeEnhancedWorkflow(workflow, initialInput = '', context = {}) {
   try {
     console.log(`🚀 Executing workflow: ${workflow.name}`);
-    
+
     let currentInput = initialInput;
     let workflowContext = { ...context, workflowId: workflow.id, startTime: Date.now() };
     const results = [];
-    
+
     for (const step of workflow.steps) {
       console.log(`📝 Executing step: ${step.type} - ${step.id}`);
-      
+
       const result = await executeEnhancedWorkflowStep(step, currentInput, workflowContext);
       results.push({
         stepId: step.id,
@@ -3986,26 +4011,26 @@ async function executeEnhancedWorkflow(workflow, initialInput = '', context = {}
         error: result.error,
         timestamp: Date.now()
       });
-      
+
       if (!result.success) {
         console.error(`❌ Step failed: ${result.error}`);
-        
+
         // Continue or stop based on step configuration
         if (step.config?.continueOnError !== true) {
           throw new Error(`Workflow step failed: ${result.error}`);
         }
       }
-      
+
       currentInput = result.output;
       workflowContext = result.context;
     }
-    
+
     // Update execution statistics
     workflow.lastExecuted = new Date().toISOString();
     workflow.executionCount = (workflow.executionCount || 0) + 1;
-    
+
     console.log(`✅ Workflow completed: ${workflow.name}`);
-    
+
     return {
       success: true,
       output: currentInput,
@@ -4013,7 +4038,7 @@ async function executeEnhancedWorkflow(workflow, initialInput = '', context = {}
       workflow: workflow.name,
       executionTime: Date.now() - workflowContext.startTime
     };
-    
+
   } catch (error) {
     console.error(`❌ Workflow execution failed: ${error.message}`);
     return {
@@ -4029,28 +4054,28 @@ async function executeEnhancedWorkflow(workflow, initialInput = '', context = {}
 function calculateNextExecution(schedule) {
   const now = new Date();
   const timezone = schedule.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-  
+
   try {
     switch (schedule.type) {
       case 'once':
         const onceDate = new Date(schedule.date);
         return onceDate > now ? onceDate : null;
-        
+
       case 'daily':
         const [hours, minutes] = schedule.time.split(':').map(Number);
         const dailyNext = new Date();
         dailyNext.setHours(hours, minutes, 0, 0);
-        
+
         if (dailyNext <= now) {
           dailyNext.setDate(dailyNext.getDate() + 1);
         }
         return dailyNext;
-        
+
       case 'weekly':
         const [weeklyHours, weeklyMinutes] = schedule.time.split(':').map(Number);
         const weeklyNext = new Date();
         weeklyNext.setHours(weeklyHours, weeklyMinutes, 0, 0);
-        
+
         const daysDiff = (schedule.dayOfWeek - now.getDay() + 7) % 7;
         if (daysDiff === 0 && weeklyNext <= now) {
           weeklyNext.setDate(weeklyNext.getDate() + 7);
@@ -4058,22 +4083,22 @@ function calculateNextExecution(schedule) {
           weeklyNext.setDate(weeklyNext.getDate() + daysDiff);
         }
         return weeklyNext;
-        
+
       case 'monthly':
         const [monthlyHours, monthlyMinutes] = schedule.time.split(':').map(Number);
         const monthlyNext = new Date();
         monthlyNext.setDate(schedule.dayOfMonth);
         monthlyNext.setHours(monthlyHours, monthlyMinutes, 0, 0);
-        
+
         if (monthlyNext <= now) {
           monthlyNext.setMonth(monthlyNext.getMonth() + 1);
         }
         return monthlyNext;
-        
+
       case 'interval':
         const intervalNext = new Date(now.getTime() + (schedule.interval * 60000));
         return intervalNext;
-        
+
       default:
         return null;
     }
@@ -4088,39 +4113,39 @@ function scheduleWorkflow(workflow) {
   if (!workflow.schedule || !workflow.schedule.enabled) {
     return false;
   }
-  
+
   const nextExecution = calculateNextExecution(workflow.schedule);
   if (!nextExecution) {
     console.log(`⚠️ Could not calculate next execution for workflow: ${workflow.name}`);
     return false;
   }
-  
+
   const delay = nextExecution.getTime() - Date.now();
-  
+
   if (delay <= 0) {
     console.log(`⚠️ Execution time has passed for workflow: ${workflow.name}`);
     return false;
   }
-  
+
   console.log(`⏰ Scheduling workflow "${workflow.name}" for ${nextExecution.toLocaleString()}`);
-  
+
   const timeoutId = setTimeout(async () => {
     try {
       // Execute the workflow
       const result = await executeEnhancedWorkflow(workflow);
-      
+
       console.log(`📊 Workflow execution result:`, result);
-      
+
       // Send notification if workflow has notification step or if configured
       if (result.success) {
         console.log(`✅ Scheduled workflow "${workflow.name}" completed successfully`);
       } else {
         console.error(`❌ Scheduled workflow "${workflow.name}" failed:`, result.error);
       }
-      
+
       // Remove from active schedules
       activeScheduledWorkflows.delete(workflow.id);
-      
+
       // Reschedule if it's a recurring workflow and hasn't reached limits
       if (workflow.schedule.type !== 'once') {
         const shouldContinue = checkWorkflowLimits(workflow);
@@ -4136,13 +4161,13 @@ function scheduleWorkflow(workflow) {
         workflow.isActive = false;
         await updateScheduledWorkflow(workflow);
       }
-      
+
     } catch (error) {
       console.error(`❌ Error executing scheduled workflow "${workflow.name}":`, error);
       activeScheduledWorkflows.delete(workflow.id);
     }
   }, delay);
-  
+
   // Store the timeout ID so we can cancel it later if needed
   activeScheduledWorkflows.set(workflow.id, {
     workflow,
@@ -4150,7 +4175,7 @@ function scheduleWorkflow(workflow) {
     nextExecution,
     scheduledAt: new Date()
   });
-  
+
   return true;
 }
 
@@ -4158,17 +4183,17 @@ function scheduleWorkflow(workflow) {
 function checkWorkflowLimits(workflow) {
   const schedule = workflow.schedule;
   const now = new Date();
-  
+
   // Check end date
   if (schedule.endDate && new Date(schedule.endDate) <= now) {
     return false;
   }
-  
+
   // Check max executions
   if (schedule.maxExecutions && workflow.executionCount >= schedule.maxExecutions) {
     return false;
   }
-  
+
   return true;
 }
 
@@ -4177,13 +4202,13 @@ async function updateScheduledWorkflow(workflow) {
   try {
     const scheduledWorkflows = await loadScheduledWorkflows();
     const index = scheduledWorkflows.findIndex(w => w.id === workflow.id);
-    
+
     if (index >= 0) {
       workflow.updatedAt = new Date().toISOString();
       scheduledWorkflows[index] = workflow;
       await saveScheduledWorkflows(scheduledWorkflows);
     }
-    
+
     return true;
   } catch (error) {
     console.error('❌ Error updating scheduled workflow:', error);
@@ -4195,10 +4220,10 @@ async function updateScheduledWorkflow(workflow) {
 async function initializeWorkflowScheduler() {
   try {
     console.log('🔧 Initializing workflow scheduler...');
-    
+
     const scheduledWorkflows = await loadScheduledWorkflows();
     let activeCount = 0;
-    
+
     for (const workflow of scheduledWorkflows) {
       if (workflow.isActive && workflow.schedule && workflow.schedule.enabled) {
         const scheduled = scheduleWorkflow(workflow);
@@ -4207,9 +4232,9 @@ async function initializeWorkflowScheduler() {
         }
       }
     }
-    
+
     console.log(`✅ Workflow scheduler initialized with ${activeCount} active workflows`);
-    
+
   } catch (error) {
     console.error('❌ Error initializing workflow scheduler:', error);
   }
@@ -4230,7 +4255,7 @@ function cancelScheduledWorkflow(workflowId) {
 // Get status of all scheduled workflows
 function getScheduledWorkflowsStatus() {
   const status = [];
-  
+
   for (const [workflowId, scheduled] of activeScheduledWorkflows) {
     status.push({
       workflowId: workflowId,
@@ -4240,7 +4265,7 @@ function getScheduledWorkflowsStatus() {
       isActive: true
     });
   }
-  
+
   return status;
 }
 
@@ -4263,10 +4288,10 @@ ipcMain.handle('create-scheduled-workflow', async (event, workflowData) => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    
+
     const scheduledWorkflows = await loadScheduledWorkflows();
     const existingIndex = scheduledWorkflows.findIndex(w => w.id === workflow.id);
-    
+
     if (existingIndex >= 0) {
       // Cancel existing schedule if updating
       cancelScheduledWorkflow(workflow.id);
@@ -4274,16 +4299,16 @@ ipcMain.handle('create-scheduled-workflow', async (event, workflowData) => {
     } else {
       scheduledWorkflows.push(workflow);
     }
-    
+
     await saveScheduledWorkflows(scheduledWorkflows);
-    
+
     // Schedule the workflow if it's active
     if (workflow.isActive) {
       scheduleWorkflow(workflow);
     }
-    
+
     console.log(`✅ Created/updated scheduled workflow: ${workflow.name}`);
-    
+
     return { success: true, workflow };
   } catch (error) {
     console.error('❌ Error creating scheduled workflow:', error);
@@ -4296,7 +4321,7 @@ ipcMain.handle('get-scheduled-workflows', async (event) => {
   try {
     const scheduledWorkflows = await loadScheduledWorkflows();
     const activeStatus = getScheduledWorkflowsStatus();
-    
+
     // Merge with active status
     const enrichedWorkflows = scheduledWorkflows.map(workflow => {
       const status = activeStatus.find(s => s.workflowId === workflow.id);
@@ -4306,7 +4331,7 @@ ipcMain.handle('get-scheduled-workflows', async (event) => {
         isCurrentlyScheduled: !!status
       };
     });
-    
+
     return { success: true, workflows: enrichedWorkflows };
   } catch (error) {
     console.error('❌ Error getting scheduled workflows:', error);
@@ -4319,24 +4344,24 @@ ipcMain.handle('toggle-scheduled-workflow', async (event, workflowId) => {
   try {
     const scheduledWorkflows = await loadScheduledWorkflows();
     const workflow = scheduledWorkflows.find(w => w.id === workflowId);
-    
+
     if (!workflow) {
       throw new Error('Workflow not found');
     }
-    
+
     workflow.isActive = !workflow.isActive;
     workflow.updatedAt = new Date().toISOString();
-    
+
     if (workflow.isActive) {
       scheduleWorkflow(workflow);
     } else {
       cancelScheduledWorkflow(workflowId);
     }
-    
+
     await saveScheduledWorkflows(scheduledWorkflows);
-    
+
     console.log(`🔄 Toggled workflow "${workflow.name}" to ${workflow.isActive ? 'active' : 'inactive'}`);
-    
+
     return { success: true, workflow };
   } catch (error) {
     console.error('❌ Error toggling scheduled workflow:', error);
@@ -4348,13 +4373,13 @@ ipcMain.handle('toggle-scheduled-workflow', async (event, workflowId) => {
 ipcMain.handle('delete-scheduled-workflow', async (event, workflowId) => {
   try {
     cancelScheduledWorkflow(workflowId);
-    
+
     const scheduledWorkflows = await loadScheduledWorkflows();
     const filteredWorkflows = scheduledWorkflows.filter(w => w.id !== workflowId);
     await saveScheduledWorkflows(filteredWorkflows);
-    
+
     console.log(`🗑️ Deleted scheduled workflow: ${workflowId}`);
-    
+
     return { success: true };
   } catch (error) {
     console.error('❌ Error deleting scheduled workflow:', error);
@@ -4367,16 +4392,16 @@ ipcMain.handle('execute-scheduled-workflow', async (event, workflowId, input = '
   try {
     const scheduledWorkflows = await loadScheduledWorkflows();
     const workflow = scheduledWorkflows.find(w => w.id === workflowId);
-    
+
     if (!workflow) {
       throw new Error('Workflow not found');
     }
-    
+
     const result = await executeEnhancedWorkflow(workflow, input);
-    
+
     // Update workflow statistics
     await updateScheduledWorkflow(workflow);
-    
+
     return result;
   } catch (error) {
     console.error('❌ Error executing scheduled workflow:', error);
@@ -4391,11 +4416,11 @@ ipcMain.handle('get-workflow-execution-history', async (event, workflowId) => {
     // For now, return basic info from the workflow
     const scheduledWorkflows = await loadScheduledWorkflows();
     const workflow = scheduledWorkflows.find(w => w.id === workflowId);
-    
+
     if (!workflow) {
       throw new Error('Workflow not found');
     }
-    
+
     return {
       success: true,
       history: {
@@ -4416,7 +4441,7 @@ ipcMain.handle('get-workflow-execution-history', async (event, workflowId) => {
 ipcMain.handle('create-workflow-from-prompt', async (event, prompt) => {
   try {
     console.log('Creating workflow from prompt:', prompt);
-    
+
     // Use AI to parse the natural language prompt and create a workflow
     const systemPrompt = `You are a workflow creation assistant. Convert the user's natural language request into a structured workflow with scheduling.
 
@@ -4448,7 +4473,7 @@ Examples:
 User request: ${prompt}`;
 
     const response = await callDeepSeekAPIForWorkflow(systemPrompt);
-    
+
     // Try to parse the AI response as JSON
     let workflowData;
     try {
@@ -4461,19 +4486,19 @@ User request: ${prompt}`;
       }
     } catch (parseError) {
       console.error('❌ Error parsing AI response:', parseError);
-      
+
       // Fallback: create a simple workflow based on common patterns
       workflowData = createFallbackWorkflow(prompt);
     }
-    
+
     // Ensure the workflow has required fields
     workflowData.id = require('crypto').randomUUID();
     workflowData.createdAt = new Date().toISOString();
-    
+
     console.log('✅ Generated workflow:', workflowData);
-    
+
     return { success: true, workflow: workflowData };
-    
+
   } catch (error) {
     console.error('❌ Error creating workflow from prompt:', error);
     throw error;
@@ -4483,7 +4508,7 @@ User request: ${prompt}`;
 // Fallback workflow creation for common patterns
 function createFallbackWorkflow(prompt) {
   const lowerPrompt = prompt.toLowerCase();
-  
+
   if (lowerPrompt.includes('bitcoin') || lowerPrompt.includes('crypto')) {
     return {
       name: 'Cryptocurrency Prices',
@@ -4508,7 +4533,7 @@ function createFallbackWorkflow(prompt) {
       }
     };
   }
-  
+
   if (lowerPrompt.includes('weather')) {
     return {
       name: 'Weather Report',
@@ -4533,7 +4558,7 @@ function createFallbackWorkflow(prompt) {
       }
     };
   }
-  
+
   // Default workflow
   return {
     name: 'Custom Workflow',
@@ -4612,9 +4637,9 @@ ipcMain.handle('settings-set-setting', async (event, { category, key, value }) =
     if (!validation.valid) {
       return { success: false, error: validation.error };
     }
-    
+
     settingsManager.setSetting(category, key, value);
-    
+
     // Notify renderer about opacity change so it can update CSS
     if (category === 'general' && key === 'windowOpacity') {
       if (mainWindow && !mainWindow.isDestroyed()) {
@@ -4622,7 +4647,7 @@ ipcMain.handle('settings-set-setting', async (event, { category, key, value }) =
         console.log(`✨ Window opacity setting updated: ${value}`);
       }
     }
-    
+
     return { success: true };
   } catch (error) {
     console.error(`Error setting ${category}.${key}:`, error);
@@ -4722,13 +4747,13 @@ ipcMain.handle('mongodb-get-user-by-email', async (event, email) => {
   try {
     console.log('📧 [mongodb-get-user-by-email] Fetching user:', email);
     const result = await mongoDBService.getUserByEmail(email);
-    
+
     if (result.success) {
       console.log('✅ [mongodb-get-user-by-email] User found:', result.user.email, 'Tier:', result.user.subscription?.tier || result.user.plan);
     } else {
       console.log('❌ [mongodb-get-user-by-email] User not found or error:', result.error);
     }
-    
+
     return result;
   } catch (error) {
     console.error('❌ [mongodb-get-user-by-email] Error:', error);
@@ -4783,14 +4808,14 @@ ipcMain.handle('settings-save-api-keys', async (event, { gemini, openai, deepsee
     if (gemini !== undefined) updates.gemini = gemini;
     if (openai !== undefined) updates.openai = openai;
     if (deepseek !== undefined) updates.deepseek = deepseek;
-    
+
     settingsManager.update('apiKeys', updates);
-    
+
     // Also update environment variables for immediate use
     if (gemini) process.env.GEMINI_API_KEY = gemini;
     if (openai) process.env.OPENAI_API_KEY = openai;
     if (deepseek) process.env.DEEPSEEK_API_KEY = deepseek;
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error saving API keys:', error);
@@ -4809,17 +4834,17 @@ ipcMain.handle('mongodb-authenticate', async (event, { email, password }) => {
     } catch (validationError) {
       return { success: false, error: validationError.message };
     }
-    
+
     console.log('🔐 Authenticating user:', email);
     const result = await mongoDBService.authenticateUser(email, password);
-    
+
     if (result.success) {
       // Set current user in subscription manager
       subscriptionManager.setCurrentUser(result.user);
-      
+
       // Store user info in settings (convert ObjectId to string)
       settingsManager.setCurrentUser(result.user);
-      
+
       // Update subscription info (convert ObjectId to string)
       settingsManager.updateSubscription({
         userId: result.user._id ? result.user._id.toString() : '',
@@ -4829,10 +4854,10 @@ ipcMain.handle('mongodb-authenticate', async (event, { email, password }) => {
         features: result.user.subscription.features,
         limits: result.user.subscription.limits
       });
-      
+
       console.log('✅ User authenticated successfully');
     }
-    
+
     return result;
   } catch (error) {
     console.error('❌ Authentication error:', error);
@@ -4852,17 +4877,17 @@ ipcMain.handle('mongodb-register', async (event, userData) => {
     } catch (validationError) {
       return { success: false, error: validationError.message };
     }
-    
+
     console.log('📝 Registering new user:', userData.email);
     const result = await mongoDBService.registerUser(userData);
-    
+
     if (result.success) {
       // Set current user in subscription manager
       subscriptionManager.setCurrentUser(result.user);
-      
+
       // Store user info in settings
       settingsManager.setCurrentUser(result.user);
-      
+
       // Update subscription info
       settingsManager.updateSubscription({
         userId: result.user._id,
@@ -4872,10 +4897,10 @@ ipcMain.handle('mongodb-register', async (event, userData) => {
         features: result.user.subscription.features,
         limits: result.user.subscription.limits
       });
-      
+
       console.log('✅ User registered successfully');
     }
-    
+
     return result;
   } catch (error) {
     console.error('❌ Registration error:', error);
@@ -4898,24 +4923,24 @@ ipcMain.handle('mongodb-logout', async (event) => {
 ipcMain.handle('subscription-get', async (event) => {
   try {
     console.log('📊 [subscription-get] Checking authentication status...');
-    
+
     const currentUser = subscriptionManager.getCurrentUser();
     const settingsUser = settingsManager.getCurrentUser();
-    
+
     console.log('📊 [subscription-get] subscriptionManager.currentUser:', currentUser ? currentUser.email : 'NULL');
     console.log('📊 [subscription-get] settingsManager.currentUser:', settingsUser);
-    
+
     if (!currentUser) {
       console.log('❌ [subscription-get] No user in subscriptionManager - user not logged in');
-      
+
       // Clear any stale data in settings
       if (settingsUser && settingsUser.isLoggedIn) {
         console.log('🧹 [subscription-get] Clearing stale session data from settings');
         settingsManager.clearCurrentUser();
       }
-      
-      return { 
-        success: false, 
+
+      return {
+        success: false,
         error: 'No user logged in',
         subscription: {
           tier: 'free',
@@ -4925,10 +4950,10 @@ ipcMain.handle('subscription-get', async (event) => {
         }
       };
     }
-    
+
     console.log('✅ [subscription-get] User authenticated:', currentUser.email);
-    return { 
-      success: true, 
+    return {
+      success: true,
       subscription: currentUser.subscription,
       user: {
         email: currentUser.email,
@@ -4944,11 +4969,11 @@ ipcMain.handle('subscription-get', async (event) => {
 ipcMain.handle('subscription-get-usage', async (event) => {
   try {
     const usageStats = subscriptionManager.getUsageStats();
-    
+
     if (!usageStats) {
       return { success: false, error: 'No user logged in' };
     }
-    
+
     return { success: true, usage: usageStats };
   } catch (error) {
     console.error('❌ Error getting usage stats:', error);
@@ -5124,7 +5149,7 @@ ipcMain.handle('transcription-delete', async (event, transcriptionId) => {
 ipcMain.handle('refresh-user-data', async (event) => {
   try {
     const result = await subscriptionManager.refreshUserData();
-    
+
     if (result.success) {
       settingsManager.setCurrentUser(result.user);
       settingsManager.updateSubscription({
@@ -5136,7 +5161,7 @@ ipcMain.handle('refresh-user-data', async (event) => {
         limits: result.user.subscription.limits
       });
     }
-    
+
     return result;
   } catch (error) {
     console.error('❌ Error refreshing user data:', error);
@@ -5152,7 +5177,7 @@ ipcMain.handle('refresh-user-data', async (event) => {
 ipcMain.handle('authenticate-user', async (event, loginData) => {
   try {
     console.log('🔐 Authenticating user:', loginData.email);
-    
+
     // For demo purposes, check demo credentials first
     if (loginData.email === 'demo@redglass.ai' && loginData.password === 'demo123') {
       const demoUser = {
@@ -5166,25 +5191,25 @@ ipcMain.handle('authenticate-user', async (event, loginData) => {
           expiresAt: null
         }
       };
-      
+
       console.log('✅ Demo user authenticated successfully');
       return { success: true, user: demoUser };
     }
-    
+
     // Try MongoDB authentication
     try {
       const result = await mongoDBService.getUserByEmail(loginData.email);
-      
+
       if (result.success) {
         // In a real app, you would verify the password hash here
         // For now, we'll simulate password verification
         console.log('✅ User found in database:', result.user.email);
-        
+
         // Update last login
         await mongoDBService.updateUser(result.user._id, {
           lastLogin: new Date()
         });
-        
+
         return { success: true, user: result.user };
       } else {
         console.log('❌ User not found in database');
@@ -5205,7 +5230,7 @@ ipcMain.handle('authenticate-user', async (event, loginData) => {
 ipcMain.handle('register-user', async (event, registerData) => {
   try {
     console.log('📝 Registering new user:', registerData.email);
-    
+
     // Check if user already exists
     try {
       const existingUser = await mongoDBService.getUserByEmail(registerData.email);
@@ -5215,7 +5240,7 @@ ipcMain.handle('register-user', async (event, registerData) => {
     } catch (error) {
       // User doesn't exist, continue with registration
     }
-    
+
     // Create new user
     const newUserData = {
       fullName: registerData.fullName,
@@ -5228,10 +5253,10 @@ ipcMain.handle('register-user', async (event, registerData) => {
         expiresAt: null
       }
     };
-    
+
     try {
       const result = await mongoDBService.createUser(newUserData);
-      
+
       if (result.success) {
         console.log('✅ User registered successfully:', result.user.email);
         return { success: true, user: result.user };
@@ -5253,19 +5278,19 @@ ipcMain.handle('register-user', async (event, registerData) => {
 ipcMain.handle('auth-success', async (event, user) => {
   try {
     console.log('✅ Authentication successful for:', user.email);
-    
+
     // Save authentication data
     saveAuthData(user);
-    
+
     // Close auth window
     if (authWindow) {
       authWindow.close();
       authWindow = null;
     }
-    
+
     // Create main window
     createWindow();
-    
+
     return { success: true };
   } catch (error) {
     console.error('❌ Auth success handler error:', error);
@@ -5277,19 +5302,19 @@ ipcMain.handle('auth-success', async (event, user) => {
 ipcMain.handle('logout-user', async (event) => {
   try {
     console.log('🚪 Logging out user:', currentUser?.email || 'unknown');
-    
+
     // Clear authentication data
     clearAuthData();
-    
+
     // Close main window
     if (mainWindow) {
       mainWindow.close();
       mainWindow = null;
     }
-    
+
     // Show auth window
     createAuthWindow();
-    
+
     return { success: true };
   } catch (error) {
     console.error('❌ Logout error:', error);
@@ -5300,8 +5325,8 @@ ipcMain.handle('logout-user', async (event) => {
 // Get current user
 ipcMain.handle('get-current-user', async (event) => {
   try {
-    return { 
-      success: true, 
+    return {
+      success: true,
       user: currentUser,
       isAuthenticated: isAuthenticated
     };
@@ -5330,7 +5355,7 @@ ipcMain.handle('get-env-var', async (event, varName) => {
 ipcMain.handle('get-chat-history', async (event) => {
   try {
     console.log('📜 Getting chat history');
-    
+
     // Try to get chat history from localStorage via the main window
     if (mainWindow && mainWindow.webContents) {
       const history = await mainWindow.webContents.executeJavaScript(`
@@ -5342,10 +5367,10 @@ ipcMain.handle('get-chat-history', async (event) => {
           return [];
         }
       `);
-      
+
       return { success: true, history };
     }
-    
+
     return { success: true, history: [] };
   } catch (error) {
     console.error('❌ Get chat history error:', error);
@@ -5357,7 +5382,7 @@ ipcMain.handle('get-chat-history', async (event) => {
 ipcMain.handle('clear-current-chat', async (event) => {
   try {
     console.log('🗑️ Clearing current chat');
-    
+
     // Try to clear current chat via the main window
     if (mainWindow && mainWindow.webContents) {
       await mainWindow.webContents.executeJavaScript(`
@@ -5385,7 +5410,7 @@ ipcMain.handle('clear-current-chat', async (event) => {
         }
       `);
     }
-    
+
     return { success: true, message: 'Chat cleared successfully' };
   } catch (error) {
     console.error('❌ Clear chat error:', error);
@@ -5403,7 +5428,7 @@ const realtimeTranscription = require('./realtime-transcription-service');
 ipcMain.handle('transcription-start', async (event) => {
   try {
     console.log('🎙️ Starting Deepgram transcription...');
-    
+
     await realtimeTranscription.startRecording(
       // onTranscript callback
       (data) => {
@@ -5442,8 +5467,8 @@ ipcMain.handle('transcription-send-audio', async (event, audioData) => {
 ipcMain.handle('transcription-stop', async (event) => {
   try {
     const result = await realtimeTranscription.stopRecording();
-    return { 
-      success: true, 
+    return {
+      success: true,
       ...result
     };
   } catch (error) {
@@ -5466,7 +5491,7 @@ ipcMain.handle('transcription-status', async (event) => {
 ipcMain.handle('transcription-create-workflow', async (event, { transcript, goal }) => {
   try {
     const transcriptionAIService = require('./transcription-ai-service');
-    
+
     const workflowSuggestion = await transcriptionAIService.generateWorkflowSuggestion(
       transcript,
       goal
@@ -5479,4 +5504,25 @@ ipcMain.handle('transcription-create-workflow', async (event, { transcript, goal
   }
 });
 
- 
+
+// ================================
+// OAUTH AUTHENTICATION HANDLERS
+// ================================
+
+// OAuth Authentication Handlers
+ipcMain.handle('auth-get-current-user', async () => {
+  return authManager.getCurrentUser();
+});
+
+ipcMain.handle('auth-refresh-user-data', async () => {
+  return await authManager.refreshUserData();
+});
+
+ipcMain.handle('auth-logout', async () => {
+  authManager.logout();
+  if (mainWindow) {
+    mainWindow.close();
+  }
+  createAuthWindow();
+  return { success: true };
+});

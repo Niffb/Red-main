@@ -360,11 +360,27 @@ class WorkflowExecutor {
     
     console.log(`    🤖 AI prompt: ${resolvedPrompt.substring(0, 50)}...`);
     
-    // TODO: Integrate with Gemini
+    // Integrate with Gemini API
+    try {
+      const { GoogleGenerativeAI } = require('@google/generative-ai');
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      const geminiModel = genAI.getGenerativeModel({ model: model || 'gemini-2.0-flash-exp' });
+      
+      const result = await geminiModel.generateContent(resolvedPrompt);
+      const response = result.response;
+      const text = response.text();
+      
+      console.log(`    ✅ AI response received (${text.length} chars)`);
+      
     return {
       prompt: resolvedPrompt,
-      response: 'AI response would go here'
+        response: text,
+        model: model || 'gemini-2.0-flash-exp'
     };
+    } catch (error) {
+      console.error(`    ❌ AI prompt failed:`, error);
+      throw new Error(`AI prompt failed: ${error.message}`);
+    }
   }
   
   /**

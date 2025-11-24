@@ -3524,6 +3524,9 @@
             // Return the message element for potential manipulation (like removing loading messages)
             return messageElement;
         }
+        
+        // Expose addMessage globally so workflow-builder can use it
+        window.addMessage = addMessage;
 
         function typewriterEffect(element, htmlText, speed = 1) {
             let index = 0;
@@ -4018,34 +4021,34 @@
                 }
                 
                 // Not captured yet - proceed with capture
-                const originalOpacity = captureBtn.style.opacity;
-                captureBtn.style.opacity = '0.5';
+            const originalOpacity = captureBtn.style.opacity;
+            captureBtn.style.opacity = '0.5';
+            
+            try {
+                console.log('📸 Capturing screenshot...');
+                const captureStart = performance.now();
+                const screenshotBuffer = await window.electronAPI.captureScreenshot('high');
+                const captureTime = performance.now() - captureStart;
+                console.log(`✅ Screenshot captured in ${captureTime.toFixed(0)}ms`);
                 
-                try {
-                    console.log('📸 Capturing screenshot...');
-                    const captureStart = performance.now();
-                    const screenshotBuffer = await window.electronAPI.captureScreenshot('high');
-                    const captureTime = performance.now() - captureStart;
-                    console.log(`✅ Screenshot captured in ${captureTime.toFixed(0)}ms`);
-                    
-                    // Store screenshot data
-                    currentCapturedScreenshot = screenshotBuffer;
-                    
-                    // Highlight button to indicate capture is ready
-                    captureBtn.classList.add('active');
-                    
-                    // Brief visual pulse to confirm capture
-                    captureBtn.style.opacity = '1';
-                    captureBtn.style.transform = 'scale(1.1)';
-                    setTimeout(() => {
-                        captureBtn.style.transform = '';
-                    }, 150);
-                } catch (error) {
-                    console.error('Failed to capture screenshot:', error);
-                    currentCapturedScreenshot = null;
-                    captureBtn.classList.remove('active');
-                    captureBtn.style.opacity = originalOpacity;
-                }
+                // Store screenshot data
+                currentCapturedScreenshot = screenshotBuffer;
+                
+                // Highlight button to indicate capture is ready
+                captureBtn.classList.add('active');
+                
+                // Brief visual pulse to confirm capture
+                captureBtn.style.opacity = '1';
+                captureBtn.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    captureBtn.style.transform = '';
+                }, 150);
+            } catch (error) {
+                console.error('Failed to capture screenshot:', error);
+                currentCapturedScreenshot = null;
+                captureBtn.classList.remove('active');
+                captureBtn.style.opacity = originalOpacity;
+            }
             });
         } else {
             console.error('❌ captureBtn not found');

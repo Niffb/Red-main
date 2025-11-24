@@ -343,9 +343,65 @@
     background: rgba(239, 68, 68, 0.25);
 }
 
+.workflow-card-btn.danger {
+    background: rgba(220, 38, 38, 0.1);
+    border-color: rgba(220, 38, 38, 0.2);
+    color: #dc2626;
+}
+
+.workflow-card-btn.danger:hover {
+    background: rgba(220, 38, 38, 0.2);
+    border-color: rgba(220, 38, 38, 0.4);
+}
+
 .workflow-card-btn svg {
     width: 14px;
     height: 14px;
+}
+
+/* Schedule Trigger - Days of Week Selector */
+.days-of-week-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.day-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    user-select: none;
+}
+
+.day-checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.day-checkbox span {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.day-checkbox:hover {
+    background: var(--glass-hover);
+    border-color: var(--border-hover);
+}
+
+.day-checkbox input[type="checkbox"]:checked + span {
+    color: #ef4444;
+}
+
+.day-checkbox:has(input[type="checkbox"]:checked) {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
 }
 
 /* Empty State */
