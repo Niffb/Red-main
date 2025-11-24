@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" class="loading">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RED - Insights & Journal</title>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css?v=20241216001">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <style>
+        /* Inline critical styles for blog to prevent FOUC */
+        .blog-hero {
+            padding: 180px 0 100px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-title-large {
+            font-size: 5rem;
+            font-weight: 800;
+            line-height: 0.9;
+            letter-spacing: -0.04em;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, #888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            padding-bottom: 100px;
+        }
+    </style>
+</head>
+
+<body class="loading">
+
+    <!-- Header Section (Consistent with red.html) -->
+    <header class="modern-header">
+        <div class="header-container">
+            <a href="/" class="logo-link">
+                <img src="images/RED ICON.svg" alt="Red AI Logo" width="40" height="40" style="margin-right: 12px;">
+                <span class="logo-text">Red AI</span>
+            </a>
+            <nav class="nav-bar">
+                <ul>
+                    <li><a href="/#features" class="nav-link">Features</a></li>
+                    <li><a href="/#packages" class="nav-link">Pricing</a></li>
+                    <li><a href="/blog" class="nav-link active">Blog</a></li>
+                    <li><a href="/#contact" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <a href="/dashboard" class="user-greeting" id="userGreeting" style="display: none;">
+                    <div class="greeting-text">
+                        <span id="userName"></span>
+                    </div>
+                    <svg class="dashboard-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                </a>
+                <a href="/signin" class="get-started-btn" id="getStartedBtn">Join Now</a>
+                <button class="mobile-menu-btn" aria-label="Toggle Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Blog Hero -->
+    <section class="blog-hero">
+        <div class="container">
+            <div data-aos="fade-up">
+                <span class="badge-pill mb-4">Latest Updates</span>
+                <h1 class="blog-title-large">INSIGHTS &<br><span class="text-gradient-red">JOURNAL</span></h1>
+                <p class="lead text-muted mx-auto" style="max-width: 600px;">
+                    Explore the future of work, AI automation, and productivity strategies from the RED team.
+                </p>
+            </div>
+        </div>
+
+        <!-- Ambient Background -->
+        <div class="hero-background-minimal"></div>
+    </section>
+
+    <!-- Featured Post Section -->
+    <section class="featured-post-section mb-5">
+        <div class="container">
+            <div id="featured-post-container">
+                <!-- Featured post will be injected here -->
+                <div class="placeholder-card featured-placeholder">
+                    <div class="spinner-border text-danger" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Grid -->
+    <section class="blog-posts-section">
+        <div class="container">
+            <div class="section-header mb-5 d-flex justify-content-between align-items-end" data-aos="fade-up">
+                <h2 class="h2 fw-bold m-0">Recent Articles</h2>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-category="all">All</button>
+                    <button class="filter-tab" data-category="product">Product</button>
+                    <button class="filter-tab" data-category="engineering">Engineering</button>
+                </div>
+            </div>
+
+            <div class="blog-grid" id="blog-grid">
+                <!-- Blog posts will be injected here -->
+            </div>
+
+            <div class="text-center mt-5" id="load-more-container" style="display: none;">
+                <button class="btn btn-outline-light rounded-pill px-5 py-3" id="load-more-btn">Load More
+                    Articles</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (Consistent with red.html) -->
+    <footer class="footer-minimalist mt-5">
+        <div class="container">
+            <div class="footer-grid-minimal">
+                <div class="footer-col-brand">
+                    <div class="footer-logo-minimal">RED AI</div>
+                    <p class="footer-tagline">Intelligence for the modern workflow.</p>
+                    <div class="footer-socials-minimal">
+                        <a href="#" class="social-link-minimal">X</a>
+                        <a href="#" class="social-link-minimal">INSTAGRAM</a>
+                        <a href="#" class="social-link-minimal">LINKEDIN</a>
+                    </div>
+                </div>
+                <div class="footer-col-links">
+                    <h4>PRODUCT</h4>
+                    <a href="/#features">Features</a>
+                    <a href="/#packages">Pricing</a>
+                    <a href="#">Integrations</a>
+                </div>
+                <div class="footer-col-links">
+                    <h4>COMPANY</h4>
+                    <a href="#">About</a>
+                    <a href="#">Careers</a>
+                    <a href="/#contact">Contact</a>
+                </div>
+                <div class="footer-col-links">
+                    <h4>LEGAL</h4>
+                    <a href="/privacy">Privacy</a>
+                    <a href="/terms">Terms</a>
+                </div>
+            </div>
+            <div class="footer-bottom-minimal">
+                <div class="copyright">&copy; 2025 RED AI</div>
+            </div>
+        </div>
+        <div class="footer-watermark-minimal">RED</div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script src="/js/blog.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+
+        // Mobile menu toggle (copied from script.js logic)
+        const mobileBtn = document.querySelector('.mobile-menu-btn');
+        const navBar = document.querySelector('.nav-bar');
+        if (mobileBtn) {
+            mobileBtn.addEventListener('click', () => {
+                mobileBtn.classList.toggle('active');
+                navBar.classList.toggle('active');
+            });
+        }
+    </script>
+</body>
+
+</html>

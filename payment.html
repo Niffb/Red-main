@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en" class="loading">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="RED - Complete your subscription payment">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>RED - Payment</title>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=20241216001">
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .payment-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* Left side - Visual */
+        .payment-visual {
+            flex: 1;
+            background: url('images/Fractal_20Maze_20-_2020.jpg') center center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .payment-visual::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .visual-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 48px;
+            text-align: center;
+            color: white;
+        }
+
+        .visual-logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .visual-logo img {
+            width: 48px;
+            height: 48px;
+            filter: brightness(0) invert(1);
+        }
+
+        .visual-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        .visual-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            line-height: 1.6;
+            max-width: 400px;
+        }
+
+        .back-nav-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            z-index: 1000;
+        }
+
+        .back-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateX(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-nav-btn svg {
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+        }
+
+        /* Right side - Payment Form */
+        .payment-form-section {
+            flex: 1;
+            background: #ffffff;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 32px 48px 48px 48px;
+            overflow-y: auto;
+            height: 100vh;
+            position: relative;
+        }
+
+        .payment-card {
+            width: 100%;
+            max-width: 480px;
+            margin: auto 0;
+            padding-top: 32px;
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .payment-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .payment-logo img {
+            filter: brightness(0) invert(0);
+        }
+
+        .payment-logo-text {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .payment-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .payment-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Plan Selection */
+        /* Billing Toggle in Payment Page */
+        .billing-toggle-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+
+        .billing-label-payment {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+            transition: color 0.3s ease;
+        }
+
+        .billing-label-payment.active {
+            color: #111827;
+        }
+
+        .billing-switch-payment {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .billing-switch-payment input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .billing-slider-payment {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #d1d5db;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .billing-slider-payment:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .billing-slider-payment {
+            background-color: #dc2626;
+        }
+
+        input:checked + .billing-slider-payment:before {
+            transform: translateX(24px);
+        }
+
+        .billing-discount-badge-payment {
+            display: inline-block;
+            background: rgba(220, 38, 38, 0.1);
+            color: #dc2626;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        /* Early Access Banner in Payment */
+        .early-access-payment-banner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(220, 38, 38, 0.05));
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #dc2626;
+        }
+
+        .early-access-payment-banner svg {
+            flex-shrink: 0;
+        }
+
+        /* Original Price Strikethrough */
+        .original-price-payment {
+            margin-top: 4px;
+        }
+
+        .strikethrough-payment {
+            color: #9ca3af;
+            text-decoration: line-through;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .plan-selection {
+            margin-bottom: 32px;
+        }
+
+        .plan-selection h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .plan-option {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            background: #ffffff;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .plan-option:hover {
+            border-color: #dc2626;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+        }
+
+        .plan-option.selected {
+            border-color: #dc2626;
+            background: #fef2f2;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+        }
+
+        .plan-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .plan-info h4 {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+            font-size: 16px;
+        }
+
+        .plan-info p {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .plan-price {
+            text-align: right;
+        }
+
+        .plan-price .price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #6b7280;
+            line-height: 1;
+        }
+
+        .plan-option.selected .plan-price .price {
+            color: #dc2626;
+        }
+
+        .plan-price .period {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .save-badge {
+            background: #10b981;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        /* Payment Information */
+        .payment-info {
+            margin-bottom: 32px;
+        }
+
+        .payment-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            color: var(--text-primary);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            border-color: rgba(107, 114, 128, 0.7);
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .form-input::placeholder {
+            color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Stripe Elements */
+        .stripe-element {
+            padding: 14px 16px;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .stripe-element:focus-within {
+            border-color: rgba(107, 114, 128, 0.7);
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .stripe-element.StripeElement--invalid {
+            border-color: #ef4444;
+        }
+
+        .stripe-error {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .payment-button {
+            width: 100%;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .payment-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+        }
+
+        .payment-button:active {
+            transform: translateY(0);
+        }
+
+        .payment-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .payment-footer {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .payment-footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .payment-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Security badges */
+        .security-badges {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 8px;
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .security-badge svg {
+            width: 16px;
+            height: 16px;
+            color: #10b981;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .payment-container {
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            .payment-visual {
+                position: relative;
+                height: 40vh;
+                flex: none;
+                min-height: 40vh;
+            }
+
+            .visual-title {
+                font-size: 2rem;
+            }
+
+            .payment-form-section {
+                padding: 24px;
+                flex: none;
+                height: auto;
+                min-height: 60vh;
+                align-items: flex-start;
+            }
+
+            .payment-card {
+                padding-top: 16px;
+            }
+
+            .back-nav-btn {
+                top: 20px;
+                left: 20px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .payment-visual {
+                min-height: 30vh;
+            }
+
+            .visual-content {
+                padding: 32px 24px;
+            }
+
+            .visual-title {
+                font-size: 1.75rem;
+            }
+
+            .visual-logo {
+                font-size: 24px;
+            }
+
+            .visual-logo img {
+                width: 32px;
+                height: 32px;
+            }
+
+            .payment-form-section {
+                padding: 20px;
+                min-height: 70vh;
+            }
+
+            .payment-card {
+                padding-top: 12px;
+            }
+
+            .security-badges {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body class="loading">
+    <div class="payment-container">
+        <!-- Left Side - Visual -->
+        <div class="payment-visual">
+            <!-- Back Navigation Button -->
+            <button class="back-nav-btn" id="backNavBtn" title="Go Back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5m0 0l7 7m-7-7l7-7"/>
+                </svg>
+            </button>
+            
+            <div class="visual-content">
+                <div class="visual-logo">
+                    <img src="images/RED ICON.svg" alt="Red AI Logo">
+                    <span>Red AI</span>
+                </div>
+                <h1 class="visual-title">Complete Setup</h1>
+                <p class="visual-subtitle">Choose your plan and complete payment to start using Red AI's powerful features.</p>
+            </div>
+        </div>
+
+        <!-- Right Side - Payment Form -->
+        <div class="payment-form-section">
+            <div class="payment-card">
+                <!-- Payment Header -->
+                <div class="payment-header">
+                    <div class="payment-logo">
+                        <img src="images/RED ICON.svg" alt="Red AI Logo" width="32" height="32">
+                        <span class="payment-logo-text">Red AI</span>
+                    </div>
+                    <h1 class="payment-title">Choose Your Plan</h1>
+                    <p class="payment-subtitle">Select a plan and complete your payment to get started</p>
+                </div>
+
+                <!-- Billing Toggle -->
+                <div class="billing-toggle-wrapper">
+                    <span class="billing-label-payment" id="monthlyLabelPayment">Monthly</span>
+                    <label class="billing-switch-payment">
+                        <input type="checkbox" id="billingTogglePayment">
+                        <span class="billing-slider-payment"></span>
+                    </label>
+                    <span class="billing-label-payment active" id="annualLabelPayment">
+                        Annual 
+                        <span class="billing-discount-badge-payment">Save 35%</span>
+                    </span>
+                </div>
+
+                <!-- Early Access Banner -->
+                <div class="early-access-payment-banner" id="earlyAccessPaymentBanner" style="display: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                    <span>Early Access: 20% Off Applied!</span>
+                </div>
+
+                <!-- Plan Selection -->
+                <div class="plan-selection">
+                    <h3>Select Plan</h3>
+                    
+                    <div class="plan-option" data-plan="free" data-price="0" data-monthly-price="0" data-annual-price="0" data-price-id="free">
+                        <div class="plan-content">
+                            <div class="plan-info">
+                                <h4>Free Plan</h4>
+                                <p>Get started with the basics</p>
+                            </div>
+                            <div class="plan-price">
+                                <div class="price">$0</div>
+                                <div class="period">/month</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="plan-option selected" data-plan="super-red" data-price="25" data-monthly-price="25" data-annual-price="16.25" data-price-id="price_super_red">
+                        <div class="plan-content">
+                            <div class="plan-info">
+                                <h4>Super Red <span class="save-badge">Most Popular</span></h4>
+                                <p>Perfect for professionals & small teams</p>
+                            </div>
+                            <div class="plan-price">
+                                <div class="price">$25</div>
+                                <div class="period">/month</div>
+                                <div class="original-price-payment" style="display: none;">
+                                    <span class="strikethrough-payment">$<span class="original-amount-payment">25</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="plan-option" data-plan="ultimate-red" data-price="70" data-monthly-price="70" data-annual-price="45.50" data-price-id="price_ultimate_red">
+                        <div class="plan-content">
+                            <div class="plan-info">
+                                <h4>Ultimate Red <span class="save-badge premium">Premium</span></h4>
+                                <p>For power users & growing teams</p>
+                            </div>
+                            <div class="plan-price">
+                                <div class="price">$70</div>
+                                <div class="period">/month</div>
+                                <div class="original-price-payment" style="display: none;">
+                                    <span class="strikethrough-payment">$<span class="original-amount-payment">70</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Information -->
+                <form id="payment-form">
+                    <div class="payment-info">
+                        <h3>Payment Information</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Card Information</label>
+                            <div id="stripe-card-element" class="stripe-element">
+                                <!-- Stripe Elements will create form elements here -->
+                            </div>
+                            <div id="stripe-card-errors" class="stripe-error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="cardholder-name">Cardholder Name</label>
+                            <input type="text" id="cardholder-name" class="form-input" placeholder="Enter name on card" required>
+                        </div>
+                    </div>
+
+                    <!-- Security Badges -->
+                    <div class="security-badges">
+                        <div class="security-badge">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                            </svg>
+                            SSL Secured
+                        </div>
+                        <div class="security-badge">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                            256-bit Encryption
+                        </div>
+                        <div class="security-badge">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            PCI Compliant
+                        </div>
+                    </div>
+
+                    <button type="submit" class="payment-button" id="submit-button">
+                        Start Free Trial - $<span id="plan-price">25</span>/month
+                    </button>
+                </form>
+
+                <!-- Payment Footer -->
+                <div class="payment-footer">
+                    <p>By continuing, you agree to our <a href="legal/terms.html" target="_blank">Terms of Service</a> and <a href="legal/privacy.html" target="_blank">Privacy Policy</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remove loading classes
+            setTimeout(function() {
+                document.documentElement.classList.remove('loading');
+                document.body.classList.remove('loading');
+            }, 100);
+        });
+
+        // Smart back navigation functionality
+        function goToPreviousPage() {
+            console.log('🔙 Back button clicked');
+            
+            // Check URL params for referrer
+            const urlParams = new URLSearchParams(window.location.search);
+            const referrer = urlParams.get('referrer');
+            
+            console.log('Referrer from URL:', referrer);
+            console.log('Document referrer:', document.referrer);
+            
+            if (referrer === 'billing' || referrer === 'settings') {
+                console.log('Navigating to settings');
+                window.location.href = '/settings.html';
+            } else if (referrer === 'dashboard') {
+                console.log('Navigating to dashboard');
+                window.location.href = '/dashboard';
+            } else if (document.referrer && document.referrer.includes(window.location.hostname)) {
+                // If we came from within the same site, go back
+                console.log('Going back in history');
+                window.history.back();
+            } else {
+                // Default to home page
+                console.log('Navigating to home');
+                window.location.href = '/';
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'error') {
+            // Remove any existing notifications
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-icon">
+                        ${type === 'error' ? 
+                            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>' : 
+                            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>'
+                        }
+                    </div>
+                    <span class="notification-message">${message}</span>
+                </div>
+            `;
+            
+            // Add notification styles if not already added
+            if (!document.querySelector('#notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    .notification {
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        z-index: 10000;
+                        padding: 16px 20px;
+                        border-radius: 12px;
+                        backdrop-filter: blur(20px);
+                        border: 1px solid rgba(255, 255, 255, 0.15);
+                        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+                        max-width: 400px;
+                        animation: slideInFromRight 0.3s ease-out;
+                        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    }
+                    
+                    .notification.error {
+                        background: rgba(239, 68, 68, 0.95);
+                        color: white;
+                        border-color: rgba(239, 68, 68, 0.3);
+                    }
+                    
+                    .notification.success {
+                        background: rgba(16, 185, 129, 0.95);
+                        color: white;
+                        border-color: rgba(16, 185, 129, 0.3);
+                    }
+                    
+                    .notification-content {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                    }
+                    
+                    .notification-icon {
+                        flex-shrink: 0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 20px;
+                        height: 20px;
+                    }
+                    
+                    .notification-message {
+                        font-weight: 500;
+                        font-size: 14px;
+                        line-height: 1.4;
+                        flex: 1;
+                    }
+                    
+                    @keyframes slideInFromRight {
+                        from {
+                            transform: translateX(100%);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideInFromRight 0.3s ease-in reverse';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // Plan selection functionality
+        // Pricing Logic for Payment Page
+        const billingTogglePayment = document.getElementById('billingTogglePayment');
+        const monthlyLabelPayment = document.getElementById('monthlyLabelPayment');
+        const annualLabelPayment = document.getElementById('annualLabelPayment');
+        const earlyAccessPaymentBanner = document.getElementById('earlyAccessPaymentBanner');
+        const paymentInfoSection = document.querySelector('.payment-info');
+        const submitButton = document.getElementById('submit-button');
+        
+        let isEarlyAccessPayment = sessionStorage.getItem('earlyAccess') === 'true';
+        let isAnnualPayment = false;
+        
+        // Show early access banner if applicable
+        if (isEarlyAccessPayment && earlyAccessPaymentBanner) {
+            earlyAccessPaymentBanner.style.display = 'flex';
+        }
+        
+        // Billing toggle handler
+        if (billingTogglePayment) {
+            billingTogglePayment.addEventListener('change', function() {
+                isAnnualPayment = this.checked;
+                
+                // Update labels
+                if (isAnnualPayment) {
+                    monthlyLabelPayment.classList.remove('active');
+                    annualLabelPayment.classList.add('active');
+                } else {
+                    monthlyLabelPayment.classList.add('active');
+                    annualLabelPayment.classList.remove('active');
+                }
+                
+                updatePaymentPricing();
+            });
+        }
+        
+        function updatePaymentPricing() {
+            const planOptions = document.querySelectorAll('.plan-option[data-monthly-price]');
+            
+            planOptions.forEach(option => {
+                const monthlyPrice = parseFloat(option.getAttribute('data-monthly-price'));
+                const annualMonthlyPrice = parseFloat(option.getAttribute('data-annual-price'));
+                
+                const priceElement = option.querySelector('.price');
+                const periodElement = option.querySelector('.period');
+                const originalPriceDiv = option.querySelector('.original-price-payment');
+                const originalAmountElement = option.querySelector('.original-amount-payment');
+                
+                let finalPrice;
+                let originalPrice;
+                
+                if (isAnnualPayment) {
+                    // Annual pricing (35% off)
+                    originalPrice = monthlyPrice;
+                    finalPrice = annualMonthlyPrice;
+                    
+                    if (isEarlyAccessPayment) {
+                        // Apply additional 20% early access discount to annual price
+                        originalPrice = annualMonthlyPrice;
+                        finalPrice = annualMonthlyPrice * 0.8; // 20% off
+                    }
+                    
+                    periodElement.textContent = '/month (billed annually)';
+                } else {
+                    // Monthly pricing
+                    originalPrice = monthlyPrice;
+                    finalPrice = monthlyPrice;
+                    
+                    if (isEarlyAccessPayment) {
+                        // Apply 20% early access discount
+                        finalPrice = monthlyPrice * 0.8; // 20% off
+                    }
+                    
+                    periodElement.textContent = '/month';
+                }
+                
+                // Update displayed price
+                priceElement.textContent = '$' + finalPrice.toFixed(2);
+                
+                // Update data-price attribute for payment processing
+                option.setAttribute('data-price', finalPrice.toFixed(2));
+                
+                // Show/hide original price strikethrough
+                if (isEarlyAccessPayment || isAnnualPayment) {
+                    if (originalPriceDiv) {
+                        originalPriceDiv.style.display = 'block';
+                        if (originalAmountElement) {
+                            originalAmountElement.textContent = originalPrice.toFixed(2);
+                        }
+                    }
+                } else {
+                    if (originalPriceDiv) {
+                        originalPriceDiv.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Update button price if plan is selected
+            const selectedPlan = document.querySelector('.plan-option.selected');
+            if (selectedPlan) {
+                const price = selectedPlan.dataset.price;
+                const planPriceElement = document.getElementById('plan-price');
+                if (planPriceElement) {
+                    planPriceElement.textContent = price;
+                }
+            }
+        }
+        
+        // Initialize pricing on load
+        updatePaymentPricing();
+        
+        // Function to update UI based on selected plan
+        function updatePlanUI(selectedPlan) {
+            const planType = selectedPlan.dataset.plan;
+            const price = selectedPlan.dataset.price;
+            
+            // Update button price (with null check)
+            const planPriceElement = document.getElementById('plan-price');
+            if (planPriceElement) {
+                planPriceElement.textContent = price;
+            }
+            
+            // Handle Free plan selection
+            if (planType === 'free' || price === '0') {
+                // Hide payment information section
+                if (paymentInfoSection) {
+                    paymentInfoSection.style.display = 'none';
+                }
+                
+                // Update button text and functionality
+                if (submitButton) {
+                    submitButton.textContent = 'Continue with Free Plan';
+                    submitButton.disabled = false;
+                }
+            } else {
+                // Show payment information section for paid plans
+                if (paymentInfoSection) {
+                    paymentInfoSection.style.display = 'block';
+                }
+                
+                // Update button text
+                if (submitButton) {
+                    submitButton.textContent = `Start Free Trial - $${price}/month`;
+                }
+            }
+        }
+
+        // Stripe configuration
+        let stripe = null;
+        let cardElement = null;
+        let selectedPriceId = 'price_1SFgNOHtnW97iFDvCeVjt1u3';
+        
+        // Initialize Stripe
+        function initializeStripe() {
+            // Initialize Stripe with live publishable key
+            stripe = Stripe('pk_live_51R5Sg8HtnW97iFDvfxAOwDjVElzAFNuej82Natq8uw0IWU7ePMaw9sz7kcErVtZkm3D7ndFYDJ61iyCVfkGXRtbj00CrFSxsvG');
+            
+            const elements = stripe.elements();
+            
+            // Create card element
+            cardElement = elements.create('card', {
+                style: {
+                    base: {
+                        fontSize: '16px',
+                        color: '#1f2937',
+                        fontFamily: '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                        '::placeholder': {
+                            color: '#9ca3af',
+                        },
+                    },
+                    invalid: {
+                        color: '#ef4444',
+                    },
+                },
+            });
+            
+            // Mount card element
+            cardElement.mount('#stripe-card-element');
+            
+            // Handle real-time validation errors from the card Element
+            cardElement.addEventListener('change', function(event) {
+                const displayError = document.getElementById('stripe-card-errors');
+                if (event.error) {
+                    displayError.textContent = event.error.message;
+                } else {
+                    displayError.textContent = '';
+                }
+            });
+        }
+
+        // Check if user is logged in
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/user', {
+                    credentials: 'same-origin'
+                });
+                
+                if (!response.ok) {
+                    console.log('⚠️ User not authenticated, redirecting to signin...');
+                    showNotification('Please sign in first to access payment page', 'error');
+                    setTimeout(() => {
+                        window.location.href = '/signin';
+                    }, 2000);
+                    return false;
+                }
+                
+                const userData = await response.json();
+                console.log('✅ User authenticated:', userData.email);
+                return true;
+            } catch (error) {
+                console.error('❌ Auth check error:', error);
+                return false;
+            }
+        }
+
+        // Initialize Stripe when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('💳 Payment page loaded');
+            
+            // Add event listener to back button
+            const backNavBtn = document.getElementById('backNavBtn');
+            if (backNavBtn) {
+                backNavBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    goToPreviousPage();
+                });
+            }
+            
+            // Setup plan selection event listeners
+            document.querySelectorAll('.plan-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from all options
+                    document.querySelectorAll('.plan-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    // Update selected price ID for Stripe
+                    selectedPriceId = this.dataset.priceId;
+                    
+                    // Update UI based on selected plan
+                    updatePlanUI(this);
+                });
+            });
+            
+            // Initialize UI for default selected plan
+            const initialSelectedPlan = document.querySelector('.plan-option.selected');
+            if (initialSelectedPlan) {
+                updatePlanUI(initialSelectedPlan);
+            }
+            
+            // Setup payment form submission handler
+            const paymentForm = document.getElementById('payment-form');
+            if (paymentForm) {
+                paymentForm.addEventListener('submit', handlePaymentFormSubmit);
+            }
+            
+            // Check auth first
+            const isAuthenticated = await checkAuthStatus();
+            if (isAuthenticated) {
+                initializeStripe();
+            }
+        });
+
+        // Payment form submission handler
+        async function handlePaymentFormSubmit(e) {
+            e.preventDefault();
+            
+            const submitButton = document.getElementById('submit-button');
+            const selectedPlan = document.querySelector('.plan-option.selected');
+            
+            if (!selectedPlan) {
+                showNotification('Please select a plan', 'error');
+                return;
+            }
+            
+            const planType = selectedPlan.dataset.plan;
+            const planPrice = selectedPlan.dataset.price;
+            
+            // Handle Free plan - no payment needed, just activate and redirect
+            if (planType === 'free' || planPrice === '0') {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Setting up your account...';
+                
+                try {
+                    // Call backend to activate free plan
+                    const response = await fetch('/api/activate-free-plan', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'same-origin'
+                    });
+                    
+                    if (response.ok) {
+                        showNotification('Free plan activated! Redirecting to dashboard...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/dashboard';
+                        }, 1000);
+                    } else {
+                        const data = await response.json();
+                        throw new Error(data.error || 'Failed to activate free plan');
+                    }
+                } catch (error) {
+                    console.error('Free plan activation error:', error);
+                    showNotification(error.message || 'Failed to activate free plan', 'error');
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Continue with Free Plan';
+                }
+                return;
+            }
+            
+            // For paid plans, proceed with payment
+            if (!stripe || !cardElement) {
+                showNotification('Payment system not initialised. Please refresh and try again.', 'error');
+                return;
+            }
+            
+            const cardholderName = document.getElementById('cardholder-name').value;
+            
+            // Validation for paid plans
+            if (!cardholderName.trim()) {
+                showNotification('Please enter the cardholder name', 'error');
+                return;
+            }
+            
+            selectedPriceId = selectedPlan.dataset.priceId;
+            
+            // Disable submit button
+            submitButton.disabled = true;
+            submitButton.textContent = 'Processing...';
+            
+            try {
+                console.log('🚀 Starting payment process...');
+                
+                // Create payment method with Stripe
+                console.log('💳 Creating payment method...');
+                const {error, paymentMethod} = await stripe.createPaymentMethod({
+                    type: 'card',
+                    card: cardElement,
+                    billing_details: {
+                        name: cardholderName,
+                    },
+                });
+                
+                if (error) {
+                    console.error('❌ Stripe error:', error);
+                    throw new Error(error.message);
+                }
+                
+                console.log('✅ Payment method created:', paymentMethod.id);
+                
+                // Send payment method to your server
+                console.log('📤 Sending to server...');
+                const response = await fetch('/api/create-subscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        paymentMethodId: paymentMethod.id,
+                        priceId: selectedPriceId,
+                        customerName: cardholderName
+                    }),
+                    credentials: 'same-origin'
+                });
+                
+                console.log('📥 Response status:', response.status);
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('❌ Non-JSON response:', text.substring(0, 200));
+                    throw new Error('Server error: Please make sure you are signed in and try again.');
+                }
+                
+                const data = await response.json();
+                console.log('📊 Response data:', data);
+                
+                if (response.ok) {
+                    if (data.requiresAction) {
+                        console.log('🔐 3D Secure authentication required');
+                        // Handle 3D Secure authentication
+                        const {error: confirmError} = await stripe.confirmCardPayment(data.clientSecret);
+                        
+                        if (confirmError) {
+                            throw new Error(confirmError.message);
+                        }
+                    }
+                    
+                    console.log('✅ Payment successful!');
+                    showNotification('Payment successful! Welcome to Red AI!', 'success');
+                    setTimeout(() => {
+                        window.location.href = data.redirectUrl || '/dashboard';
+                    }, 1500);
+                } else {
+                    console.error('❌ Server error:', data.error);
+                    
+                    // Handle specific error cases
+                    if (response.status === 401) {
+                        throw new Error('Please sign in first before making a payment.');
+                    } else if (response.status === 403) {
+                        throw new Error(data.error || 'Access denied');
+                    } else {
+                        throw new Error(data.error || 'Payment failed. Please try again.');
+                    }
+                }
+                
+            } catch (error) {
+                console.error('💥 Payment error:', error);
+                showNotification(error.message || 'Payment failed. Please try again.', 'error');
+                document.getElementById('stripe-card-errors').textContent = error.message;
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = `Start Free Trial - $${selectedPlan.dataset.price}/month`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RED - Sign In</title>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #000000;
+            --text: #1a1a1a;
+            --text-light: #666666;
+            --bg: #ffffff;
+            --accent: #ff6b6b;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+            --font-serif: 'Playfair Display', serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-sans);
+        }
+
+        body {
+            background: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: white;
+            width: 100%;
+            max-width: 1400px;
+            height: 90vh;
+            min-height: 700px;
+            border-radius: 32px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.05);
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Back to Home Button */
+        .back-home-btn {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+            z-index: 100;
+        }
+
+        .back-home-btn:hover {
+            color: var(--primary);
+        }
+
+        /* Left Side - Form */
+        .auth-left {
+            flex: 1;
+            padding: 60px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: -0.02em;
+        }
+
+        .logo img {
+            width: 32px;
+            height: 32px;
+        }
+
+        /* Toggle Slider */
+        .auth-toggle-container {
+            background: #f3f4f6;
+            border-radius: 100px;
+            padding: 4px;
+            display: inline-flex;
+            margin-bottom: 40px;
+            position: relative;
+            width: fit-content;
+        }
+
+        .auth-toggle-btn {
+            padding: 10px 24px;
+            border-radius: 100px;
+            border: none;
+            background: transparent;
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            transition: color 0.3s ease;
+        }
+
+        .auth-toggle-btn.active {
+            color: var(--primary);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            height: calc(100% - 8px);
+            background: white;
+            border-radius: 100px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1), width 0.3s ease;
+            z-index: 1;
+        }
+
+        h1 {
+            font-family: var(--font-sans);
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            letter-spacing: -0.03em;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 16px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 32px;
+        }
+
+        .google-btn:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .form-container {
+            position: relative;
+            min-height: 300px;
+        }
+
+        .auth-form {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.4s ease;
+        }
+
+        .auth-form.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            position: relative;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .form-label span {
+            color: var(--accent);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: #f9fafb;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 12px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Right Side - Visual */
+        .auth-right {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            position: relative;
+        }
+
+        .visual-card {
+            flex: 1;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Mesh Gradient Background */
+        .mesh-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+            filter: blur(60px);
+            opacity: 0.8;
+            animation: bgShift 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes bgShift {
+            0% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1.2);
+            }
+        }
+
+        /* Content Containers */
+        .right-content-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .right-content-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+
+        /* Rotating Cards (Sign Up Mode) */
+        .rotating-container {
+            width: 400px;
+            height: 500px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .rotate-card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 32px;
+            padding: 40px;
+            color: white;
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .rotate-card.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+
+        .rotate-card.exit {
+            opacity: 0;
+            transform: translateY(-20px) scale(1.05);
+        }
+
+        /* Aesthetic Animation (Sign In Mode) */
+        .aesthetic-animation {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .breathing-orb {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 70%);
+            filter: blur(40px);
+            animation: breathe 6s ease-in-out infinite;
+            position: absolute;
+        }
+
+        .orbit-ring {
+            width: 400px;
+            height: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            position: absolute;
+            animation: spin 20s linear infinite;
+        }
+
+        .orbit-ring::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px white;
+        }
+
+        .orbit-ring:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            animation-duration: 15s;
+            animation-direction: reverse;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes breathe {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Card Content Styles */
+        .card-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.7;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .card-value {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 24px;
+            font-family: var(--font-sans);
+        }
+
+        .card-chart {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-bar {
+            position: absolute;
+            bottom: 0;
+            width: 12%;
+            background: white;
+            border-radius: 4px 4px 0 0;
+            opacity: 0.8;
+        }
+
+        .card-quote {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 500;
+            line-height: 1.3;
+            font-style: italic;
+        }
+
+        .card-author {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .auth-left {
+                padding: 40px;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .auth-right {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <!-- Back to Home Button -->
+        <a href="/" class="back-home-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            Back to Home
+        </a>
+
+        <!-- Left Side -->
+        <div class="auth-left">
+            <div class="logo">
+                <img src="images/RED ICON.svg" alt="RED AI">
+                <span>RED AI</span>
+            </div>
+
+            <!-- Toggle Slider -->
+            <div class="auth-toggle-container">
+                <div class="toggle-slider" id="toggleSlider"></div>
+                <button class="auth-toggle-btn active" id="btnSignIn">Sign In</button>
+                <button class="auth-toggle-btn" id="btnSignUp">Sign Up</button>
+            </div>
+
+            <h1 id="authTitle">Welcome Back</h1>
+            <p class="subtitle" id="authSubtitle">Enter your details to access your account</p>
+
+            <button class="google-btn" id="googleSignInBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="#4285F4"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                    <path fill="#EA4335"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                </svg>
+                Continue with Google
+            </button>
+
+            <div class="divider">or</div>
+
+            <div class="form-container">
+                <!-- Sign In Form -->
+                <form class="auth-form active" id="signinForm">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" name="password" placeholder="Enter your password"
+                            required>
+                    </div>
+                    <div style="text-align: right; margin-bottom: 20px;">
+                        <a href="#" style="color: var(--text-light); font-size: 0.9rem; text-decoration: none;">Forgot
+                            Password?</a>
+                    </div>
+                    <button type="submit" class="submit-btn">Sign In</button>
+                </form>
+
+                <!-- Sign Up Form -->
+                <form class="auth-form" id="signupForm">
+                    <div class="form-group">
+                        <label class="form-label">Name<span>*</span></label>
+                        <input type="text" class="form-input" name="name" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email<span>*</span></label>
+                        <input type="email" class="form-input" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password<span>*</span></label>
+                        <input type="password" class="form-input" name="password" placeholder="Create a password"
+                            required>
+                    </div>
+                    <button type="submit" class="submit-btn">Create Account</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Side -->
+        <div class="auth-right">
+            <div class="visual-card">
+                <div class="mesh-bg"></div>
+
+                <!-- Sign In Animation (Aesthetic) -->
+                <div class="right-content-container" id="signInVisual">
+                    <div class="aesthetic-animation">
+                        <div class="breathing-orb"></div>
+                        <div class="orbit-ring"></div>
+                        <div class="orbit-ring"></div>
+                    </div>
+                </div>
+
+                <!-- Sign Up Animation (Rotating Cards) -->
+                <div class="right-content-container hidden" id="signUpVisual">
+                    <div class="rotating-container">
+                        <!-- Card 1: Features -->
+                        <div class="rotate-card active" id="card-1">
+                            <div class="card-label">Key Features</div>
+                            <h2 style="font-size: 2.5rem; margin-bottom: 20px; font-weight: 700;">Automate your workflow
+                            </h2>
+                            <div style="display: grid; gap: 16px;">
+                                <div
+                                    style="background: rgba(255,255,255,0.1); padding: 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px;">
+                                    <div
+                                        style="width: 32px; height: 32px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="black"
+                                            stroke-width="2">
+                                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                                        </svg>
+                                    </div>
+                                    <span>Smart Analytics</span>
+                                </div>
+                                <div
+                                    style="background: rgba(255,255,255,0.1); padding: 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px;">
+                                    <div
+                                        style="width: 32px; height: 32px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="black"
+                                            stroke-width="2">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                            <circle cx="9" cy="7" r="4" />
+                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                        </svg>
+                                    </div>
+                                    <span>Team Collaboration</span>
+                                </div>
+                                <div
+                                    style="background: rgba(255,255,255,0.1); padding: 16px; border-radius: 12px; display: flex; align-items: center; gap: 12px;">
+                                    <div
+                                        style="width: 32px; height: 32px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="black"
+                                            stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                            <line x1="16" y1="2" x2="16" y2="6" />
+                                            <line x1="8" y1="2" x2="8" y2="6" />
+                                            <line x1="3" y1="10" x2="21" y2="10" />
+                                        </svg>
+                                    </div>
+                                    <span>Automated Reports</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Sales -->
+                        <div class="rotate-card" id="card-2">
+                            <div>
+                                <div class="card-label">Total Sales</div>
+                                <div class="card-value">$527.8K</div>
+                                <p style="opacity: 0.8; line-height: 1.6;">This amount of total sales highlights the
+                                    effectiveness of our recent strategies.</p>
+                            </div>
+                            <div class="card-chart">
+                                <div class="chart-bar" style="left: 10%; height: 40%;"></div>
+                                <div class="chart-bar" style="left: 25%; height: 70%;"></div>
+                                <div class="chart-bar" style="left: 40%; height: 50%;"></div>
+                                <div class="chart-bar" style="left: 55%; height: 90%;"></div>
+                                <div class="chart-bar" style="left: 70%; height: 60%;"></div>
+                                <div class="chart-bar" style="left: 85%; height: 80%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Quote -->
+                        <div class="rotate-card" id="card-3">
+                            <div class="card-quote">
+                                "RED AI is surprisingly handy for keeping all my business stuff in one place."
+                            </div>
+                            <div class="card-author">
+                                <div class="author-avatar"></div>
+                                <div>
+                                    <div style="font-weight: 600;">Sarah Jenkins</div>
+                                    <div style="font-size: 0.9rem; opacity: 0.7;">CEO, TechFlow</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle Logic
+        const slider = document.getElementById('toggleSlider');
+        const btnSignIn = document.getElementById('btnSignIn');
+        const btnSignUp = document.getElementById('btnSignUp');
+        const signinForm = document.getElementById('signinForm');
+        const signupForm = document.getElementById('signupForm');
+        const authTitle = document.getElementById('authTitle');
+        const authSubtitle = document.getElementById('authSubtitle');
+        const signInVisual = document.getElementById('signInVisual');
+        const signUpVisual = document.getElementById('signUpVisual');
+        const googleSignInBtn = document.getElementById('googleSignInBtn');
+
+        function toggleAuth(mode) {
+            if (mode === 'signin') {
+                // Update Slider
+                slider.style.transform = 'translateX(0)';
+                slider.style.width = btnSignIn.offsetWidth + 'px';
+                btnSignIn.classList.add('active');
+                btnSignUp.classList.remove('active');
+
+                // Update Text
+                authTitle.textContent = 'Welcome Back';
+                authSubtitle.textContent = 'Enter your details to access your account';
+
+                // Update Form
+                signinForm.classList.add('active');
+                signupForm.classList.remove('active');
+
+                // Update Visuals
+                signInVisual.classList.remove('hidden');
+                signUpVisual.classList.add('hidden');
+
+            } else {
+                // Update Slider
+                slider.style.transform = `translateX(${btnSignIn.offsetWidth}px)`;
+                slider.style.width = btnSignUp.offsetWidth + 'px';
+                btnSignUp.classList.add('active');
+                btnSignIn.classList.remove('active');
+
+                // Update Text
+                authTitle.textContent = 'Create Account';
+                authSubtitle.textContent = 'Sign up to start your 30 days free trial';
+
+                // Update Form
+                signupForm.classList.add('active');
+                signinForm.classList.remove('active');
+
+                // Update Visuals
+                signUpVisual.classList.remove('hidden');
+                signInVisual.classList.add('hidden');
+            }
+        }
+
+        // Attach event listeners to buttons
+        btnSignIn.addEventListener('click', () => toggleAuth('signin'));
+        btnSignUp.addEventListener('click', () => toggleAuth('signup'));
+        googleSignInBtn.addEventListener('click', handleGoogleSignIn);
+
+        // Initialize Slider Width
+        window.addEventListener('load', () => {
+            slider.style.width = btnSignIn.offsetWidth + 'px';
+        });
+
+        // Rotating Cards Logic (Only runs when Sign Up is active)
+        const cards = document.querySelectorAll('.rotate-card');
+        let currentIndex = 0;
+
+        function rotateCards() {
+            // Only rotate if Sign Up visual is visible
+            if (signUpVisual.classList.contains('hidden')) return;
+
+            // Get current and next card
+            const currentCard = cards[currentIndex];
+            const nextIndex = (currentIndex + 1) % cards.length;
+            const nextCard = cards[nextIndex];
+
+            // Animate out current
+            currentCard.classList.remove('active');
+            currentCard.classList.add('exit');
+
+            // Reset exit class after animation
+            setTimeout(() => {
+                currentCard.classList.remove('exit');
+            }, 600);
+
+            // Animate in next
+            nextCard.classList.add('active');
+
+            // Update index
+            currentIndex = nextIndex;
+        }
+
+        // Start rotation
+        setInterval(rotateCards, 4000);
+
+        // Auth Form Submission Logic
+        
+        // Helper to get query params
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Handle Google Sign In
+        function handleGoogleSignIn() {
+            console.log('🔵 Google Sign In button clicked');
+            const desktop = getQueryParam('desktop');
+            const redirect = getQueryParam('redirect');
+            console.log('Desktop param:', desktop);
+            console.log('Redirect param:', redirect);
+            
+            let url = '/auth/google';
+            
+            // Add desktop parameter if present
+            const params = [];
+            if (desktop) params.push(`desktop=${desktop}`);
+            if (redirect) params.push(`redirect=${encodeURIComponent(redirect)}`);
+            
+            if (params.length > 0) {
+                url += '?' + params.join('&');
+            }
+            
+            console.log('Redirecting to:', url);
+            window.location.href = url;
+        }
+
+        async function handleAuthSubmit(event, endpoint) {
+            event.preventDefault();
+            const form = event.target;
+            const button = form.querySelector('button[type="submit"]');
+            const originalText = button.textContent;
+
+            // Disable button and show loading state
+            button.disabled = true;
+            button.textContent = 'Please wait...';
+
+            // Collect form data
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Add desktop and redirect params if present
+            const desktop = getQueryParam('desktop');
+            const redirect = getQueryParam('redirect');
+            if (desktop) data.desktop = desktop;
+            if (redirect) data.redirect = redirect;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Success - check if desktop app redirect
+                    if (result.desktop && result.redirectUrl && result.redirectUrl.startsWith('redglass://')) {
+                        // Show success message for desktop
+                        document.body.style.cssText = 'margin:0;padding:0;font-family:DM Sans,-apple-system,BlinkMacSystemFont,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fafafa 0%,#f0f0f0 100%);';
+                        document.body.innerHTML = \`
+                            <style>
+                                @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+                                @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                                @keyframes ringPop { 0% { transform: scale(0); } 60% { transform: scale(1.1); } 100% { transform: scale(1); } }
+                                @keyframes draw { to { stroke-dashoffset: 0; } }
+                                @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+                            </style>
+                            <div style="background:white;padding:48px 40px;border-radius:20px;box-shadow:0 4px 24px rgba(0,0,0,0.06);text-align:center;max-width:400px;width:90%;animation:slideUp 0.5s ease-out;">
+                                <div style="width:56px;height:56px;margin:0 auto 24px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 375 375"><defs><clipPath id="c1"><path d="M 45 88 L 330 88 L 330 307 L 45 307 Z"/></clipPath><clipPath id="c2"><path d="M 45 68 L 330 68 L 330 287 L 45 287 Z"/></clipPath></defs><g clip-path="url(#c1)"><path fill="#921e1e" d="M 193.53125 97.371094 L 193.53125 124.734375 C 193.53125 129.769531 197.617188 133.855469 202.652344 133.855469 L 226.242188 133.855469 L 261.578125 169.183594 C 261.570312 169.421875 261.507812 169.660156 261.507812 169.894531 L 261.507812 210.941406 C 261.507812 211.1875 261.5625 211.417969 261.578125 211.652344 L 234.570312 238.664062 C 234.332031 238.652344 234.105469 238.589844 233.859375 238.589844 L 192.8125 238.589844 C 192.566406 238.589844 192.335938 238.644531 192.101562 238.664062 L 178.453125 225.015625 C 178.855469 223.519531 179.128906 221.96875 179.128906 220.347656 L 179.128906 165.617188 C 179.128906 155.539062 170.964844 147.375 160.886719 147.375 L 106.15625 147.375 C 96.078125 147.375 87.914062 155.539062 87.914062 165.617188 L 87.914062 220.347656 C 87.914062 221.96875 88.195312 223.519531 88.589844 225.015625 L 77.890625 235.714844 L 54.300781 235.714844 C 49.265625 235.714844 45.179688 239.804688 45.179688 244.839844 L 45.179688 272.203125 C 45.179688 277.238281 49.265625 281.324219 54.300781 281.324219 L 81.664062 281.324219 C 86.699219 281.324219 90.785156 277.238281 90.785156 272.203125 L 90.785156 248.625 L 101.496094 237.914062 C 102.992188 238.316406 104.535156 238.589844 106.15625 238.589844 L 160.886719 238.589844 C 162.511719 238.589844 164.050781 238.308594 165.546875 237.914062 L 179.195312 251.5625 C 179.183594 251.796875 179.121094 252.027344 179.121094 252.273438 L 179.121094 293.320312 C 179.121094 300.871094 185.25 307 192.804688 307 L 233.851562 307 C 241.402344 307 247.53125 300.871094 247.53125 293.320312 L 247.53125 252.273438 C 247.53125 252.027344 247.476562 251.796875 247.460938 251.5625 L 274.46875 224.550781 C 274.707031 224.5625 274.933594 224.625 275.179688 224.625 L 316.226562 224.625 C 323.78125 224.625 329.910156 218.496094 329.910156 210.941406 L 329.910156 169.894531 C 329.910156 162.34375 323.78125 156.214844 316.226562 156.214844 L 275.179688 156.214844 C 274.933594 156.214844 274.707031 156.269531 274.46875 156.285156 L 239.132812 120.957031 L 239.132812 97.371094 C 239.132812 92.335938 235.046875 88.25 230.011719 88.25 L 202.644531 88.25 C 197.609375 88.25 193.523438 92.335938 193.523438 97.371094 Z"/></g><g clip-path="url(#c2)"><path fill="#ed3030" d="M 193.53125 77.257812 L 193.53125 104.621094 C 193.53125 109.65625 197.617188 113.746094 202.652344 113.746094 L 226.242188 113.746094 L 261.578125 149.070312 C 261.570312 149.308594 261.507812 149.546875 261.507812 149.785156 L 261.507812 190.832031 C 261.507812 191.078125 261.5625 191.304688 261.578125 191.542969 L 234.570312 218.550781 C 234.332031 218.542969 234.105469 218.476562 233.859375 218.476562 L 192.8125 218.476562 C 192.566406 218.476562 192.335938 218.53125 192.101562 218.550781 L 178.453125 204.90625 C 178.855469 203.410156 179.128906 201.859375 179.128906 200.234375 L 179.128906 145.503906 C 179.128906 135.425781 170.964844 127.261719 160.886719 127.261719 L 106.15625 127.261719 C 96.078125 127.261719 87.914062 135.425781 87.914062 145.503906 L 87.914062 200.234375 C 87.914062 201.859375 88.195312 203.410156 88.589844 204.90625 L 77.890625 215.605469 L 54.300781 215.605469 C 49.265625 215.605469 45.179688 219.691406 45.179688 224.726562 L 45.179688 252.089844 C 45.179688 257.125 49.265625 261.210938 54.300781 261.210938 L 81.664062 261.210938 C 86.699219 261.210938 90.785156 257.125 90.785156 252.089844 L 90.785156 228.511719 L 101.496094 217.804688 C 102.992188 218.203125 104.535156 218.476562 106.15625 218.476562 L 160.886719 218.476562 C 162.511719 218.476562 164.050781 218.195312 165.546875 217.804688 L 179.195312 231.449219 C 179.183594 231.6875 179.121094 231.914062 179.121094 232.160156 L 179.121094 273.207031 C 179.121094 280.761719 185.25 286.890625 192.804688 286.890625 L 233.851562 286.890625 C 241.402344 286.890625 247.53125 280.761719 247.53125 273.207031 L 247.53125 232.160156 C 247.53125 231.914062 247.476562 231.6875 247.460938 231.449219 L 274.46875 204.441406 C 274.707031 204.449219 274.933594 204.511719 275.179688 204.511719 L 316.226562 204.511719 C 323.78125 204.511719 329.910156 198.382812 329.910156 190.832031 L 329.910156 149.785156 C 329.910156 142.230469 323.78125 136.101562 316.226562 136.101562 L 275.179688 136.101562 C 274.933594 136.101562 274.707031 136.15625 274.46875 136.175781 L 239.132812 100.847656 L 239.132812 77.257812 C 239.132812 72.222656 235.046875 68.136719 230.011719 68.136719 L 202.644531 68.136719 C 197.609375 68.136719 193.523438 72.222656 193.523438 77.257812 Z"/></g></svg>
+                                </div>
+                                <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#fef2f2 0%,#fee2e2 100%);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;animation:ringPop 0.5s ease-out 0.3s both;">
+                                    <svg style="width:32px;height:32px;stroke:#dc2626;stroke-width:2.5;fill:none;" viewBox="0 0 24 24">
+                                        <polyline style="stroke-dasharray:30;stroke-dashoffset:30;animation:draw 0.4s ease-out 0.6s forwards;" points="20 6 9 17 4 12" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <h1 style="font-size:22px;font-weight:600;color:#171717;margin-bottom:8px;letter-spacing:-0.01em;">Authentication Successful</h1>
+                                <p style="font-size:14px;color:#737373;line-height:1.6;">You can now close this window and return to Red AI.</p>
+                                <div id="status" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;font-size:13px;color:#a3a3a3;">
+                                    <span style="width:6px;height:6px;background:#22c55e;border-radius:50%;animation:pulse 1.5s ease-in-out infinite;"></span>
+                                    Redirecting...
+                                </div>
+                                <a href="\${result.redirectUrl}" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#dc2626;color:white;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:500;font-size:15px;margin-top:24px;transition:all 0.2s ease;">
+                                    <svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                    Open Red AI
+                                </a>
+                            </div>
+                        \`;
+                        // Auto redirect
+                        setTimeout(() => {
+                            window.location.href = result.redirectUrl;
+                            document.getElementById('status').innerHTML = '<span style="width:6px;height:6px;background:#f59e0b;border-radius:50%;"></span>Click the button if the app did not open';
+                        }, 1500);
+                    } else {
+                        // Normal web redirect
+                        window.location.href = result.redirectUrl || '/dashboard';
+                    }
+                } else {
+                    // Error - show alert
+                    alert(result.error || 'An error occurred. Please try again.');
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }
+            } catch (error) {
+                console.error('Auth error:', error);
+                alert('Network error. Please check your connection and try again.');
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        // Attach listeners
+        signinForm.addEventListener('submit', (e) => handleAuthSubmit(e, '/api/signin'));
+        signupForm.addEventListener('submit', (e) => handleAuthSubmit(e, '/api/signup'));
+    </script>
+</body>
+
+</html>

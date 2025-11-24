@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="en" class="loading">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="RED - Scale your company with our intelligent Admin AI. Handle all your administrative tasks efficiently and 24/7.">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>RED - Admin AI for Business Scaling</title>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=20241216001">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+</head>
+
+<body class="loading">
+    <!-- Background Elements -->
+    <!-- Removing background animations and particles -->
+
+    <!-- Header Section -->
+    <header class="modern-header">
+        <div class="header-container">
+            <a href="#" class="logo-link">
+                <img src="images/RED ICON.svg" alt="Red AI Logo" width="40" height="40" style="margin-right: 12px;">
+                <span class="logo-text">Red AI</span>
+            </a>
+            <nav class="nav-bar">
+                <ul>
+                    <li><a href="#features" class="nav-link">Features</a></li>
+                    <li><a href="#packages" class="nav-link">Pricing</a></li>
+                    <li><a href="/blog" class="nav-link">Blog</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <a href="/dashboard" class="user-greeting" id="userGreeting" style="display: none;">
+                    <div class="greeting-text">
+                        <span id="userName"></span>
+                    </div>
+                    <svg class="dashboard-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                </a>
+                <a href="/signin" class="get-started-btn" id="getStartedBtn">Join Now</a>
+                <button class="mobile-menu-btn" aria-label="Toggle Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Modern Hero Section -->
+    <!-- Red-Inspired Hero Section -->
+    <section class="hero-red">
+        <canvas id="hero-canvas"></canvas>
+        <div class="container">
+            <div class="hero-content-red">
+                <div class="hero-header-red">
+                    <p class="hero-eyebrow">The intelligent AI for power users</p>
+                    <h1 class="hero-title-red">Work at the speed of thought</h1>
+                </div>
+
+                <!-- Mock Search Bar with Typewriter Effect -->
+                <div class="hero-search-container">
+                    <div class="search-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                    <div class="search-input-mock">
+                        <span id="typewriter-text"></span><span class="search-cursor"></span>
+                    </div>
+                    <div class="search-actions">
+                        <div class="search-shortcut">⌘K</div>
+                    </div>
+
+                    <!-- MCP Context Cards Container -->
+                    <div class="mcp-cards-container" id="mcp-cards-container">
+                        <!-- Cards will be injected here by JS -->
+                    </div>
+                </div>
+
+                <div class="hero-cta-container">
+                    <a href="/download" class="download-btn-red">Download Red</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Elements for Background Ambiance -->
+        <div class="hero-background-minimal"></div>
+    </section>
+    <!-- Enhanced Red Features Section V2 -->
+    <section id="features" class="red-features-section-v2">
+        <div class="container">
+            <!-- Section Header -->
+            <div class="features-header" data-aos="fade-up" data-aos-delay="100">
+                <div class="section-badge">
+                    <span class="badge-dot"></span>
+                    <span>Capabilities</span>
+                </div>
+                <h2 class="features-main-title">
+                    Powerful features that <span class="red-accent">transform</span> how you work
+                </h2>
+                <p class="features-main-description">
+                    From screen understanding to workflow automation, RED AI brings enterprise-grade intelligence to
+                    every task
+                </p>
+            </div>
+
+            <!-- Feature Filter Tabs -->
+            <div class="feature-filters" data-aos="fade-up" data-aos-delay="150">
+                <button class="filter-btn active" data-filter="all">All Features</button>
+                <button class="filter-btn" data-filter="core">Core</button>
+                <button class="filter-btn" data-filter="advanced">Advanced</button>
+                <button class="filter-btn" data-filter="coming-soon">Coming Soon</button>
+            </div>
+
+            <!-- Feature Spotlight Layout -->
+            <div class="feature-spotlight-container">
+
+                <!-- Row 1: Screen Capture & Ask (Visual Right) -->
+                <div class="feature-spotlight-row" data-aos="fade-up">
+                    <div class="spotlight-text-content">
+                        <div class="feature-icon-wrapper">
+                            <img src="images/RED ICON.svg" alt="Feature Icon" class="feature-icon" width="48"
+                                height="48">
+                        </div>
+                        <h2 class="spotlight-title">Screen Capture & Ask</h2>
+                        <p class="spotlight-description">
+                            Capture any screen, window, or region and ask RED questions about what you see. Get instant,
+                            contextual answers without leaving your workflow.
+                        </p>
+                        <ul class="spotlight-features-list">
+                            <li><span class="check-icon">✓</span> Visual Context Awareness</li>
+                            <li><span class="check-icon">✓</span> Instant Explanations</li>
+                            <li><span class="check-icon">✓</span> Code Snippet Extraction</li>
+                        </ul>
+                        <div class="feature-tags">
+                            <span class="feature-tag">Visual AI</span>
+                            <span class="feature-tag">Context-Aware</span>
+                        </div>
+                    </div>
+                    <div class="spotlight-visual-content">
+                        <div class="spotlight-visual-card">
+                            <div class="screen-capture-demo large-demo">
+                                <div class="demo-screen">
+                                    <div class="window-header">
+                                        <div class="window-dot dot-red"></div>
+                                        <div class="window-dot dot-yellow"></div>
+                                        <div class="window-dot dot-green"></div>
+                                    </div>
+                                    <div class="demo-content-lines">
+                                        <div class="content-line"></div>
+                                        <div class="content-line"></div>
+                                        <div class="content-line short"></div>
+                                        <div class="content-line"></div>
+                                        <div class="content-line"></div>
+                                    </div>
+                                    <div class="capture-overlay"></div>
+                                    <div class="capture-selection">
+                                        <div class="selection-dimensions">400 x 300</div>
+                                    </div>
+                                </div>
+                                <div class="demo-cursor"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Agentic Workflows (Visual Left) -->
+                <div class="feature-spotlight-row reverse" data-aos="fade-up">
+                    <div class="spotlight-text-content">
+                        <div class="feature-icon-wrapper">
+                            <img src="images/RED ICON.svg" alt="Feature Icon" class="feature-icon" width="48"
+                                height="48">
+                        </div>
+                        <h2 class="spotlight-title">Agentic Workflows</h2>
+                        <p class="spotlight-description">
+                            Create and execute complex workflows through MCP connections. Ask RED in chat to automate
+                            multi-step tasks across your entire tool stack.
+                        </p>
+                        <ul class="spotlight-features-list">
+                            <li><span class="check-icon">✓</span> Multi-Step Automation</li>
+                            <li><span class="check-icon">✓</span> Tool Interconnectivity</li>
+                            <li><span class="check-icon">✓</span> Natural Language Control</li>
+                        </ul>
+                        <div class="feature-tags">
+                            <span class="feature-tag">MCP</span>
+                            <span class="feature-tag">Automation</span>
+                        </div>
+                    </div>
+                    <div class="spotlight-visual-content">
+                        <div class="spotlight-visual-card">
+                            <div class="workflow-demo large-demo">
+                                <div class="mcp-workflow-container">
+                                    <!-- Connection Beam -->
+                                    <div class="workflow-beam-path">
+                                        <div class="beam-particle"></div>
+                                    </div>
+
+                                    <!-- Linear Card -->
+                                    <div class="mcp-tool-card card-linear">
+                                        <div class="tool-icon-wrapper">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                                            </svg>
+                                        </div>
+                                        <span class="tool-name">Linear</span>
+                                        <div class="action-badge">Issue Created</div>
+                                    </div>
+
+                                    <!-- GitHub Card -->
+                                    <div class="mcp-tool-card card-github">
+                                        <div class="tool-icon-wrapper">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <path
+                                                    d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+                                            </svg>
+                                        </div>
+                                        <span class="tool-name">GitHub</span>
+                                        <div class="action-badge">PR Opened</div>
+                                    </div>
+
+                                    <!-- Slack Card -->
+                                    <div class="mcp-tool-card card-slack">
+                                        <div class="tool-icon-wrapper">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <path
+                                                    d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z" />
+                                                <path
+                                                    d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+                                                <path
+                                                    d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z" />
+                                                <path
+                                                    d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z" />
+                                                <path
+                                                    d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z" />
+                                                <path
+                                                    d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z" />
+                                                <path
+                                                    d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z" />
+                                                <path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5V5h1.5z" />
+                                            </svg>
+                                        </div>
+                                        <span class="tool-name">Slack</span>
+                                        <div class="action-badge">Notified</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Smart Activity Learning (Visual Right) -->
+                <div class="feature-spotlight-row" data-aos="fade-up">
+                    <div class="spotlight-text-content">
+
+                        <h2 class="spotlight-title">Smart Activity Learning</h2>
+                        <p class="spotlight-description">
+                            RED observes your work patterns and automatically suggests workflow automation
+                            opportunities, helping you optimize your daily routine.
+                        </p>
+                        <ul class="spotlight-features-list">
+                            <li><span class="check-icon">✓</span> Pattern Recognition</li>
+                            <li><span class="check-icon">✓</span> Proactive Suggestions</li>
+                            <li><span class="check-icon">✓</span> Privacy-First Analysis</li>
+                        </ul>
+                        <div class="feature-tags">
+                            <span class="feature-tag">ML-Powered</span>
+                            <span class="feature-tag">Privacy-First</span>
+                        </div>
+                    </div>
+                    <div class="spotlight-visual-content">
+                        <div class="spotlight-visual-card">
+                            <div class="coming-soon-badge card-badge">
+                                <span class="badge-pulse"></span> Coming Soon
+                            </div>
+                            <div class="activity-demo large-demo">
+                                <div class="activity-timeline">
+                                    <div class="activity-dot dot-1"></div>
+                                    <div class="activity-dot dot-2"></div>
+                                    <div class="activity-dot dot-3"></div>
+                                    <div class="activity-dot dot-4"></div>
+                                    <div class="activity-dot dot-5"></div>
+                                    <div class="pattern-connection"></div>
+                                </div>
+                                <div class="insight-badge">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                    </svg>
+                                    Pattern Detected
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 4: Audio & MCP (Split Row) -->
+                <div class="feature-spotlight-split-row" data-aos="fade-up">
+                    <!-- Audio Card -->
+                    <div class="spotlight-mini-card">
+                        <div class="feature-icon-wrapper">
+                            <img src="images/RED ICON.svg" alt="Feature Icon" class="feature-icon" width="48"
+                                height="48">
+                        </div>
+                        <h3 class="mini-card-title">Audio Transcription</h3>
+                        <p class="mini-card-description">Transcribe meetings and videos into actionable summaries.</p>
+                        <div class="mini-visual">
+                            <div class="waveform-demo">
+                                <div class="waveform-bars">
+                                    <div class="waveform-bar" style="animation-delay: 0s;"></div>
+                                    <div class="waveform-bar" style="animation-delay: 0.1s;"></div>
+                                    <div class="waveform-bar" style="animation-delay: 0.2s;"></div>
+                                    <div class="waveform-bar" style="animation-delay: 0.3s;"></div>
+                                    <div class="waveform-bar" style="animation-delay: 0.4s;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MCP Card -->
+                    <div class="spotlight-mini-card">
+                        <div class="feature-icon-wrapper">
+                            <img src="images/RED ICON.svg" alt="Feature Icon" class="feature-icon" width="48"
+                                height="48">
+                        </div>
+                        <h3 class="mini-card-title">Pre-Built MCP Servers</h3>
+                        <p class="mini-card-description">Access pre-configured MCP servers or set up your own.</p>
+                        <div class="mini-visual">
+                            <div class="mcp-servers-demo">
+                                <div class="server-stack">
+                                    <div class="server-item server-1">
+                                        <div class="server-label">Notion</div>
+                                    </div>
+                                    <div class="server-item server-2">
+                                        <div class="server-label">Teams</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Pricing Section -->
+    <section id="packages" class="pricing-section">
+        <div class="container">
+            <!-- Section Header -->
+            <div class="pricing-header" data-aos="fade-up">
+                <div class="section-badge">
+                    <span class="badge-dot"></span>
+                    <span>Pricing</span>
+                </div>
+                <h2 class="pricing-title">
+                    Choose the perfect <span class="plan-text">plan</span> for your business
+                </h2>
+                <p class="pricing-description">
+                    Scale your operations with our flexible pricing options designed to grow with your needs.
+                </p>
+
+                <!-- Billing Toggle -->
+                <div class="billing-toggle-container" data-aos="fade-up" data-aos-delay="100">
+                    <span class="billing-label" id="monthlyLabel">Monthly</span>
+                    <label class="billing-switch">
+                        <input type="checkbox" id="billingToggle">
+                        <span class="billing-slider"></span>
+                    </label>
+                    <span class="billing-label active" id="annualLabel">
+                        Annual
+                        <span class="billing-discount-badge">Save 35%</span>
+                    </span>
+                </div>
+
+                <!-- Early Access Discount Banner -->
+                <div class="early-access-discount-banner" id="earlyAccessBanner" style="display: none;"
+                    data-aos="fade-up" data-aos-delay="150">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                    <span>Early Access Discount Active: Additional 20% Off!</span>
+                </div>
+            </div>
+
+            <!-- Compact Pricing Comparison Table -->
+            <div class="pricing-comparison-wrapper" data-aos="fade-up" data-aos-delay="100">
+
+                <!-- Plan Headers -->
+                <div class="pricing-plans-header">
+                    <div class="plan-header-card free-plan">
+                        <h3 class="plan-name">Free</h3>
+                        <div class="plan-price">
+                            <span class="price-currency">$</span>
+                            <span class="price-amount">0</span>
+                            <span class="price-period">/month</span>
+                        </div>
+                        <p class="plan-description">Perfect for trying RED AI</p>
+                        <ul class="plan-features-list">
+                            <li class="plan-feature-item">
+                                <svg class="check-icon-small" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                                100 tasks/month
+                            </li>
+                            <li class="plan-feature-item">
+                                <svg class="check-icon-small" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                                Basic screen capture
+                            </li>
+                            <li class="plan-feature-item">
+                                <svg class="check-icon-small" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                                3 Agentic workflows
+                            </li>
+                        </ul>
+                        <a href="/signin" class="pricing-btn secondary pricing-cta-btn">Start Free</a>
+                    </div>
+
+                    <div class="plan-header-card super-red-plan featured">
+                        <div class="plan-badge featured">Most Popular</div>
+                        <h3 class="plan-name">Super Red</h3>
+                        <div class="plan-price">
+                            <span class="price-currency">$</span>
+                            <span class="price-amount" data-original-monthly="25"
+                                data-original-annual="16.25">20.00</span>
+                            <span class="price-period">/month</span>
+                            <div class="original-price">
+                                <span class="strikethrough">$<span class="original-amount">25.00</span></span>
+                            </div>
+                        </div>
+                        <p class="plan-description">Perfect for professionals & small teams</p>
+                        <ul class="plan-features-list">
+                            <li class="plan-feature-item">
+                                <svg class="check-icon-small" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                                5,000 tasks/month
+                            </li>
+                            <li class="plan-feature-item">
+                                <svg class="check-icon-small" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                                Advanced capture
+                            </li>
+                            <li class="plan-feature-item">
+                                <svg class="check-icon-small" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                                Unlimited workflows
+                            </li>
+                            <li class="plan-feature-item">
+                                <svg class="check-icon-small" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                                10 hours audio/mo
+                            </li>
+                            <li class="plan-feature-item">
+                                <svg class="check-icon-small" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                                Pre-built MCP servers
+                            </li>
+                        </ul>
+                        <a href="/signin" class="pricing-btn primary pricing-cta-btn">Start Super Red</a>
+                    </div>
+
+                    <div class="plan-header-card ultimate-red-plan">
+                        <div class="plan-badge">Premium</div>
+                        <h3 class="plan-name">Ultimate Red</h3>
+                        <div class="plan-price">
+                            <span class="price-currency">$</span>
+                            <span class="price-amount" data-original-monthly="70"
+                                data-original-annual="45.50">56.00</span>
+                            <span class="price-period">/month</span>
+                            <div class="original-price">
+                                <span class="strikethrough">$<span class="original-amount">70.00</span></span>
+                            </div>
+                        </div>
+                        <p class="plan-description">For power users & growing teams</p>
+                        <ul class="plan-features-list">
+                            <li class="plan-feature-item">
+                                <svg class="check-icon-small" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                                Unlimited tasks
+                            </li>
+                            <li class="plan-feature-item">
+                                <svg class="check-icon-small" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                                Advanced capture
+                            </li>
+                            <li class="plan-feature-item">
+                                <svg class="check-icon-small" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                                Unlimited workflows
+                            </li>
+                            <li class="plan-feature-item">
+                                <svg class="check-icon-small" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                                Unlimited audio
+                            </li>
+                            <li class="plan-feature-item">
+                                <svg class="check-icon-small" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3">
+                                    <path d="M20 6L9 17l-5-5" />
+                                </svg>
+                                Custom MCP servers
+                            </li>
+                        </ul>
+                        <a href="/signin" class="pricing-btn primary pricing-cta-btn">Start Ultimate Red</a>
+                    </div>
+                </div>
+
+
+
+
+            </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="section py-5">
+        <div class="container">
+            <div class="faq-header">
+                <h1 class="faq-title">Frequently Asked <span class="questions-text">Questions</span></h1>
+            </div>
+
+            <div class="faq-grid">
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="100">
+                    <div class="faq-question">
+                        <h3>Is there a free trial available?</h3>
+                        <button class="faq-toggle">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M6 9l6 6 6-6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes, you can try us for free for 30 days. If you want, we'll provide you with a free
+                            30-minute onboarding call to get you up and running.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="150">
+                    <div class="faq-question">
+                        <h3>How does billing work?</h3>
+                        <button class="faq-toggle">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M6 9l6 6 6-6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Plans are per workspace, not per account. You can upgrade one workspace, and still have any
+                            number of free workspaces.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="200">
+                    <div class="faq-question">
+                        <h3>Can I change my plan later?</h3>
+                        <button class="faq-toggle">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M6 9l6 6 6-6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Of course you can! Our pricing scales with your company. Chat to our friendly team to find a
+                            solution that works for you as you grow.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="250">
+                    <div class="faq-question">
+                        <h3>What is your cancellation policy?</h3>
+                        <button class="faq-toggle">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M6 9l6 6 6-6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We understand that things change. You can cancel your plan at any time and we'll refund you
+                            the difference already paid.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="300">
+                    <div class="faq-question">
+                        <h3>How does support work?</h3>
+                        <button class="faq-toggle">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M6 9l6 6 6-6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="faq-answer">
+                        <p>If you're having trouble with RED AI, we're here to try and help. Please use the contact form
+                            below and we'll get back to you soon.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section py-5">
+        <div class="container-fluid">
+            <div class="contact-dark-section" data-aos="fade-up" data-aos-delay="200">
+                <div class="contact-main-content">
+                    <!-- Left Column: Info -->
+                    <div class="contact-info-column">
+                        <h2 class="contact-dark-title">
+                            Reach out
+                            <svg class="title-arrow" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <path d="M7 17L17 7M17 7H7M17 7V17" />
+                            </svg>
+                        </h2>
+                        <p class="contact-dark-desc">
+                            Have a question or need assistance? Reach out to our dedicated support team. We're here to
+                            help with any inquiries you may have.
+                        </p>
+
+                        <ul class="contact-dark-features">
+                            <li>
+                                <div class="feature-check">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="3">
+                                        <path d="M20 6L9 17l-5-5" />
+                                    </svg>
+                                </div>
+                                <span>Personalized assistance</span>
+                            </li>
+                            <li>
+                                <div class="feature-check">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="3">
+                                        <path d="M20 6L9 17l-5-5" />
+                                    </svg>
+                                </div>
+                                <span>Timely response</span>
+                            </li>
+                            <li>
+                                <div class="feature-check">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="3">
+                                        <path d="M20 6L9 17l-5-5" />
+                                    </svg>
+                                </div>
+                                <span>Comprehensive support</span>
+                            </li>
+                        </ul>
+
+                        <div class="contact-social-buttons">
+                            <a href="#" class="social-btn-dark">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path
+                                        d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+                                    </path>
+                                </svg>
+                            </a>
+                            <a href="#" class="social-btn-dark">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                                </svg>
+                            </a>
+                            <a href="#" class="social-btn-dark">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Form -->
+                    <div class="contact-form-card-dark">
+                        <form id="contactForm" class="dark-theme-form">
+                            <div class="form-row-dark">
+                                <div class="form-group-dark">
+                                    <label>Name</label>
+                                    <input type="text" name="name" class="dark-input" required>
+                                </div>
+                                <div class="form-group-dark">
+                                    <label>Email</label>
+                                    <input type="email" name="email" class="dark-input" required>
+                                </div>
+                            </div>
+                            <div class="form-group-dark">
+                                <label>Message</label>
+                                <textarea name="message" class="dark-input dark-textarea" required></textarea>
+                            </div>
+                            <button type="submit" class="dark-submit-btn">Submit</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Bottom Row: Info Cards -->
+                <div class="contact-details-grid">
+                    <div class="detail-card-dark">
+                        <div class="detail-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                </path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                        </div>
+                        <div class="detail-content">
+                            <h4>Email us</h4>
+                            <p>hi@redai.com</p>
+                        </div>
+                    </div>
+                    <div class="detail-card-dark">
+                        <div class="detail-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="detail-content">
+                            <h4>Call us</h4>
+                            <p>(555) 123-4567</p>
+                        </div>
+                    </div>
+                    <div class="detail-card-dark">
+                        <div class="detail-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                        </div>
+                        <div class="detail-content">
+                            <h4>Our location</h4>
+                            <p>San Francisco, CA</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Footer Card Section -->
+    <footer class="footer-card-section">
+        <div class="footer-card">
+            <div class="footer-main-row">
+                <div class="footer-brand-col">
+                    <div class="footer-logo-wrapper">
+                        <img src="images/RED ICON.svg" alt="RED AI Logo" class="footer-logo-icon">
+                        <span class="footer-logo-text">RED AI</span>
+                    </div>
+                    <p class="footer-desc">RED AI empowers teams to transform raw data into clear, compelling visuals —
+                        making insights easier to share, understand, and act on.</p>
+                    <div class="footer-social-icons">
+                        <a href="#" aria-label="X (Twitter)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+                                </path>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="Instagram">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="LinkedIn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z">
+                                </path>
+                                <rect x="2" y="9" width="4" height="12"></rect>
+                                <circle cx="4" cy="4" r="2"></circle>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="GitHub">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                                </path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-nav-cols">
+                    <div class="footer-col">
+                        <h4>Product</h4>
+                        <a href="#">Features</a>
+                        <a href="#">Pricing</a>
+                        <a href="#">Integrations</a>
+                        <a href="#">Changelog</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Resources</h4>
+                        <a href="#">Documentation</a>
+                        <a href="#">Tutorials</a>
+                        <a href="#">Blog</a>
+                        <a href="#">Support</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Company</h4>
+                        <a href="#">About</a>
+                        <a href="#">Careers</a>
+                        <a href="#">Contact</a>
+                        <a href="#">Partners</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom-row">
+                <div class="footer-copyright">
+                    &copy; 2025 RED AI. All rights reserved.
+                </div>
+                <div class="footer-legal-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookies Settings</a>
+                </div>
+            </div>
+
+            <!-- Watermark -->
+            <div class="footer-watermark">RED</div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <script src="script.js?v=20241215"></script>
+    <script>
+        // Fix scroll position on page load/refresh
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
+        // Ensure page starts at top on load/refresh
+        window.addEventListener('beforeunload', function () {
+            window.scrollTo(0, 0);
+        });
+
+        // Force scroll to top on page load
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                window.scrollTo(0, 0);
+            }, 1);
+        });
+
+        // Initialize AOS for all elements - simplified to prevent conflicts
+        document.addEventListener('DOMContentLoaded', function () {
+            // Force scroll to top immediately on DOM ready
+            window.scrollTo(0, 0);
+
+            // Remove loading classes to enable normal scrolling after page is ready
+            setTimeout(function () {
+                document.documentElement.classList.remove('loading');
+                document.body.classList.remove('loading');
+                console.log('✅ Loading classes removed, scrolling enabled');
+            }, 100);
+
+            // Initialize AOS with optimized settings for bento grid
+            if (typeof AOS !== 'undefined') {
+                AOS.init({
+                    easing: "ease-out-cubic",
+                    duration: 600,
+                    once: true,
+                    offset: 120,
+                    delay: 0,
+                    disable: false
+                });
+
+                console.log('✅ AOS initialized for bento grid animations');
+            }
+        });
+
+        // FAQ Toggle functionality - Simple and reliable version
+        function initializeFAQ() {
+            console.log('Initializing FAQ functionality...');
+
+            // Simple click handler that works reliably
+            document.addEventListener('click', function (e) {
+                // Check if click was on FAQ question or its children
+                const faqQuestion = e.target.closest('.faq-question');
+                if (!faqQuestion) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const faqItem = faqQuestion.closest('.faq-item');
+                const answer = faqItem.querySelector('.faq-answer');
+                const toggle = faqItem.querySelector('.faq-toggle');
+
+                if (!faqItem || !answer || !toggle) {
+                    console.log('Missing FAQ elements');
+                    return;
+                }
+
+                console.log('FAQ question clicked');
+
+                const isActive = faqItem.classList.contains('active');
+
+                // Close all other FAQs first
+                document.querySelectorAll('.faq-item').forEach(otherItem => {
+                    if (otherItem !== faqItem && otherItem.classList.contains('active')) {
+                        otherItem.classList.remove('active');
+                        const otherAnswer = otherItem.querySelector('.faq-answer');
+                        const otherToggle = otherItem.querySelector('.faq-toggle');
+                        if (otherAnswer) {
+                            otherAnswer.style.maxHeight = '0px';
+                        }
+                        if (otherToggle) {
+                            otherToggle.style.transform = 'rotate(0deg)';
+                        }
+                    }
+                });
+
+                // Toggle current FAQ
+                if (isActive) {
+                    faqItem.classList.remove('active');
+                    answer.style.maxHeight = '0px';
+                    toggle.style.transform = 'rotate(0deg)';
+                    console.log('FAQ closed');
+                } else {
+                    faqItem.classList.add('active');
+
+                    // Calculate and set height
+                    const height = answer.scrollHeight;
+                    answer.style.maxHeight = height + 'px';
+                    toggle.style.transform = 'rotate(180deg)';
+                    console.log('FAQ opened, height:', height);
+                }
+            });
+
+            // Initialize all FAQ answers to be closed
+            document.querySelectorAll('.faq-item').forEach((item, index) => {
+                const answer = item.querySelector('.faq-answer');
+                const toggle = item.querySelector('.faq-toggle');
+                const question = item.querySelector('.faq-question');
+
+                console.log(`FAQ ${index + 1}: answer=${!!answer}, toggle=${!!toggle}, question=${!!question}`);
+
+                if (answer) {
+                    answer.style.maxHeight = '0px';
+                    answer.style.overflow = 'hidden';
+                    answer.style.transition = 'max-height 0.3s ease-in-out';
+                }
+
+                if (toggle) {
+                    toggle.style.transition = 'transform 0.3s ease-in-out';
+                }
+
+                if (question) {
+                    question.style.cursor = 'pointer';
+                }
+            });
+
+            // Search functionality
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                console.log('Search input found');
+                searchInput.addEventListener('input', function (e) {
+                    const searchTerm = e.target.value.toLowerCase();
+
+                    document.querySelectorAll('.faq-item').forEach(item => {
+                        const question = item.querySelector('.faq-question h3');
+                        const answer = item.querySelector('.faq-answer');
+
+                        if (question && answer) {
+                            const questionText = question.textContent.toLowerCase();
+                            const answerText = answer.textContent.toLowerCase();
+
+                            if (questionText.includes(searchTerm) || answerText.includes(searchTerm)) {
+                                item.style.display = 'block';
+                            } else {
+                                item.style.display = 'none';
+                            }
+                        }
+                    });
+                });
+            }
+
+            console.log('FAQ initialization completed successfully');
+        }
+
+        // Initialize FAQ functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('DOM loaded, initializing FAQ...');
+            initializeFAQ();
+        });
+
+        // Also try immediate initialization in case DOM is already loaded
+        if (document.readyState !== 'loading') {
+            console.log('DOM already loaded, initializing FAQ immediately...');
+            initializeFAQ();
+        }
+
+        // Initialize rotating trust section
+        function initializeRotatingTrust() {
+            const trustItems = document.querySelectorAll('.trust-item');
+            let currentIndex = 0;
+
+            function rotateTrust() {
+                // Remove active class from current item
+                trustItems[currentIndex].classList.remove('active');
+                trustItems[currentIndex].classList.add('exit');
+
+                // Move to next item
+                currentIndex = (currentIndex + 1) % trustItems.length;
+
+                // After exit animation, reset and show next item
+                setTimeout(() => {
+                    trustItems.forEach(item => item.classList.remove('exit'));
+                    trustItems[currentIndex].classList.add('active');
+                }, 300);
+            }
+
+            // Start rotation
+            if (trustItems.length > 0) {
+                // Set first item as active
+                trustItems[0].classList.add('active');
+
+                // Rotate every 2.5 seconds
+                setInterval(rotateTrust, 2500);
+            }
+        }
+
+        // Initialize on DOM ready
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeRotatingTrust();
+        });
+
+        // Also initialize immediately if DOM is already loaded
+        if (document.readyState !== 'loading') {
+            initializeRotatingTrust();
+        }
+    </script>
+    <script src="js/card-navigation.js"></script>
+    <script src="js/video-autoplay.js"></script>
+    <script src="cursor-effect.js"></script>
+
+    <script>
+        // User Authentication Display
+        document.addEventListener('DOMContentLoaded', async function () {
+            const userGreeting = document.getElementById('userGreeting');
+            const userName = document.getElementById('userName');
+            const getStartedBtn = document.getElementById('getStartedBtn');
+
+            // Check if user is logged in by calling the API
+            try {
+                const response = await fetch('/api/user', {
+                    credentials: 'same-origin'
+                });
+
+                if (response.ok) {
+                    const currentUser = await response.json();
+
+                    // User is logged in - show greeting with first name
+                    const firstName = currentUser.name.split(' ')[0];
+                    userName.textContent = firstName;
+                    userGreeting.style.display = 'flex';
+                    getStartedBtn.style.display = 'none';
+                } else {
+                    // User is not logged in - show get started button
+                    userGreeting.style.display = 'none';
+                    getStartedBtn.style.display = 'block';
+                }
+            } catch (error) {
+                // Network error or user not logged in - show get started button
+                userGreeting.style.display = 'none';
+                getStartedBtn.style.display = 'block';
+            }
+
+            // Set early access flag when Join Now button is clicked
+            if (getStartedBtn) {
+                getStartedBtn.addEventListener('click', function (e) {
+                    sessionStorage.setItem('earlyAccess', 'true');
+                });
+            }
+        });
+
+        // Pricing Logic - Early Access Discount & Annual Billing
+        document.addEventListener('DOMContentLoaded', function () {
+            const earlyAccessCTA = document.getElementById('earlyAccessCTA');
+            const earlyAccessBanner = document.getElementById('earlyAccessBanner');
+            const billingToggle = document.getElementById('billingToggle');
+            const monthlyLabel = document.getElementById('monthlyLabel');
+            const annualLabel = document.getElementById('annualLabel');
+
+            let isEarlyAccess = false;
+            let isAnnual = false;
+
+            // Early Access CTA Click Handler
+            if (earlyAccessCTA) {
+                earlyAccessCTA.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    // Store in session storage
+                    sessionStorage.setItem('earlyAccess', 'true');
+
+                    // Redirect to signin page
+                    window.location.href = '/signin';
+                });
+            }
+
+            // Add early access flag to all pricing CTA buttons
+            const pricingCtaButtons = document.querySelectorAll('.pricing-cta-btn');
+            pricingCtaButtons.forEach(button => {
+                button.addEventListener('click', function (e) {
+                    sessionStorage.setItem('earlyAccess', 'true');
+                });
+            });
+
+            // Check if coming from early access CTA
+            if (sessionStorage.getItem('earlyAccess') === 'true') {
+                isEarlyAccess = true;
+                if (earlyAccessBanner) {
+                    earlyAccessBanner.style.display = 'flex';
+                }
+                updatePricing();
+            }
+
+            // Billing Toggle Handler
+            if (billingToggle) {
+                billingToggle.addEventListener('change', function () {
+                    isAnnual = this.checked;
+
+                    // Update labels
+                    if (isAnnual) {
+                        monthlyLabel.classList.remove('active');
+                        annualLabel.classList.add('active');
+                    } else {
+                        monthlyLabel.classList.add('active');
+                        annualLabel.classList.remove('active');
+                    }
+
+                    updatePricing();
+                });
+            }
+
+            function updatePricing() {
+                // Get all pricing cards (exclude free plan)
+                const pricingCards = document.querySelectorAll('.pricing-card[data-monthly-price]');
+
+                pricingCards.forEach(card => {
+                    const monthlyPrice = parseFloat(card.getAttribute('data-monthly-price'));
+                    const annualMonthlyPrice = parseFloat(card.getAttribute('data-annual-price'));
+
+                    const priceAmountElement = card.querySelector('.price-amount');
+                    const pricePeriodElement = card.querySelector('.price-period');
+                    const originalPriceDiv = card.querySelector('.original-price');
+                    const originalAmountElement = card.querySelector('.original-amount');
+
+                    let finalPrice;
+                    let originalPrice;
+
+                    if (isAnnual) {
+                        // Annual pricing (35% off)
+                        originalPrice = monthlyPrice;
+                        finalPrice = annualMonthlyPrice;
+
+                        if (isEarlyAccess) {
+                            // Apply additional 20% early access discount to annual price
+                            originalPrice = annualMonthlyPrice;
+                            finalPrice = annualMonthlyPrice * 0.8; // 20% off
+                        }
+
+                        pricePeriodElement.textContent = '/month (billed annually)';
+                    } else {
+                        // Monthly pricing
+                        originalPrice = monthlyPrice;
+                        finalPrice = monthlyPrice;
+
+                        if (isEarlyAccess) {
+                            // Apply 20% early access discount
+                            finalPrice = monthlyPrice * 0.8; // 20% off
+                        }
+
+                        pricePeriodElement.textContent = '/month';
+                    }
+
+                    // Update displayed price
+                    priceAmountElement.textContent = finalPrice.toFixed(2);
+
+                    // Show/hide original price strikethrough
+                    if (isEarlyAccess || (isAnnual && !isEarlyAccess)) {
+                        originalPriceDiv.style.display = 'block';
+                        originalAmountElement.textContent = originalPrice.toFixed(2);
+                    } else {
+                        originalPriceDiv.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+
+    <script>
+        // Pricing Dropdown/Accordion Functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            const featureDropdowns = document.querySelectorAll('.feature-dropdown');
+
+            featureDropdowns.forEach(dropdown => {
+                const header = dropdown.querySelector('.feature-dropdown-header');
+                const content = dropdown.querySelector('.feature-dropdown-content');
+
+                if (header && content) {
+                    header.addEventListener('click', function () {
+                        const isActive = this.classList.contains('active');
+
+                        // Close all other dropdowns
+                        featureDropdowns.forEach(otherDropdown => {
+                            const otherHeader = otherDropdown.querySelector('.feature-dropdown-header');
+                            const otherContent = otherDropdown.querySelector('.feature-dropdown-content');
+
+                            if (otherDropdown !== dropdown) {
+                                otherHeader.classList.remove('active');
+                                otherContent.classList.remove('active');
+                            }
+                        });
+
+                        // Toggle current dropdown
+                        if (isActive) {
+                            this.classList.remove('active');
+                            content.classList.remove('active');
+                        } else {
+                            this.classList.add('active');
+                            content.classList.add('active');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+    <script>
+        // Demo navigation functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            const demoListItems = document.querySelectorAll('.demo-list');
+            const demoWindows = document.querySelectorAll('.demo-window');
+            const demoInput = document.querySelector('.demo-chat-input');
+            const demoConversationView = document.querySelector('.demo-conversation-view');
+            const demoSendButton = document.querySelector('.demo-send-button');
+
+            let demoTypingTimeout;
+            let isTypingDemo = false;
+
+            function setDemoActive(e) {
+                const clickedItem = e.currentTarget;
+                const isAlreadyActive = clickedItem.classList.contains('active');
+
+                // Start fade-out transition for currently visible windows
+                demoWindows.forEach(win => {
+                    if (win.classList.contains('visible')) {
+                        win.classList.add('fade-out');
+                        win.classList.remove('visible');
+                    }
+                });
+
+                // Remove active class from all items
+                demoListItems.forEach(item => item.classList.remove('active'));
+
+                // Wait for fade-out transition to complete before showing new window
+                setTimeout(() => {
+                    // Hide all windows after fade-out
+                    demoWindows.forEach(win => {
+                        if (win.classList.contains('fade-out')) {
+                            win.style.display = 'none';
+                            win.classList.remove('fade-out');
+                        }
+                    });
+
+                    if (!isAlreadyActive) {
+                        clickedItem.classList.add('active');
+                        const targetId = clickedItem.dataset.target;
+                        const targetWindow = document.getElementById(targetId);
+                        if (targetWindow) {
+                            targetWindow.style.display = targetId === 'demo-chat-window' ? 'flex' : 'block';
+
+                            // Small delay to ensure display is set before transition
+                            setTimeout(() => {
+                                targetWindow.classList.add('visible');
+                            }, 20);
+
+                            // Start demo typing when chat window is opened
+                            // Disabled to prevent conflict with animation-fixes.js
+                            // if (targetId === 'demo-chat-window') {
+                            //     startDemoTyping();
+                            // }
+                        }
+                    }
+                }, 200); // Wait for fade-out transition
+            }
+
+            // Demo navigation items are now controlled by animation-fixes.js only
+            // User clicks are disabled to prevent disruption of the demo
+            // demoListItems.forEach(item => {
+            //     item.addEventListener('click', setDemoActive);
+            // });
+
+            // Demo typing functionality
+            function typeText(element, text, speed = 100) {
+                return new Promise((resolve) => {
+                    let index = 0;
+                    element.value = '';
+
+                    // Add typing animation to input
+                    element.classList.add('typing-active');
+
+                    function typeChar() {
+                        if (index < text.length) {
+                            element.value += text.charAt(index);
+                            index++;
+                            setTimeout(typeChar, speed);
+                        } else {
+                            // Remove typing animation when done
+                            setTimeout(() => {
+                                element.classList.remove('typing-active');
+                                resolve();
+                            }, 500);
+                        }
+                    }
+
+                    typeChar();
+                });
+            }
+
+            function addDemoMessage(text, type, hasScreenCapture = false) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('demo-message', `${type}-message`);
+
+                const textElement = document.createElement('span');
+                textElement.classList.add('text-content');
+                textElement.textContent = text;
+                messageElement.appendChild(textElement);
+
+                if (type === 'user' && hasScreenCapture) {
+                    const iconElement = document.createElement('span');
+                    iconElement.classList.add('screen-capture-icon');
+                    iconElement.title = "Screen capture was attached";
+                    iconElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>`;
+                    messageElement.appendChild(iconElement);
+                }
+
+                // Add slide-in animation based on message type
+                if (type === 'user') {
+                    messageElement.classList.add('slide-in-right');
+                } else {
+                    messageElement.classList.add('slide-in-left');
+                }
+
+                demoConversationView.appendChild(messageElement);
+                demoConversationView.scrollTop = demoConversationView.scrollHeight;
+                return messageElement;
+            }
+
+            function addTypingIndicator() {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('demo-message', 'ai-message', 'typing-indicator-msg');
+
+                const typingIndicator = document.createElement('div');
+                typingIndicator.classList.add('demo-typing-indicator');
+
+                // Create three animated dots
+                for (let i = 0; i < 3; i++) {
+                    const dot = document.createElement('div');
+                    dot.classList.add('demo-typing-dot');
+                    typingIndicator.appendChild(dot);
+                }
+
+                messageElement.appendChild(typingIndicator);
+                demoConversationView.appendChild(messageElement);
+                demoConversationView.scrollTop = demoConversationView.scrollHeight;
+
+                return messageElement;
+            }
+
+            function typeAIResponse(element, text, speed = 25) {
+                return new Promise((resolve) => {
+                    let index = 0;
+                    const textElement = element.querySelector('.text-content');
+                    textElement.textContent = '';
+
+                    // Add cursor
+                    const cursor = document.createElement('span');
+                    cursor.classList.add('demo-typewriter-cursor');
+                    textElement.appendChild(cursor);
+
+                    function typeChar() {
+                        if (index < text.length) {
+                            textElement.textContent = text.substring(0, index + 1);
+                            textElement.appendChild(cursor);
+                            index++;
+                            demoConversationView.scrollTop = demoConversationView.scrollHeight;
+                            setTimeout(typeChar, speed);
+                        } else {
+                            // Remove cursor when done
+                            setTimeout(() => {
+                                if (cursor.parentNode) {
+                                    cursor.remove();
+                                }
+                                resolve();
+                            }, 1000);
+                        }
+                    }
+
+                    typeChar();
+                });
+            }
+
+            async function startDemoTyping() {
+                if (isTypingDemo) return;
+                isTypingDemo = true;
+
+                // Clear any existing timeout
+                if (demoTypingTimeout) {
+                    clearTimeout(demoTypingTimeout);
+                }
+
+                // Wait a bit before starting the demo
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Demo conversation scenarios
+                const scenarios = [
+                    {
+                        userMessage: "Create a presentation from this data",
+                        aiResponse: "I can see your spreadsheet. I'll create a professional presentation highlighting the 35% growth in Q4 sales. Should I include the regional breakdown charts?",
+                        hasScreenCapture: true
+                    },
+                    {
+                        userMessage: "Schedule a team meeting for next week",
+                        aiResponse: "I've found available slots for your team. Tuesday at 2 PM or Wednesday at 10 AM work best based on everyone's calendars. Which would you prefer?",
+                        hasScreenCapture: false
+                    },
+                    {
+                        userMessage: "Analyze the customer feedback trends",
+                        aiResponse: "Based on the latest feedback, customer satisfaction increased 18% this month. The main improvements were in response time and product quality. I can generate a detailed report if needed.",
+                        hasScreenCapture: false
+                    }
+                ];
+
+                let currentScenario = 0;
+
+                async function runDemoScenario() {
+                    if (!isTypingDemo) return;
+
+                    const scenario = scenarios[currentScenario];
+
+                    // Clear conversation box before starting new scenario
+                    demoConversationView.innerHTML = '';
+
+                    // Type user message
+                    await typeText(demoInput, scenario.userMessage, 80);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                    // Animate send button
+                    demoSendButton.classList.add('sending');
+                    setTimeout(() => {
+                        demoSendButton.classList.remove('sending');
+                    }, 600);
+
+                    // Send message
+                    addDemoMessage(scenario.userMessage, 'user', scenario.hasScreenCapture);
+                    demoInput.value = '';
+
+                    // Show typing indicator
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    const typingMsg = addTypingIndicator();
+
+                    // Wait for "AI to think"
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+
+                    // Remove typing indicator and add AI response
+                    typingMsg.remove();
+                    const aiMsg = addDemoMessage('', 'ai');
+                    const textElement = document.createElement('span');
+                    textElement.classList.add('text-content');
+                    aiMsg.appendChild(textElement);
+
+                    // Type AI response
+                    await typeAIResponse(aiMsg, scenario.aiResponse, 20);
+
+                    // Wait before next scenario
+                    await new Promise(resolve => setTimeout(resolve, 2500));
+
+                    // Move to next scenario
+                    currentScenario = (currentScenario + 1) % scenarios.length;
+
+                    // Continue the demo
+                    if (isTypingDemo) {
+                        runDemoScenario();
+                    }
+                }
+
+                runDemoScenario();
+            }
+
+            // Input interactions disabled for demo (controlled by animation-fixes.js)
+            if (demoInput) {
+                // User interaction disabled to prevent demo disruption
+                // demoInput.addEventListener('focus', () => {
+                //     isTypingDemo = false;
+                //     demoInput.value = '';
+                // });
+
+                // demoInput.addEventListener('click', () => {
+                //     isTypingDemo = false;
+                //     demoInput.value = '';
+                // });
+            }
+
+            // Clear Chat Functionality - Disabled for demo (controlled by animation-fixes.js)
+            const clearChatButton = document.querySelector('.demo-icon-button[title="Clear Chat"]');
+            if (clearChatButton) {
+                // User interaction disabled to prevent demo disruption
+                // clearChatButton.addEventListener('click', async (e) => {
+                //     e.preventDefault();
+                //     
+                //     // Stop any ongoing demo
+                //     isTypingDemo = false;
+                //     if (demoTypingTimeout) {
+                //         clearTimeout(demoTypingTimeout);
+                //     }
+                //     
+                //     // Animate the clear button
+                //     clearChatButton.classList.add('clearing');
+                //     setTimeout(() => {
+                //         clearChatButton.classList.remove('clearing');
+                //     }, 600);
+                //     
+                //     // If there are messages to clear
+                //     const messages = demoConversationView.querySelectorAll('.demo-message');
+                //     if (messages.length > 0) {
+                //         // Add clearing class to conversation view
+                //         demoConversationView.classList.add('clearing');
+                //         
+                //         // Wait for animation to complete
+                //         await new Promise(resolve => setTimeout(resolve, 500));
+                //         
+                //         // Clear all messages
+                //         demoConversationView.innerHTML = '';
+                //         demoConversationView.classList.remove('clearing');
+                //         
+                //         // Clear input field
+                //         demoInput.value = '';
+                //         demoInput.classList.remove('typing-active');
+                //         
+                //         // Restart demo after a short delay
+                //         // Disabled to prevent conflict with animation-fixes.js
+                //         // setTimeout(() => {
+                //         //     if (document.getElementById('demo-chat-window').classList.contains('visible')) {
+                //         //         startDemoTyping();
+                //         //     }
+                //         // }, 1000);
+                //     }
+                // });
+            }
+
+            // Enhanced Send Button Functionality - Disabled for demo (controlled by animation-fixes.js)
+            if (demoSendButton) {
+                // User interaction disabled to prevent demo disruption
+                // demoSendButton.addEventListener('click', (e) => {
+                //     e.preventDefault();
+                //     
+                //     // Animate send button
+                //     demoSendButton.classList.add('sending');
+                //     setTimeout(() => {
+                //         demoSendButton.classList.remove('sending');
+                //     }, 600);
+                //     
+                //     // If there's text in the input (for manual interaction)
+                //     const inputValue = demoInput.value.trim();
+                //     if (inputValue && !isTypingDemo) {
+                //         // Stop demo and add user message
+                //         isTypingDemo = false;
+                //         addDemoMessage(inputValue, 'user');
+                //         demoInput.value = '';
+                //         
+                //         // Add AI response after delay
+                //         setTimeout(() => {
+                //             const responses = [
+                //                 "I understand. Let me help you with that.",
+                //                 "That's a great question. I can assist you with this task.",
+                //                 "I'll take care of that for you right away.",
+                //                 "Perfect! I can help you accomplish this."
+                //             ];
+                //             const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                //             
+                //             // Add typing indicator
+                //             const typingMsg = addTypingIndicator();
+                //             
+                //             setTimeout(() => {
+                //                 typingMsg.remove();
+                //                 const aiMsg = addDemoMessage('', 'ai');
+                //                 const textElement = document.createElement('span');
+                //                 textElement.classList.add('text-content');
+                //                 aiMsg.appendChild(textElement);
+                //                 typeAIResponse(aiMsg, randomResponse, 20);
+                //             }, 2000);
+                //         }, 800);
+                //     }
+                // });
+            }
+
+            // Start demo typing if chat is already visible
+            // Disabled to prevent conflict with animation-fixes.js
+            // if (document.getElementById('demo-chat-window').classList.contains('visible')) {
+            //     startDemoTyping();
+            // }
+        });
+    </script>
+
+    <!-- Enhanced Features Section V2 JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Feature Filter Functionality
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const featureCards = document.querySelectorAll('.feature-card-v2');
+
+            if (filterBtns.length > 0 && featureCards.length > 0) {
+                filterBtns.forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const filter = this.dataset.filter;
+
+                        // Update active state on buttons
+                        filterBtns.forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+
+                        // Filter cards with smooth transition
+                        featureCards.forEach((card, index) => {
+                            const category = card.dataset.category;
+
+                            if (filter === 'all' || category === filter) {
+                                // Show card with stagger animation
+                                setTimeout(() => {
+                                    card.style.display = 'block';
+                                    // Trigger reflow for animation
+                                    void card.offsetWidth;
+                                    card.classList.add('fade-in');
+                                }, index * 50);
+                            } else {
+                                // Hide card
+                                card.classList.remove('fade-in');
+                                setTimeout(() => {
+                                    card.style.display = 'none';
+                                }, 300);
+                            }
+                        });
+                    });
+                });
+
+                // Card Hover Parallax Effect
+                featureCards.forEach(card => {
+                    let ticking = false;
+                    let rect = card.getBoundingClientRect();
+
+                    // Update rect on scroll or resize to ensure accuracy
+                    window.addEventListener('scroll', () => { rect = card.getBoundingClientRect(); }, { passive: true });
+                    window.addEventListener('resize', () => { rect = card.getBoundingClientRect(); }, { passive: true });
+
+                    card.addEventListener('mouseenter', () => {
+                        rect = card.getBoundingClientRect();
+                    });
+
+                    card.addEventListener('mousemove', function (e) {
+                        if (!ticking) {
+                            window.requestAnimationFrame(() => {
+                                const x = e.clientX - rect.left;
+                                const y = e.clientY - rect.top;
+
+                                const centerX = rect.width / 2;
+                                const centerY = rect.height / 2;
+
+                                const deltaX = (x - centerX) / centerX;
+                                const deltaY = (y - centerY) / centerY;
+
+                                const icon = this.querySelector('.feature-icon');
+                                if (icon) {
+                                    icon.style.transform = `translate(${deltaX * 8}px, ${deltaY * 8}px) scale(1.1)`;
+                                }
+                                ticking = false;
+                            });
+                            ticking = true;
+                        }
+                    });
+
+                    card.addEventListener('mouseleave', function () {
+                        const icon = this.querySelector('.feature-icon');
+                        if (icon) {
+                            icon.style.transform = 'translate(0, 0) scale(1)';
+                        }
+                    });
+                });
+
+                // Enhanced Demo Preview Activation on Hover
+                featureCards.forEach(card => {
+                    let hoverTimeout;
+
+                    card.addEventListener('mouseenter', function () {
+                        const demoPreview = this.querySelector('.feature-demo-preview');
+                        if (demoPreview) {
+                            // Add active class to enhance animations
+                            hoverTimeout = setTimeout(() => {
+                                demoPreview.classList.add('active');
+                            }, 100);
+                        }
+                    });
+
+                    card.addEventListener('mouseleave', function () {
+                        clearTimeout(hoverTimeout);
+                        const demoPreview = this.querySelector('.feature-demo-preview');
+                        if (demoPreview) {
+                            demoPreview.classList.remove('active');
+                        }
+                    });
+                });
+
+                // Keyboard Navigation Support
+                filterBtns.forEach((btn, index) => {
+                    btn.addEventListener('keydown', function (e) {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            this.click();
+                        } else if (e.key === 'ArrowRight') {
+                            e.preventDefault();
+                            const nextBtn = filterBtns[Math.min(index + 1, filterBtns.length - 1)];
+                            nextBtn.focus();
+                        } else if (e.key === 'ArrowLeft') {
+                            e.preventDefault();
+                            const prevBtn = filterBtns[Math.max(index - 1, 0)];
+                            prevBtn.focus();
+                        }
+                    });
+                });
+
+                // Intersection Observer for scroll animations
+                const observerOptions = {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                };
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }
+                    });
+                }, observerOptions);
+
+                featureCards.forEach(card => {
+                    observer.observe(card);
+                });
+
+                // Log initialization
+                console.log('✅ Enhanced Features Section V2 initialized');
+                console.log(`   - ${featureCards.length} feature cards loaded`);
+                console.log(`   - ${filterBtns.length} filter buttons active`);
+            }
+        });
+    </script>
+</body>
+
+</html>
