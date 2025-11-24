@@ -896,8 +896,14 @@ app.post('/api/auth/desktop/initiate', async (req, res) => {
         await session.save();
 
         // Return the auth URL that the desktop app should open
-        // Use the configured app base URL or construct it from request
-        const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
+        // Use the configured app base URL, or detect from request (with proper HTTPS handling)
+        let baseUrl = process.env.APP_BASE_URL;
+        if (!baseUrl) {
+            // On Vercel/production, use x-forwarded-proto header for correct protocol
+            const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+            const host = req.headers['x-forwarded-host'] || req.get('host');
+            baseUrl = `${protocol}://${host}`;
+        }
         const authUrl = `${baseUrl}/auth/desktop/authorize?token=${token}`;
 
         res.json({
@@ -2027,7 +2033,13 @@ app.post('/api/billing-portal', requireAuth, async (req, res) => {
             });
         }
 
-        const returnUrlBase = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
+        // Use proper URL detection for Vercel/production
+        let returnUrlBase = process.env.APP_BASE_URL;
+        if (!returnUrlBase) {
+            const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+            const host = req.headers['x-forwarded-host'] || req.get('host');
+            returnUrlBase = `${protocol}://${host}`;
+        }
         console.log('🔗 Creating billing portal session for customer:', user.stripeCustomerId);
 
         const session = await stripe.billingPortal.sessions.create({
