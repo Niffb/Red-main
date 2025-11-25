@@ -1,0 +1,175 @@
+<div id="settings-window" class="window" style="display: none;">
+    <div class="account-settings-container">
+        <div class="account-settings-header">
+            <div class="account-header-content">
+                <div class="account-avatar" id="account-avatar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <div class="account-header-info">
+                    <h2 id="account-name">Not Signed In</h2>
+                    <p id="account-email">Please sign in to continue</p>
+                </div>
+            </div>
+            <div class="account-status" id="account-status">
+                <span class="status-indicator"></span>
+                <span class="status-text">Free Plan</span>
+            </div>
+        </div>
+
+        <div class="account-settings-content">
+            
+            <div class="account-section" id="subscription-section">
+                <h3 class="account-section-title">Subscription Details</h3>
+                <div class="subscription-card" id="subscription-card">
+                    <div class="subscription-info">
+                        <div class="subscription-tier" id="subscription-tier">Loading...</div>
+                        <div class="subscription-status" id="subscription-status">...</div>
+                    </div>
+                    <div class="subscription-details">
+                        <div class="subscription-detail">
+                            <span class="detail-label">Messages Used</span>
+                            <span class="detail-value" id="messages-used">...</span>
+                        </div>
+                        <div class="subscription-detail">
+                            <span class="detail-label">Transcriptions</span>
+                            <span class="detail-value" id="transcriptions-used">...</span>
+                        </div>
+                        <div class="subscription-detail">
+                            <span class="detail-label">Storage Used</span>
+                            <span class="detail-value" id="storage-used">...</span>
+                        </div>
+                        <div class="subscription-detail" style="margin-top: 16px;">
+                            <button id="refresh-credits-btn" class="secondary-btn" style="width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; padding: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; color: white; cursor: pointer; transition: all 0.2s;">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh Credits
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="account-section" id="account-actions-section">
+                <h3 class="account-section-title">Account Actions</h3>
+                <div class="account-actions">
+                    <button id="logout-btn" class="account-btn danger" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize user data - call immediately since this is loaded dynamically
+    (function initSettings() {
+        // Try to load user data immediately
+        loadUserData();
+        
+        // Attach event listeners with retry mechanism
+        function attachEventListeners() {
+            const refreshBtn = document.getElementById('refresh-credits-btn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', refreshUserData);
+            }
+            
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleOAuthLogout);
+            }
+        }
+        
+        // Try immediately
+        attachEventListeners();
+        
+        // Also try after a short delay in case elements aren't ready yet
+        setTimeout(attachEventListeners, 100);
+        setTimeout(attachEventListeners, 500);
+    })();
+
+    async function loadUserData() {
+        console.log('📋 Settings: Loading user data...');
+        try {
+            const response = await window.electronAPI.authGetCurrentUser();
+            console.log('📋 Settings: Got response:', response);
+            
+            if (response && response.user) {
+                const user = response.user;
+                console.log('📋 Settings: User found:', user.email);
+                
+                // Update header
+                document.getElementById('account-name').textContent = user.full_name || user.fullName || 'User';
+                document.getElementById('account-email').textContent = user.email;
+                
+                // Update subscription
+                const sub = user.subscription || {};
+                const usage = user.usage || {};
+                const limits = sub.limits || {};
+                
+                document.getElementById('subscription-tier').textContent = (sub.tier || 'Free').toUpperCase() + ' PLAN';
+                document.getElementById('subscription-status').textContent = (sub.status || 'active').charAt(0).toUpperCase() + (sub.status || 'active').slice(1);
+                
+                // Update usage stats
+                const msgLimit = limits.messagesPerDay || '∞';
+                document.getElementById('messages-used').textContent = `${usage.messagesUsedToday || 0} / ${msgLimit}`;
+                document.getElementById('transcriptions-used').textContent = `${usage.transcriptionMinutesUsed || 0} mins`;
+                document.getElementById('storage-used').textContent = '0 MB'; // Placeholder
+                
+                // Update avatar
+                const avatarEl = document.getElementById('account-avatar');
+                if (avatarEl) {
+                    avatarEl.innerHTML = `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:bold; color:white;">
+                        ${(user.full_name || user.email || 'U').charAt(0).toUpperCase()}
+                    </div>`;
+                    avatarEl.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                }
+            }
+        } catch (error) {
+            console.error('Error loading user data:', error);
+        }
+    }
+
+    async function refreshUserData() {
+        const btn = event.target.closest('button');
+        const originalContent = btn.innerHTML;
+        
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            
+            const result = await window.electronAPI.authRefreshUserData();
+            
+            if (result.success) {
+                // Update UI with new user data
+                await loadUserData();
+                console.log('✅ User data refreshed');
+            } else {
+                alert('Failed to refresh data: ' + (result.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error refreshing data:', error);
+            alert('Error refreshing data');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+        }
+    }
+
+    async function handleOAuthLogout() {
+        if (confirm('Are you sure you want to sign out?')) {
+            try {
+                const result = await window.electronAPI.authLogout();
+                if (result.success) {
+                    console.log('✅ Logged out successfully');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Logout failed');
+            }
+        }
+    }
+</script>

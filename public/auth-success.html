@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red AI - Welcome</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #fafafa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-container {
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 16px;
+            padding: 48px 40px;
+            text-align: center;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background: #fef2f2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0); }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .success-icon svg {
+            width: 28px;
+            height: 28px;
+            color: #dc2626;
+        }
+
+        .checkmark {
+            stroke-dasharray: 30;
+            stroke-dashoffset: 30;
+            animation: draw 0.5s ease-out 0.2s forwards;
+        }
+
+        @keyframes draw {
+            to { stroke-dashoffset: 0; }
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #171717;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        p {
+            font-size: 14px;
+            color: #737373;
+            line-height: 1.5;
+        }
+
+        .loading-dots {
+            display: inline-flex;
+            gap: 4px;
+            margin-left: 2px;
+        }
+
+        .loading-dots span {
+            width: 4px;
+            height: 4px;
+            background: #a3a3a3;
+            border-radius: 50%;
+            animation: bounce 1.4s ease-in-out infinite;
+        }
+
+        .loading-dots span:nth-child(1) { animation-delay: 0s; }
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-4px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline class="checkmark" points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+        
+        <h1>Welcome back</h1>
+        <p>
+            Loading Red AI
+            <span class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </span>
+        </p>
+    </div>
+</body>
+</html>

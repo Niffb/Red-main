@@ -1,0 +1,924 @@
+<!-- Transcription Window - Professional Design -->
+<div id="transcription-window" class="window">
+    <div class="transcription-container">
+        <!-- Step 1: Ready to Record -->
+        <div class="step" id="step-ready">
+            <div class="step-content">
+                <div class="step-icon">
+                    <i class="fas fa-microphone"></i>
+                </div>
+                <h2>Ready to Transcribe</h2>
+                <p class="subtitle">Click start and speak or play audio</p>
+                
+                <button class="primary-btn large-btn" id="start-recording-btn">
+                    <i class="fas fa-microphone"></i>
+                    <span>Start Recording</span>
+                </button>
+                
+                <div class="info-box">
+                    <p class="info-title">What You Can Transcribe</p>
+                    <ul class="info-list">
+                        <li><i class="fas fa-check-circle"></i> YouTube videos playing on your device</li>
+                        <li><i class="fas fa-check-circle"></i> Live meetings (Zoom, Teams, etc.)</li>
+                        <li><i class="fas fa-check-circle"></i> Your own voice notes</li>
+                        <li><i class="fas fa-check-circle"></i> Any audio playing through your speakers</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Recording -->
+        <div class="step hidden" id="step-recording">
+            <div class="step-content">
+                <div class="recording-header">
+                    <div class="recording-indicator">
+                        <span class="pulse-dot"></span>
+                        <span class="recording-text">Recording</span>
+                    </div>
+                    <div class="timer" id="timer">0:00</div>
+                </div>
+
+                <div class="transcript-display" id="live-transcript">
+                    <div class="transcript-placeholder">
+                        <i class="fas fa-headphones"></i>
+                        <p>Listening for audio...</p>
+                    </div>
+                    <div class="transcript-content" id="transcript-text"></div>
+                </div>
+
+                <div class="recording-stats">
+                    <span id="word-count">0 words</span>
+                    <span class="separator">•</span>
+                    <span id="confidence-indicator">
+                        <i class="fas fa-signal"></i>
+                        <span id="confidence-text">Ready</span>
+                    </span>
+                </div>
+
+                <button class="danger-btn large-btn" id="stop-recording-btn">
+                    <i class="fas fa-stop-circle"></i>
+                    <span>Stop Recording</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Goal Input -->
+        <div class="step hidden" id="step-goal">
+            <div class="step-content">
+                <div class="step-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <h2>What's Your Goal?</h2>
+                <p class="subtitle">Help the AI understand what you want to achieve</p>
+
+                <div class="transcript-summary" id="final-transcript-summary">
+                    <div class="summary-header">
+                        <h3>Your Transcript</h3>
+                        <span id="final-word-count" class="word-count-badge"></span>
+                    </div>
+                    <div class="summary-content" id="summary-text"></div>
+                    <button class="text-btn" id="view-full-transcript-btn">
+                        <i class="fas fa-expand-alt"></i>
+                        View Full Transcript
+                    </button>
+                </div>
+
+                <div class="goal-input-section">
+                    <label for="goal-input" class="input-label">Your Goal</label>
+                    <textarea 
+                        id="goal-input" 
+                        placeholder="Example: Learn the main concepts and create a study plan&#10;&#10;Example: Summarize action items and create tasks&#10;&#10;Example: Extract key insights and suggest next steps"
+                        rows="4"
+                    ></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="secondary-btn" id="back-to-record-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        New Recording
+                    </button>
+                    <button class="primary-btn large-btn" id="generate-workflow-btn">
+                        <i class="fas fa-magic"></i>
+                        <span>Generate Workflow</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Workflow Results -->
+        <div class="step hidden" id="step-workflow">
+            <div class="step-content">
+                <div class="step-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Your Actionable Workflow</h2>
+                <p class="subtitle">AI-generated steps based on your transcript and goal</p>
+
+                <div class="workflow-container" id="workflow-container">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Generating workflow...</p>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="secondary-btn" id="new-transcription-btn">
+                        <i class="fas fa-microphone"></i>
+                        New Transcription
+                    </button>
+                    <button class="primary-btn" id="save-workflow-btn">
+                        <i class="fas fa-save"></i>
+                        Save Workflow
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Full Transcript -->
+    <div class="modal-overlay hidden" id="transcript-modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Full Transcript</h3>
+                <button class="modal-close" id="close-transcript-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="full-transcript" id="full-transcript-text"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-btn" id="copy-transcript-btn">
+                    <i class="fas fa-copy"></i>
+                    Copy to Clipboard
+                </button>
+                <button class="primary-btn" id="close-transcript-btn">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ============================================
+   TRANSCRIPTION WINDOW - RED GLASS DESIGN
+   Professional & Cohesive UI
+   ============================================ */
+
+/* Container */
+.transcription-container {
+    padding: 32px 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+    min-height: calc(100vh - 100px);
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+/* Step Animations */
+.step {
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.step-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+/* Step Icon */
+.step-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(239, 68, 68, 0.4);
+}
+
+.step-icon i {
+    font-size: 36px;
+    color: white;
+}
+
+.step-icon.success {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.3);
+}
+
+/* Typography */
+h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+}
+
+h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.subtitle {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+/* Buttons */
+.primary-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: 1px solid #ef4444;
+    color: white;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.primary-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(239, 68, 68, 0.4);
+}
+
+.primary-btn:active {
+    transform: translateY(0);
+}
+
+.primary-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.large-btn {
+    padding: 16px 36px;
+    font-size: 17px;
+    min-width: 220px;
+}
+
+.secondary-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.danger-btn {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.danger-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.5);
+    transform: translateY(-1px);
+}
+
+.text-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.text-btn:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Info Box */
+.info-box {
+    background: rgba(45, 45, 45, 0.75);
+    backdrop-filter: blur(25px) saturate(180%) brightness(110%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%) brightness(110%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.info-box:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.info-title {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.info-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.info-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 2;
+    font-size: 14px;
+}
+
+.info-list li i {
+    color: #22c55e;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+/* Recording Header */
+.recording-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 16px 24px;
+    background: rgba(45, 45, 45, 0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+}
+
+.recording-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 10px;
+}
+
+.pulse-dot {
+    width: 10px;
+    height: 10px;
+    background: #ef4444;
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+        box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+    }
+    50% { 
+        opacity: 0.5; 
+        transform: scale(1.2);
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.8);
+    }
+}
+
+.recording-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ef4444;
+    letter-spacing: 0.02em;
+}
+
+.timer {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Monaco', monospace;
+    color: rgba(255, 255, 255, 0.95);
+    letter-spacing: 0.05em;
+}
+
+/* Transcript Display */
+.transcript-display {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 28px;
+    width: 100%;
+    min-height: 320px;
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+.transcript-display::-webkit-scrollbar {
+    width: 8px;
+}
+
+.transcript-display::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.transcript-display::-webkit-scrollbar-thumb {
+    background: rgba(239, 68, 68, 0.3);
+    border-radius: 4px;
+}
+
+.transcript-display::-webkit-scrollbar-thumb:hover {
+    background: rgba(239, 68, 68, 0.5);
+}
+
+.transcript-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 260px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.transcript-placeholder i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.6;
+}
+
+.transcript-placeholder p {
+    font-size: 15px;
+    margin: 0;
+}
+
+.transcript-content {
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.transcript-line {
+    margin-bottom: 16px;
+    line-height: 1.7;
+    font-size: 15px;
+}
+
+.transcript-line.final {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 400;
+}
+
+.transcript-line.interim {
+    color: rgba(255, 255, 255, 0.4);
+    font-style: italic;
+    font-weight: 300;
+}
+
+/* Recording Stats */
+.recording-stats {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+}
+
+.separator {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+#confidence-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#word-count {
+    font-weight: 500;
+}
+
+/* Goal Step */
+.transcript-summary {
+    background: rgba(45, 45, 45, 0.75);
+    backdrop-filter: blur(25px) saturate(180%) brightness(110%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%) brightness(110%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.word-count-badge {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.summary-content {
+    max-height: 120px;
+    overflow: hidden;
+    position: relative;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.7;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.summary-content::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(transparent, rgba(45, 45, 45, 0.75));
+}
+
+/* Goal Input */
+.goal-input-section {
+    width: 100%;
+}
+
+.input-label {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+#goal-input {
+    width: 100%;
+    min-height: 140px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 20px;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 15px;
+    line-height: 1.7;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    resize: vertical;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#goal-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+    line-height: 1.8;
+}
+
+#goal-input:focus {
+    outline: none;
+    border-color: rgba(239, 68, 68, 0.5);
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Workflow Container */
+.workflow-container {
+    width: 100%;
+    background: rgba(45, 45, 45, 0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 28px;
+    min-height: 300px;
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 250px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.loading-spinner i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: #ef4444;
+}
+
+.loading-spinner p {
+    font-size: 15px;
+    margin: 0;
+}
+
+/* Workflow Result */
+.workflow-result {
+    width: 100%;
+}
+
+.workflow-header {
+    margin-bottom: 24px;
+}
+
+.workflow-header h3 {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.workflow-header p {
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.workflow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.workflow-step {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.workflow-step:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(239, 68, 68, 0.3);
+    transform: translateX(4px);
+}
+
+.step-number {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.step-content-inner {
+    flex: 1;
+}
+
+.step-content-inner h4 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.step-content-inner p {
+    margin: 0 0 8px 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.step-content-inner ul {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.workflow-notes {
+    margin-top: 20px;
+    padding: 16px;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.workflow-notes strong {
+    color: #ef4444;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: rgba(45, 45, 45, 0.95);
+    backdrop-filter: blur(25px) saturate(180%) brightness(110%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%) brightness(110%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-large {
+    max-width: 800px;
+}
+
+.modal-header {
+    padding: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-close {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-close:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(239, 68, 68, 0.3);
+    border-radius: 4px;
+}
+
+.modal-footer {
+    padding: 20px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.full-transcript {
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.9);
+    white-space: pre-wrap;
+    font-size: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .transcription-container {
+        padding: 24px 20px;
+    }
+    
+    h2 {
+        font-size: 26px;
+    }
+    
+    .button-group {
+        flex-direction: column;
+    }
+    
+    .button-group button {
+        width: 100%;
+    }
+}
+</style>
