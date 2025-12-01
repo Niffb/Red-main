@@ -1,4 +1,4 @@
-const mongoDBService = require('./mongodb-service');
+ const mongoDBService = require('./mongodb-service');
 
 class SubscriptionManager {
   constructor() {

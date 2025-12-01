@@ -21,6 +21,9 @@
     let currentListeningAnimation = null;
     let currentBotMessageElement = null;
     let currentButtonState = 'send'; // 'send' or 'voice'
+    let accumulatedBotText = ''; // Track accumulated bot response text
+    let pendingVoiceWorkflow = null; // Store pending workflow for voice confirmation
+    let speechSynthesis = window.speechSynthesis; // Text-to-speech for voice responses
     
     console.log('🔍 Chat window voice integration loaded');
     console.log('🔍 Chat window elements found:', {
@@ -195,6 +198,268 @@
         updateSendButton();
     }
     
+    // ============================================
+    // VOICE-BASED WORKFLOW CREATION
+    // ============================================
+    
+    // Detect if transcription is a workflow creation request
+    function detectWorkflowIntent(text) {
+        const patterns = [
+            { regex: /create\s+(a\s+)?workflow/i, type: 'explicit' },
+            { regex: /make\s+(a\s+)?workflow/i, type: 'explicit' },
+            { regex: /set\s+up\s+(a\s+)?(.+)\s+automation/i, type: 'explicit' },
+            { regex: /when\s+I\s+say\s+(.+?)\s+(then\s+)?(.+)/i, type: 'keyword_trigger' },
+            { regex: /every\s+(day|morning|night|monday|tuesday|wednesday|thursday|friday)/i, type: 'schedule' },
+            { regex: /remind\s+me\s+to\s+(.+)\s+at\s+(\d+)/i, type: 'reminder' },
+            { regex: /automatically\s+(.+)\s+when/i, type: 'automation' },
+            { regex: /automate\s+(.+)/i, type: 'automation' },
+            { regex: /schedule\s+(a\s+)?(.+)\s+(every|at|daily)/i, type: 'schedule' }
+        ];
+        
+        for (const pattern of patterns) {
+            const match = text.match(pattern.regex);
+            if (match) {
+                console.log(`🔍 Detected workflow intent: ${pattern.type}`, match);
+                return { isWorkflowRequest: true, type: pattern.type, match };
+            }
+        }
+        
+        return { isWorkflowRequest: false };
+    }
+    
+    // Speak response using text-to-speech
+    function speakResponse(text) {
+        if (!speechSynthesis) {
+            console.warn('⚠️ Speech synthesis not available');
+            return;
+        }
+        
+        // Cancel any ongoing speech
+        speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+        
+        // Try to use a natural voice
+        const voices = speechSynthesis.getVoices();
+        const preferredVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Natural')) 
+            || voices.find(v => v.lang.startsWith('en'));
+        if (preferredVoice) {
+            utterance.voice = preferredVoice;
+        }
+        
+        speechSynthesis.speak(utterance);
+        console.log('🔊 Speaking:', text);
+    }
+    
+    // Process voice transcription for workflow detection
+    async function processVoiceTranscription(transcribedText) {
+        console.log('🎤 Processing voice transcription:', transcribedText);
+        
+        // First check if this is a confirmation/denial for pending workflow
+        if (pendingVoiceWorkflow) {
+            handleVoiceConfirmation(transcribedText);
+            return true; // Handled as confirmation
+        }
+        
+        // Check if it's a workflow creation request
+        const workflowIntent = detectWorkflowIntent(transcribedText);
+        
+        if (workflowIntent.isWorkflowRequest) {
+            console.log('🔧 Voice workflow creation request detected');
+            
+            // Show that we're generating a workflow
+            addVoiceMessage('Creating workflow...', false);
+            
+            try {
+                // Generate workflow from voice command
+                const result = await window.electronAPI.generateWorkflowFromText(transcribedText);
+                
+                if (result.valid && result.workflow) {
+                    // Voice confirm before creating
+                    const confirmMessage = `I'll create a workflow called "${result.workflow.name}". It will ${result.workflow.description}. Say "yes" to confirm or "no" to cancel.`;
+                    speakResponse(confirmMessage);
+                    
+                    // Store pending workflow for confirmation
+                    pendingVoiceWorkflow = result.workflow;
+                    
+                    // Show visual preview in chat
+                    showVoiceWorkflowPreview(result.workflow, transcribedText);
+                    
+                    return true; // Handled as workflow request
+                } else {
+                    speakResponse('Sorry, I could not create that workflow. Please try again.');
+                    addVoiceMessage(`❌ Could not create workflow: ${result.errors?.join(', ') || 'Unknown error'}`, false);
+                }
+            } catch (error) {
+                console.error('❌ Error generating workflow from voice:', error);
+                speakResponse('Sorry, there was an error creating the workflow.');
+                addVoiceMessage(`❌ Error: ${error.message}`, false);
+            }
+            
+            return true; // Was a workflow request (even if failed)
+        }
+        
+        return false; // Not a workflow request, process normally
+    }
+    
+    // Handle voice confirmation for pending workflow
+    function handleVoiceConfirmation(text) {
+        const confirmPatterns = /\b(yes|yeah|yep|sure|do it|create it|confirm|okay|ok|go ahead)\b/i;
+        const denyPatterns = /\b(no|nope|cancel|don't|stop|nevermind|forget it)\b/i;
+        
+        if (confirmPatterns.test(text)) {
+            console.log('✅ Voice confirmation: Creating workflow');
+            
+            // Create the workflow
+            createWorkflowFromVoice(pendingVoiceWorkflow);
+            speakResponse(`Done! Your workflow "${pendingVoiceWorkflow.name}" is now active.`);
+            
+            // Clear pending
+            pendingVoiceWorkflow = null;
+            removeVoiceWorkflowPreview();
+            
+        } else if (denyPatterns.test(text)) {
+            console.log('❌ Voice denial: Cancelling workflow');
+            
+            speakResponse('Okay, cancelled.');
+            addVoiceMessage('❌ Workflow creation cancelled.', false);
+            
+            // Clear pending
+            pendingVoiceWorkflow = null;
+            removeVoiceWorkflowPreview();
+        } else {
+            // Not a clear confirmation/denial, ask again
+            speakResponse('Say "yes" to create the workflow, or "no" to cancel.');
+        }
+    }
+    
+    // Create workflow from voice confirmation
+    async function createWorkflowFromVoice(workflow) {
+        try {
+            const result = await window.electronAPI.createGeneratedWorkflow(workflow);
+            
+            if (result.success) {
+                console.log('✅ Voice workflow created:', result.workflow);
+                
+                // Show success message
+                if (typeof addNotificationToChat === 'function') {
+                    addNotificationToChat(
+                        `✅ Workflow "${workflow.name}" Created!`,
+                        getWorkflowUsageHint(workflow),
+                        'workflow'
+                    );
+                } else {
+                    addVoiceMessage(`✅ Workflow "${workflow.name}" created successfully!`, false);
+                }
+                
+                // Dispatch refresh event for workflow builder
+                window.dispatchEvent(new CustomEvent('refresh-workflows'));
+            } else {
+                addVoiceMessage(`❌ Failed to create workflow: ${result.error}`, false);
+            }
+        } catch (error) {
+            console.error('❌ Error creating workflow:', error);
+            addVoiceMessage(`❌ Error: ${error.message}`, false);
+        }
+    }
+    
+    // Get usage hint for created workflow
+    function getWorkflowUsageHint(workflow) {
+        if (workflow.trigger?.type === 'keyword' && workflow.trigger.keywords?.length > 0) {
+            return `Say "${workflow.trigger.keywords[0]}" followed by your text to use this workflow`;
+        } else if (workflow.trigger?.type === 'schedule') {
+            const schedule = workflow.trigger.schedule;
+            return `This workflow will run ${schedule.frequency} at ${schedule.time}`;
+        }
+        return 'Go to Workflows to run it manually';
+    }
+    
+    // Show workflow preview in chat for voice-created workflows
+    function showVoiceWorkflowPreview(workflow, originalText) {
+        if (!conversationView) return;
+        
+        // Remove any existing preview
+        removeVoiceWorkflowPreview();
+        
+        const previewEl = document.createElement('div');
+        previewEl.className = 'voice-workflow-preview';
+        previewEl.id = 'voice-workflow-preview';
+        
+        previewEl.innerHTML = `
+            <div class="voice-workflow-preview-header">
+                <span class="preview-icon">⚡</span>
+                <span class="preview-title">Create this workflow?</span>
+            </div>
+            <div class="voice-workflow-preview-content">
+                <div class="preview-name">${workflow.name}</div>
+                <div class="preview-description">${workflow.description || 'No description'}</div>
+                <div class="preview-trigger">
+                    <strong>Trigger:</strong> ${formatTriggerDescription(workflow.trigger)}
+                </div>
+                <div class="preview-actions">
+                    <strong>Actions:</strong> ${workflow.actions.map(a => formatActionDescription(a)).join(' → ')}
+                </div>
+            </div>
+            <div class="voice-workflow-preview-hint">
+                🎤 Say "yes" to confirm or "no" to cancel
+            </div>
+        `;
+        
+        conversationView.appendChild(previewEl);
+        conversationView.scrollTop = conversationView.scrollHeight;
+    }
+    
+    // Remove workflow preview
+    function removeVoiceWorkflowPreview() {
+        const preview = document.getElementById('voice-workflow-preview');
+        if (preview) {
+            preview.style.opacity = '0';
+            preview.style.transform = 'translateY(-10px)';
+            setTimeout(() => preview.remove(), 300);
+        }
+    }
+    
+    // Format trigger description
+    function formatTriggerDescription(trigger) {
+        if (!trigger) return 'Manual';
+        
+        switch (trigger.type) {
+            case 'keyword':
+                return `Say "${trigger.keywords?.join('" or "')}"`;
+            case 'schedule':
+                const schedule = trigger.schedule || trigger;
+                return `${schedule.frequency || 'daily'} at ${schedule.time || 'scheduled time'}`;
+            case 'manual':
+            default:
+                return 'Manual';
+        }
+    }
+    
+    // Format action description
+    function formatActionDescription(action) {
+        switch (action.type) {
+            case 'ai_prompt':
+                return '🤖 AI Prompt';
+            case 'notification':
+                return '🔔 Notify';
+            case 'clipboard':
+                return `📋 ${action.operation || 'Copy'}`;
+            case 'http_request':
+                return '🌐 HTTP Request';
+            case 'mcp_tool':
+                return '🔧 MCP Tool';
+            default:
+                return action.type;
+        }
+    }
+    
+    // ============================================
+    // END VOICE-BASED WORKFLOW CREATION
+    // ============================================
+    
     // Start Gemini Voice Live Session
     async function startVoiceMode() {
         try {
@@ -275,6 +540,14 @@
                         // Remove listening animation and add user message
                         removeListeningAnimation();
                         addVoiceMessage(transcription, true);
+                        
+                        // Check for workflow creation intent
+                        const wasWorkflowRequest = await processVoiceTranscription(transcription);
+                        if (wasWorkflowRequest) {
+                            console.log('🔧 Handled as workflow request');
+                            // Don't let Gemini respond to workflow requests
+                            return;
+                        }
                     }
                     
                     // Handle bot response
@@ -289,21 +562,30 @@
                                 // Remove listening animation if still showing
                                 removeListeningAnimation();
                                 
+                                // Create message element only once
                                 if (!currentBotMessageElement) {
+                                    accumulatedBotText = ''; // Reset accumulated text
                                     currentBotMessageElement = addVoiceMessage('', false);
                                     addIndicator(currentBotMessageElement, false);
                                 }
                                 
+                                // Append new text to accumulated text
+                                accumulatedBotText += part.text;
+                                
                                 const textContent = currentBotMessageElement.querySelector('.text-content');
                                 if (textContent) {
-                                    // Remove indicator temporarily
+                                    // Save and remove indicator temporarily
                                     const indicator = textContent.querySelector('.speaking-indicator');
                                     if (indicator) indicator.remove();
                                     
-                                    textContent.textContent = part.text;
+                                    // Update the full text content
+                                    textContent.textContent = accumulatedBotText;
                                     
-                                    // Re-add indicator if still speaking
-                                    addIndicator(currentBotMessageElement, false);
+                                    // Re-add indicator at the end
+                                    if (indicator) textContent.appendChild(indicator);
+                                    
+                                    // Scroll to show new content
+                                    conversationView.scrollTop = conversationView.scrollHeight;
                                 }
                             }
                         }
@@ -317,6 +599,7 @@
                         if (currentBotMessageElement) {
                             removeIndicator(currentBotMessageElement);
                             currentBotMessageElement = null;
+                            accumulatedBotText = ''; // Reset accumulated text
                         }
                         
                         // Show listening animation for next user turn
@@ -428,6 +711,7 @@
         console.log('🛑 Stopping voice mode...');
         
         isVoiceActive = false;
+        accumulatedBotText = ''; // Reset accumulated text
         
         // Clean up listening animation
         removeListeningAnimation();

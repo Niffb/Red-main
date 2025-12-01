@@ -460,7 +460,9 @@ class MCPServerManager {
 
       const fs = require('fs');
       const path = require('path');
-      const configPath = path.join(__dirname, '../.mcp-servers/running.json');
+      // Use userData directory for writable storage (not inside app.asar)
+      const userDataPath = app.getPath('userData');
+      const configPath = path.join(userDataPath, 'mcp-servers', 'running.json');
       const dir = path.dirname(configPath);
 
       if (!fs.existsSync(dir)) {
@@ -481,7 +483,9 @@ class MCPServerManager {
     try {
       const fs = require('fs');
       const path = require('path');
-      const configPath = path.join(__dirname, '../.mcp-servers/running.json');
+      // Use userData directory for writable storage (not inside app.asar)
+      const userDataPath = app.getPath('userData');
+      const configPath = path.join(userDataPath, 'mcp-servers', 'running.json');
 
       if (!fs.existsSync(configPath)) {
         console.log('ℹ️ No saved MCP servers to restore');
@@ -546,6 +550,10 @@ const mcpManager = new MCPServerManager();
 // Initialize Workflow Executor
 const WorkflowExecutor = require('./workflow-executor');
 const workflowExecutor = new WorkflowExecutor(mcpManager);
+
+// Initialize Workflow Generator (AI-powered workflow creation)
+const WorkflowGenerator = require('./workflow-generator');
+const workflowGenerator = new WorkflowGenerator();
 
 function waitForGeminiRunning(timeoutMs = 5000) {
   return new Promise((resolve, reject) => {
@@ -1422,7 +1430,8 @@ async function captureScreenshot(quality = 'medium') {
 
 async function captureScreenshotMacOS() {
   return new Promise((resolve, reject) => {
-    const tempPath = path.join(__dirname, 'temp_screenshot.png');
+    // Use temp directory for writable storage (not inside app.asar)
+    const tempPath = path.join(app.getPath('temp'), 'red-glass-screenshot.png');
 
     const screencapture = spawn('screencapture', ['-x', '-t', 'png', tempPath]);
 
@@ -3410,6 +3419,79 @@ ipcMain.handle('workflow-check-triggers', async (event, context) => {
   } catch (error) {
     console.error('❌ Error checking workflow triggers:', error);
     return { success: false, error: error.message };
+  }
+});
+
+// Generate workflow from natural language (AI-powered)
+ipcMain.handle('generate-workflow-from-text', async (event, userRequest) => {
+  try {
+    console.log('🔧 Generating workflow from text:', userRequest);
+    const result = await workflowGenerator.generateFromNaturalLanguage(userRequest);
+    
+    if (result.valid) {
+      // Also get summary and usage hint
+      result.summary = workflowGenerator.getWorkflowSummary(result.workflow);
+      result.usageHint = workflowGenerator.getUsageHint(result.workflow);
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Error generating workflow:', error);
+    return { 
+      valid: false, 
+      workflow: null, 
+      errors: [error.message] 
+    };
+  }
+});
+
+// Create and save generated workflow
+ipcMain.handle('create-generated-workflow', async (event, workflow) => {
+  try {
+    console.log('📝 Saving generated workflow:', workflow.name);
+    
+    // Ensure workflow has an ID
+    if (!workflow.id) {
+      workflow.id = `workflow_${Date.now()}`;
+    }
+    
+    // Create the workflow using the executor
+    const created = workflowExecutor.createWorkflow(workflow);
+    
+    return {
+      success: true,
+      workflow: created,
+      usageHint: workflowGenerator.getUsageHint(created)
+    };
+  } catch (error) {
+    console.error('❌ Error saving generated workflow:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Generate workflow from transcription and user goal
+ipcMain.handle('generate-workflow-from-transcription', async (event, { transcription, goal }) => {
+  try {
+    console.log('🎙️ Generating workflow from transcription...');
+    console.log(`📝 Transcription length: ${transcription?.length || 0} chars`);
+    console.log(`🎯 Goal: "${goal}"`);
+    
+    const result = await workflowGenerator.generateFromTranscriptionAndGoal(transcription, goal);
+    
+    if (result.valid) {
+      // Also get summary and usage hint
+      result.summary = workflowGenerator.getWorkflowSummary(result.workflow);
+      result.usageHint = workflowGenerator.getUsageHint(result.workflow);
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Error generating workflow from transcription:', error);
+    return { 
+      valid: false, 
+      workflow: null, 
+      errors: [error.message] 
+    };
   }
 });
 

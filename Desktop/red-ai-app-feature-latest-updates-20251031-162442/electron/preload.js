@@ -119,6 +119,12 @@ window.electronAPI = {
   workflowHistory: (limit) => ipcRenderer.invoke('workflow-history', { limit }),
   workflowClearHistory: () => ipcRenderer.invoke('workflow-clear-history'),
   workflowCheckTriggers: (context) => ipcRenderer.invoke('workflow-check-triggers', context),
+  
+  // AI Workflow Generation APIs
+  generateWorkflowFromText: (text) => ipcRenderer.invoke('generate-workflow-from-text', text),
+  createGeneratedWorkflow: (workflow) => ipcRenderer.invoke('create-generated-workflow', workflow),
+  generateWorkflowFromTranscription: (transcription, goal) => 
+    ipcRenderer.invoke('generate-workflow-from-transcription', { transcription, goal }),
 
   // MongoDB Authentication APIs
   mongodbAuthenticate: (email, password) => ipcRenderer.invoke('mongodb-authenticate', { email, password }),

@@ -672,7 +672,9 @@
         } else if (action.type === 'notification') {
             return `Show: ${action.title || 'Notification'}`;
         } else if (action.type === 'clipboard') {
-            return `Copy to clipboard`;
+            const op = action.operation || 'copy';
+            const opLabels = { copy: 'Copy to clipboard', read: 'Read from clipboard', append: 'Append to clipboard' };
+            return opLabels[op] || 'Clipboard action';
         } else if (action.type === 'http_request') {
             return `${action.method || 'GET'} ${action.url || ''}`;
         }
@@ -818,30 +820,88 @@
                     <textarea class="workflow-textarea" id="action-ai-prompt" rows="6" 
                               placeholder="Enter your prompt for Gemini...">${tempAction.prompt || ''}</textarea>
                 </div>
+                <div style="background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.3); border-radius: 8px; padding: 12px; margin-top: 12px;">
+                    <div style="font-weight: 600; color: #c084fc; margin-bottom: 8px;">📝 Available Variables</div>
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.6;">
+                        <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">{{input}}</code> - Original trigger message<br>
+                        <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">{{result}}</code> - Output from previous action<br>
+                        <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">{{aiResponse}}</code> - Last AI response<br>
+                        <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">{{clipboard}}</code> - Clipboard content (if read)
+                    </div>
+                </div>
             `;
         } else if (type === 'notification') {
             title.textContent = 'Configure Notification';
+            const duration = tempAction.duration || 5000;
+            const sound = tempAction.sound !== false;
             body.innerHTML = `
                 <div class="workflow-field">
                     <label>Title</label>
                     <input type="text" class="workflow-input" id="action-notif-title" 
                            placeholder="Notification title" value="${tempAction.title || ''}">
+                    <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 6px;">
+                        Use {{aiResponse}} to show workflow output
+                    </p>
                 </div>
                 <div class="workflow-field">
                     <label>Message</label>
                     <textarea class="workflow-textarea" id="action-notif-message" rows="4" 
-                              placeholder="Notification message">${tempAction.message || ''}</textarea>
+                              placeholder="Notification message (supports {{variables}})">${tempAction.message || ''}</textarea>
+                </div>
+                <div style="display: flex; gap: 16px;">
+                    <div class="workflow-field" style="flex: 1;">
+                        <label>Duration</label>
+                        <select class="workflow-select" id="action-notif-duration">
+                            <option value="3000" ${duration === 3000 ? 'selected' : ''}>3 seconds</option>
+                            <option value="5000" ${duration === 5000 ? 'selected' : ''}>5 seconds</option>
+                            <option value="8000" ${duration === 8000 ? 'selected' : ''}>8 seconds</option>
+                            <option value="10000" ${duration === 10000 ? 'selected' : ''}>10 seconds</option>
+                        </select>
+                    </div>
+                    <div class="workflow-field" style="flex: 1;">
+                        <label>Sound</label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-top: 8px;">
+                            <input type="checkbox" id="action-notif-sound" ${sound ? 'checked' : ''}>
+                            <span style="color: rgba(255,255,255,0.7);">Play notification sound</span>
+                        </label>
+                    </div>
                 </div>
             `;
         } else if (type === 'clipboard') {
-            title.textContent = 'Configure Clipboard';
+            title.textContent = 'Configure Clipboard Action';
+            const operation = tempAction.operation || 'copy';
             body.innerHTML = `
                 <div class="workflow-field">
-                    <label>Text to Copy</label>
-                    <textarea class="workflow-textarea" id="action-clipboard-text" rows="4" 
-                              placeholder="Text to copy to clipboard">${tempAction.text || ''}</textarea>
+                    <label>Operation</label>
+                    <select class="workflow-select" id="action-clipboard-operation" onchange="updateClipboardUI()">
+                        <option value="copy" ${operation === 'copy' ? 'selected' : ''}>📋 Copy to Clipboard</option>
+                        <option value="read" ${operation === 'read' ? 'selected' : ''}>📖 Read from Clipboard</option>
+                        <option value="append" ${operation === 'append' ? 'selected' : ''}>➕ Append to Clipboard</option>
+                    </select>
+                    <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 6px;">
+                        ${operation === 'copy' ? 'Copies the specified content to system clipboard' : 
+                          operation === 'read' ? 'Reads clipboard content into {{clipboard}} variable' : 
+                          'Appends content to existing clipboard text'}
+                    </p>
+                </div>
+                <div class="workflow-field" id="clipboard-content-field" style="${operation === 'read' ? 'display:none;' : ''}">
+                    <label>Content to ${operation === 'append' ? 'Append' : 'Copy'}</label>
+                    <textarea class="workflow-textarea" id="action-clipboard-content" rows="4" 
+                              placeholder="Use {{result}} to copy AI response, {{input}} for trigger input">${tempAction.content || ''}</textarea>
+                    <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 6px;">
+                        Available variables: {{input}}, {{result}}, {{aiResponse}}, {{clipboard}}
+                    </p>
                 </div>
             `;
+            
+            // Add helper function to update UI when operation changes
+            window.updateClipboardUI = function() {
+                const op = document.getElementById('action-clipboard-operation').value;
+                const contentField = document.getElementById('clipboard-content-field');
+                if (contentField) {
+                    contentField.style.display = op === 'read' ? 'none' : '';
+                }
+            };
         } else if (type === 'http_request') {
             title.textContent = 'Configure HTTP Request';
             body.innerHTML = `
@@ -895,8 +955,14 @@
         } else if (type === 'notification') {
             tempAction.title = document.getElementById('action-notif-title').value;
             tempAction.message = document.getElementById('action-notif-message').value;
+            tempAction.duration = parseInt(document.getElementById('action-notif-duration').value, 10);
+            tempAction.sound = document.getElementById('action-notif-sound').checked;
         } else if (type === 'clipboard') {
-            tempAction.text = document.getElementById('action-clipboard-text').value;
+            tempAction.operation = document.getElementById('action-clipboard-operation').value;
+            const contentEl = document.getElementById('action-clipboard-content');
+            if (contentEl) {
+                tempAction.content = contentEl.value;
+            }
         } else if (type === 'http_request') {
             tempAction.method = document.getElementById('action-http-method').value;
             tempAction.url = document.getElementById('action-http-url').value;
@@ -1156,6 +1222,15 @@
                 } else if (actionType === 'http_request' && actionResult) {
                     // For HTTP requests, show formatted response
                     resultMessage += `**HTTP Response:**\n\`\`\`json\n${JSON.stringify(actionResult.data || actionResult, null, 2)}\n\`\`\`\n\n`;
+                } else if (actionType === 'clipboard' && actionResult) {
+                    // For clipboard actions, show what was done
+                    if (actionResult.operation === 'copy') {
+                        resultMessage += `📋 Copied ${actionResult.length} characters to clipboard\n\n`;
+                    } else if (actionResult.operation === 'read') {
+                        resultMessage += `📖 Read ${actionResult.length} characters from clipboard\n\n`;
+                    } else if (actionResult.operation === 'append') {
+                        resultMessage += `➕ Appended to clipboard (total: ${actionResult.totalLength} characters)\n\n`;
+                    }
                 } else {
                     // Fallback: show raw result
                     resultMessage += `${JSON.stringify(actionResult, null, 2)}\n\n`;
@@ -1195,6 +1270,21 @@
         chatNavItem.click();
         console.log('✅ Switched to chat window');
     }
+    
+    // Make loadWorkflows globally accessible for external refresh
+    window.refreshWorkflowList = loadWorkflows;
+    
+    // Listen for workflow window activation to refresh
+    window.addEventListener('workflow-window-activated', async () => {
+        console.log('🔄 Workflow window activated, refreshing...');
+        await loadWorkflows();
+    });
+    
+    // Also listen for custom refresh event
+    window.addEventListener('refresh-workflows', async () => {
+        console.log('🔄 Refresh workflows event received');
+        await loadWorkflows();
+    });
     
     console.log('✅ Workflow Builder loaded');
 })();

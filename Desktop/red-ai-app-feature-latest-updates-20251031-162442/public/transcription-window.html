@@ -62,6 +62,61 @@
             </div>
         </div>
 
+        <!-- Step 2.5: Post-Transcription Options -->
+        <div class="step hidden" id="step-options">
+            <div class="step-content">
+                <div class="step-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Transcription Complete</h2>
+                <p class="subtitle">What would you like to do with your transcription?</p>
+
+                <div class="transcription-preview-box" id="transcription-preview-box">
+                    <div class="preview-header">
+                        <span class="preview-label">
+                            <i class="fas fa-file-alt"></i>
+                            Your Transcription
+                        </span>
+                        <span id="options-word-count" class="word-count-badge"></span>
+                    </div>
+                    <div class="preview-text" id="options-preview-text"></div>
+                </div>
+
+                <div class="post-transcription-options">
+                    <button class="option-card" id="attach-to-chat-btn">
+                        <div class="option-icon attach-icon">
+                            <i class="fas fa-paperclip"></i>
+                        </div>
+                        <div class="option-content">
+                            <h3>Attach to Chat</h3>
+                            <p>Use this transcription as context for your chat conversations. Ask questions about it, get summaries, or extract insights.</p>
+                        </div>
+                        <div class="option-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </button>
+
+                    <button class="option-card" id="create-workflow-btn">
+                        <div class="option-icon workflow-icon">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <div class="option-content">
+                            <h3>Create Workflow</h3>
+                            <p>Generate an automated workflow based on your transcription. Set goals and let AI create actionable steps.</p>
+                        </div>
+                        <div class="option-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </button>
+                </div>
+
+                <button class="text-btn dismiss-btn" id="dismiss-options-btn">
+                    <i class="fas fa-times"></i>
+                    Dismiss & Start New Recording
+                </button>
+            </div>
+        </div>
+
         <!-- Step 3: Goal Input -->
         <div class="step hidden" id="step-goal">
             <div class="step-content">
@@ -789,6 +844,215 @@ h3 {
     color: #ef4444;
 }
 
+/* Generated Workflow Result */
+.workflow-result.generated {
+    animation: fadeIn 0.4s ease;
+}
+
+.workflow-header {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.workflow-icon-badge {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.workflow-header-text h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 4px 0;
+}
+
+.workflow-header-text p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+}
+
+.transcription-context {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    background: rgba(147, 51, 234, 0.1);
+    border: 1px solid rgba(147, 51, 234, 0.2);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.5;
+}
+
+.transcription-context i {
+    color: #c084fc;
+    margin-top: 2px;
+}
+
+.workflow-trigger-info {
+    padding: 12px 16px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.workflow-trigger-info strong {
+    color: #f87171;
+}
+
+.workflow-actions-list {
+    margin-bottom: 16px;
+}
+
+.workflow-actions-list h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 12px 0;
+}
+
+.workflow-action-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+}
+
+.workflow-action-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.action-number {
+    width: 24px;
+    height: 24px;
+    background: rgba(239, 68, 68, 0.2);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ef4444;
+    flex-shrink: 0;
+}
+
+.action-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.action-description {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+    flex: 1;
+}
+
+.workflow-usage-hint {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: 10px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.workflow-usage-hint i {
+    color: #4ade80;
+}
+
+/* Workflow Error State */
+.workflow-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+}
+
+.workflow-error .error-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.workflow-error h3 {
+    color: #f87171;
+    margin: 0 0 12px 0;
+}
+
+.workflow-error p {
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 20px;
+}
+
+/* Workflow Success State */
+.workflow-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+    animation: fadeIn 0.4s ease;
+}
+
+.workflow-success .success-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    animation: bounceIn 0.5s ease;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.workflow-success h3 {
+    color: #4ade80;
+    font-size: 24px;
+    margin: 0 0 12px 0;
+}
+
+.workflow-success p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0 0 8px 0;
+}
+
+.workflow-success .usage-hint {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    margin-bottom: 24px;
+}
+
+.workflow-success .success-buttons {
+    display: flex;
+    gap: 12px;
+}
+
 /* Modal */
 .modal-overlay {
     position: fixed;
@@ -901,6 +1165,156 @@ h3 {
     color: rgba(255, 255, 255, 0.9);
     white-space: pre-wrap;
     font-size: 15px;
+}
+
+/* Post-Transcription Options */
+.transcription-preview-box {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.preview-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.preview-label i {
+    color: #ef4444;
+}
+
+.preview-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.7);
+    max-height: 120px;
+    overflow: hidden;
+    position: relative;
+    font-family: 'SF Mono', 'Monaco', monospace;
+}
+
+.preview-text::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.4));
+}
+
+.post-transcription-options {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.option-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px;
+    background: rgba(45, 45, 45, 0.6);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
+    width: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.option-card:hover {
+    background: rgba(45, 45, 45, 0.8);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(8px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.option-card:hover .option-arrow {
+    opacity: 1;
+    transform: translateX(4px);
+}
+
+.option-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.option-icon i {
+    font-size: 24px;
+    color: white;
+}
+
+.attach-icon {
+    background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+    box-shadow: 0 4px 20px rgba(147, 51, 234, 0.3);
+}
+
+.workflow-icon {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+}
+
+.option-content {
+    flex: 1;
+}
+
+.option-content h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 6px 0;
+}
+
+.option-content p {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.option-arrow {
+    opacity: 0.4;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.3s ease;
+}
+
+.option-arrow i {
+    font-size: 18px;
+}
+
+.dismiss-btn {
+    margin-top: 12px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.dismiss-btn:hover {
+    color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 /* Responsive */

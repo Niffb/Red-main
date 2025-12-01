@@ -3,16 +3,23 @@
 
 const fs = require('fs');
 const path = require('path');
+const { app, clipboard, Notification, BrowserWindow } = require('electron');
 
 class WorkflowExecutor {
   constructor(mcpManager) {
     this.mcpManager = mcpManager;
     this.workflows = new Map(); // id -> workflow
-    this.workflowsPath = path.join(__dirname, '../data/workflows.json');
+    // Use app's userData directory for writable storage (not inside app.asar)
+    const userDataPath = app.getPath('userData');
+    this.workflowsPath = path.join(userDataPath, 'workflows.json');
     this.executionHistory = [];
     this.maxHistorySize = 100;
     
-    // Ensure data directory exists
+    // Scheduler state
+    this.scheduledTimers = new Map();
+    this.lastScheduleCheck = new Date();
+    
+    // Ensure data directory exists (userData should exist, but just in case)
     const dataDir = path.dirname(this.workflowsPath);
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
@@ -21,7 +28,130 @@ class WorkflowExecutor {
     // Load workflows from disk
     this.loadWorkflows();
     
-    console.log('✅ Workflow Executor initialized');
+    // Start the scheduler
+    this.startScheduler();
+    
+    console.log('✅ Workflow Executor initialized with scheduler');
+  }
+  
+  /**
+   * Start the workflow scheduler
+   * Checks every minute for workflows that should run
+   */
+  startScheduler() {
+    console.log('⏰ Starting workflow scheduler...');
+    
+    // Check schedules every minute
+    this.schedulerInterval = setInterval(() => {
+      this.checkScheduledWorkflows();
+    }, 60000);
+    
+    // Also check immediately on startup
+    setTimeout(() => this.checkScheduledWorkflows(), 5000);
+  }
+  
+  /**
+   * Check and run any scheduled workflows that are due
+   */
+  checkScheduledWorkflows() {
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const currentDay = now.getDay();
+    const currentDate = now.getDate();
+    
+    console.log(`⏰ Checking schedules at ${currentTime}...`);
+    
+    for (const [id, workflow] of this.workflows) {
+      if (!workflow.enabled) continue;
+      if (workflow.trigger?.type !== 'schedule') continue;
+      
+      const schedule = workflow.trigger.schedule;
+      if (!schedule) continue;
+      
+      const scheduledTime = schedule.time;
+      if (scheduledTime !== currentTime) continue;
+      
+      let shouldRun = false;
+      
+      if (schedule.frequency === 'daily') {
+        shouldRun = true;
+      } else if (schedule.frequency === 'weekly') {
+        const dayNum = currentDay === 0 ? 7 : currentDay;
+        if (schedule.daysOfWeek && schedule.daysOfWeek.includes(dayNum)) {
+          shouldRun = true;
+        }
+      } else if (schedule.frequency === 'monthly') {
+        if (schedule.dayOfMonth && parseInt(schedule.dayOfMonth) === currentDate) {
+          shouldRun = true;
+        }
+      }
+      
+      if (shouldRun) {
+        const lastRunKey = `${id}_${currentTime}`;
+        if (this._lastScheduleRuns && this._lastScheduleRuns.has(lastRunKey)) {
+          continue;
+        }
+        
+        if (!this._lastScheduleRuns) this._lastScheduleRuns = new Map();
+        this._lastScheduleRuns.set(lastRunKey, true);
+        
+        setTimeout(() => {
+          if (this._lastScheduleRuns) this._lastScheduleRuns.delete(lastRunKey);
+        }, 120000);
+        
+        console.log(`⏰ Running scheduled workflow: ${workflow.name}`);
+        
+        this.executeWorkflow(id, {
+          trigger: 'schedule',
+          scheduledTime: currentTime,
+          timestamp: now.toISOString()
+        }).then(result => {
+          console.log(`✅ Scheduled workflow "${workflow.name}" completed:`, result.success ? 'success' : 'failed');
+          this.showScheduleNotification(workflow.name, result.success);
+        }).catch(error => {
+          console.error(`❌ Scheduled workflow "${workflow.name}" failed:`, error);
+          this.showScheduleNotification(workflow.name, false, error.message);
+        });
+      }
+    }
+  }
+  
+  /**
+   * Show notification when a scheduled workflow runs
+   */
+  showScheduleNotification(workflowName, success, error = null) {
+    try {
+      if (Notification.isSupported()) {
+        const notification = new Notification({
+          title: success ? `✅ ${workflowName}` : `❌ ${workflowName} Failed`,
+          body: success ? 'Scheduled workflow completed successfully' : `Error: ${error || 'Unknown error'}`,
+          silent: false
+        });
+        notification.show();
+      }
+      
+      const mainWindow = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+      if (mainWindow) {
+        mainWindow.webContents.send('show-notification', {
+          title: success ? `⏰ ${workflowName}` : `❌ ${workflowName} Failed`,
+          message: success ? 'Scheduled workflow completed' : `Error: ${error || 'Unknown error'}`,
+          type: success ? 'success' : 'error',
+          duration: 5000
+        });
+      }
+    } catch (err) {
+      console.error('Failed to show schedule notification:', err);
+    }
+  }
+  
+  /**
+   * Stop the scheduler (for cleanup)
+   */
+  stopScheduler() {
+    if (this.schedulerInterval) {
+      clearInterval(this.schedulerInterval);
+      console.log('⏰ Scheduler stopped');
+    }
   }
   
   /**
@@ -244,8 +374,28 @@ class WorkflowExecutor {
             success: true
           });
           
-          // Update context with result (for variable substitution)
+          // ================================
+          // VARIABLE CHAINING: Pass outputs to next actions
+          // ================================
           context.lastResult = result;
+          context.result = result;
+          
+          // Type-specific variables
+          if (action.type === 'ai_prompt' && result) {
+            context.aiResponse = result.response || result;
+            console.log(`    📝 Set {{aiResponse}} = "${String(context.aiResponse).substring(0, 50)}..."`);
+          } else if (action.type === 'http_request' && result) {
+            context.httpResponse = result;
+            console.log(`    📝 Set {{httpResponse}} available`);
+          } else if (action.type === 'mcp_tool' && result) {
+            context.mcpResult = result;
+            console.log(`    📝 Set {{mcpResult}} available`);
+          } else if (action.type === 'clipboard' && result) {
+            if (result.operation === 'read' && result.content) {
+              context.clipboard = result.content;
+              console.log(`    📝 Set {{clipboard}} = "${String(context.clipboard).substring(0, 50)}..."`);
+            }
+          }
           
         } catch (error) {
           console.error(`  ❌ Action ${i + 1} failed:`, error);
@@ -385,17 +535,49 @@ class WorkflowExecutor {
   
   /**
    * Execute notification action
+   * Shows both system notification and in-app sticker
    */
   async executeNotificationAction(action, context) {
-    const { title, message } = action;
+    const { title, message, sound } = action;
     
-    const resolvedTitle = this.substituteVariables(title, context);
-    const resolvedMessage = this.substituteVariables(message, context);
+    const resolvedTitle = this.substituteVariables(title || 'Notification', context);
+    const resolvedMessage = this.substituteVariables(message || '', context);
     
     console.log(`    🔔 Notification: ${resolvedTitle}`);
     
-    // TODO: Send to renderer for display
+    // Show system notification using Electron's Notification API
+    try {
+      if (Notification.isSupported()) {
+        const notification = new Notification({
+          title: resolvedTitle,
+          body: resolvedMessage,
+          silent: !sound
+        });
+        notification.show();
+        console.log(`    ✅ System notification shown`);
+      }
+    } catch (error) {
+      console.error(`    ❌ Failed to show system notification:`, error);
+    }
+    
+    // Send to renderer for in-app sticker notification
+    try {
+      const mainWindow = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+      if (mainWindow) {
+        mainWindow.webContents.send('show-notification', {
+          title: resolvedTitle,
+          message: resolvedMessage,
+          type: 'workflow',
+          duration: action.duration || 5000
+        });
+        console.log(`    ✅ In-app notification sent to renderer`);
+      }
+    } catch (error) {
+      console.error(`    ❌ Failed to send in-app notification:`, error);
+    }
+    
     return {
+      success: true,
       title: resolvedTitle,
       message: resolvedMessage
     };
@@ -403,19 +585,73 @@ class WorkflowExecutor {
   
   /**
    * Execute clipboard action
+   * Supports: copy, read, append operations
    */
   async executeClipboardAction(action, context) {
     const { operation, content } = action;
     
-    if (operation === 'copy') {
-      const resolvedContent = this.substituteVariables(content, context);
-      console.log(`    📋 Copy to clipboard: ${resolvedContent.substring(0, 50)}...`);
+    switch (operation) {
+      case 'copy': {
+        const resolvedContent = this.substituteVariables(content, context);
+        const contentPreview = resolvedContent.length > 50 
+          ? resolvedContent.substring(0, 50) + '...' 
+          : resolvedContent;
+        console.log(`    📋 Copy to clipboard: ${contentPreview}`);
+        
+        // Actually write to system clipboard
+        clipboard.writeText(resolvedContent);
+        
+        console.log(`    ✅ Copied ${resolvedContent.length} characters to clipboard`);
+        return { 
+          success: true,
+          operation: 'copy',
+          copied: resolvedContent,
+          length: resolvedContent.length
+        };
+      }
       
-      // TODO: Copy to clipboard
-      return { copied: resolvedContent };
+      case 'read': {
+        const clipboardContent = clipboard.readText();
+        console.log(`    📋 Read from clipboard: ${clipboardContent.length} characters`);
+        
+        // Add to context so next actions can use {{clipboard}}
+        context.clipboard = clipboardContent;
+        
+        return {
+          success: true,
+          operation: 'read',
+          content: clipboardContent,
+          length: clipboardContent.length
+        };
+      }
+      
+      case 'append': {
+        const currentContent = clipboard.readText();
+        const resolvedContent = this.substituteVariables(content, context);
+        const newContent = currentContent + resolvedContent;
+        
+        console.log(`    📋 Append to clipboard: adding ${resolvedContent.length} characters`);
+        
+        clipboard.writeText(newContent);
+        
+        console.log(`    ✅ Clipboard now has ${newContent.length} characters`);
+        return {
+          success: true,
+          operation: 'append',
+          appended: resolvedContent,
+          totalLength: newContent.length
+        };
+      }
+      
+      default:
+        console.log(`    ⚠️ Unknown clipboard operation: ${operation}, defaulting to copy`);
+        if (content) {
+          const resolvedContent = this.substituteVariables(content, context);
+          clipboard.writeText(resolvedContent);
+          return { success: true, operation: 'copy', copied: resolvedContent };
+        }
+        return { success: false, error: 'No content provided' };
     }
-    
-    return {};
   }
   
   /**
@@ -441,11 +677,23 @@ class WorkflowExecutor {
   
   /**
    * Substitute variables in a value
+   * Supports: {{input}}, {{result}}, {{aiResponse}}, {{clipboard}}, {{httpResponse}}, {{mcpResult}}
    */
   substituteVariables(value, context) {
     if (typeof value === 'string') {
       return value.replace(/\{\{(\w+)\}\}/g, (match, key) => {
-        return context[key] || match;
+        const contextValue = context[key];
+        
+        if (contextValue === undefined || contextValue === null) {
+          return match; // Keep the placeholder if no value
+        }
+        
+        // If the value is an object, stringify it
+        if (typeof contextValue === 'object') {
+          return JSON.stringify(contextValue);
+        }
+        
+        return String(contextValue);
       });
     }
     

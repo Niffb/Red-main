@@ -327,6 +327,325 @@
             }
         }
 
+        /* Workflow execution animation styles */
+        .workflow-indicator-container {
+            display: flex;
+            align-items: flex-start;
+            margin: 10px 0;
+            align-self: flex-start;
+            padding: 0;
+        }
+
+        .workflow-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.15), rgba(79, 70, 229, 0.15));
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .workflow-indicator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(147, 51, 234, 0.2), transparent);
+            animation: workflowShimmer 2s infinite;
+        }
+
+        @keyframes workflowShimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .workflow-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .workflow-icon-inner {
+            font-size: 20px;
+            animation: workflowPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes workflowPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .workflow-spinner {
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            width: 40px;
+            height: 40px;
+            border: 2px solid transparent;
+            border-top-color: #9333ea;
+            border-right-color: #4f46e5;
+            border-radius: 50%;
+            animation: spinLoader 1s linear infinite;
+        }
+
+        .workflow-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .workflow-name {
+            color: #c084fc;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .workflow-status {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 11px;
+        }
+
+        .workflow-complete {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.15));
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .workflow-complete .workflow-name {
+            color: #4ade80;
+        }
+
+        /* Voice Workflow Preview Card */
+        .voice-workflow-preview {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.12), rgba(79, 70, 229, 0.12));
+            border: 1px solid rgba(147, 51, 234, 0.35);
+            border-radius: 14px;
+            margin: 12px 0;
+            max-width: 400px;
+            align-self: flex-start;
+            animation: voicePreviewSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        @keyframes voicePreviewSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .voice-workflow-preview-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(147, 51, 234, 0.2);
+        }
+
+        .voice-workflow-preview-header .preview-icon {
+            font-size: 20px;
+            animation: voiceIconPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes voiceIconPulse {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.15); filter: brightness(1.3); }
+        }
+
+        .voice-workflow-preview-header .preview-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #c084fc;
+        }
+
+        .voice-workflow-preview-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .voice-workflow-preview-content .preview-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .voice-workflow-preview-content .preview-description {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.4;
+        }
+
+        .voice-workflow-preview-content .preview-trigger,
+        .voice-workflow-preview-content .preview-actions {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 6px 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .voice-workflow-preview-content .preview-trigger strong,
+        .voice-workflow-preview-content .preview-actions strong {
+            color: #a78bfa;
+        }
+
+        .voice-workflow-preview-hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            padding-top: 10px;
+            border-top: 1px solid rgba(147, 51, 234, 0.15);
+            animation: voiceHintPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes voiceHintPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Transcription Preview Modal */
+        .transcription-preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .transcription-preview-modal.visible {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .transcription-modal-content {
+            background: rgba(45, 45, 45, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            animation: slideInUp 0.3s ease;
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .transcription-modal-content .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .transcription-modal-content .modal-header h3 {
+            margin: 0;
+            color: #c084fc;
+            font-size: 18px;
+        }
+
+        .transcription-modal-content .close-modal-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .transcription-modal-content .close-modal-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .transcription-modal-content .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .transcription-modal-content .transcription-text-preview {
+            font-family: 'SF Mono', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.85);
+            white-space: pre-wrap;
+        }
+
+        .transcription-modal-content .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .transcription-modal-content .word-count-info {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+        }
+
+        .transcription-modal-content .remove-transcription-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .transcription-modal-content .remove-transcription-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .workflow-complete .workflow-spinner {
+            display: none;
+        }
+
+        .workflow-complete .workflow-icon-inner {
+            animation: none;
+        }
+
         .capture-success-icon {
             display: inline-flex;
             align-items: center;
@@ -340,6 +659,173 @@
             height: 100%;
             stroke: #10b981;
             stroke-width: 1.5;
+        }
+
+        /* Notification Sticker Animations */
+        @keyframes stickerSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes stickerSlideOut {
+            0% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(20px) scale(0.95);
+            }
+        }
+
+        .notification-sticker {
+            transition: all 0.2s ease;
+        }
+
+        .notification-sticker:hover {
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        /* ================================
+           WORKFLOW PREVIEW CARD
+           ================================ */
+        .workflow-preview-card {
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(79, 70, 229, 0.1));
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            animation: cardSlideIn 0.3s ease-out;
+        }
+
+        @keyframes cardSlideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .preview-icon {
+            font-size: 20px;
+        }
+
+        .preview-title {
+            font-weight: 600;
+            color: #c084fc;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .preview-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .preview-description {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 16px;
+        }
+
+        .preview-details {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .preview-trigger, .preview-actions {
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .preview-trigger strong, .preview-actions strong {
+            color: #c084fc;
+        }
+
+        .preview-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .preview-buttons button {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+        }
+
+        .btn-create-workflow {
+            background: linear-gradient(135deg, #9333ea, #4f46e5);
+            color: white;
+        }
+
+        .btn-create-workflow:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
+        }
+
+        .btn-modify-workflow {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .btn-modify-workflow:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-cancel-workflow {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .btn-cancel-workflow:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .workflow-generating {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            margin: 12px 0;
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.15), rgba(79, 70, 229, 0.15));
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 12px;
+            color: #c084fc;
+            font-size: 14px;
+        }
+
+        .workflow-generating .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(147, 51, 234, 0.3);
+            border-top-color: #c084fc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Typewriter animation styles */
@@ -3230,6 +3716,112 @@
         let currentChatId = null;
         let screenCaptureActive = false;
         
+        // Transcription attachment state
+        let transcriptionAttachment = null;
+        
+        // Handle transcription attachment from transcription window
+        window.addEventListener('transcription-attached', (event) => {
+            console.log('📎 Transcription attached event received:', event.detail);
+            transcriptionAttachment = event.detail;
+            showTranscriptionAttachmentBadge();
+        });
+        
+        // Show transcription attachment badge
+        function showTranscriptionAttachmentBadge() {
+            const badge = document.getElementById('transcription-attachment-badge');
+            const wordCount = document.getElementById('attachment-word-count');
+            
+            if (badge && transcriptionAttachment) {
+                badge.classList.remove('hidden');
+                if (wordCount) {
+                    wordCount.textContent = `${transcriptionAttachment.wordCount} words`;
+                }
+                console.log('✅ Transcription attachment badge shown');
+            }
+        }
+        
+        // Hide transcription attachment badge
+        function hideTranscriptionAttachmentBadge() {
+            const badge = document.getElementById('transcription-attachment-badge');
+            if (badge) {
+                badge.classList.add('hidden');
+            }
+            transcriptionAttachment = null;
+            window.chatAttachment = null;
+            console.log('❌ Transcription attachment removed');
+        }
+        
+        // Setup transcription attachment badge click handlers
+        function setupTranscriptionAttachmentHandlers() {
+            const removeBtn = document.getElementById('remove-attachment-btn');
+            if (removeBtn) {
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    hideTranscriptionAttachmentBadge();
+                });
+            }
+            
+            const badge = document.getElementById('transcription-attachment-badge');
+            if (badge) {
+                badge.addEventListener('click', (e) => {
+                    if (e.target.closest('.remove-attachment-btn')) return;
+                    // Show transcription preview on click
+                    if (transcriptionAttachment) {
+                        showTranscriptionPreviewModal();
+                    }
+                });
+            }
+        }
+        
+        // Show transcription preview modal
+        function showTranscriptionPreviewModal() {
+            if (!transcriptionAttachment) return;
+            
+            // Create modal if not exists
+            let modal = document.getElementById('transcription-preview-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'transcription-preview-modal';
+                modal.className = 'transcription-preview-modal';
+                modal.innerHTML = `
+                    <div class="transcription-modal-content">
+                        <div class="modal-header">
+                            <h3>📄 Attached Transcription</h3>
+                            <button class="close-modal-btn">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="transcription-text-preview"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <span class="word-count-info"></span>
+                            <button class="remove-transcription-btn">Remove Attachment</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                // Add event listeners
+                modal.querySelector('.close-modal-btn').addEventListener('click', () => {
+                    modal.classList.remove('visible');
+                });
+                modal.querySelector('.remove-transcription-btn').addEventListener('click', () => {
+                    hideTranscriptionAttachmentBadge();
+                    modal.classList.remove('visible');
+                });
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.classList.remove('visible');
+                });
+            }
+            
+            // Populate content
+            modal.querySelector('.transcription-text-preview').textContent = transcriptionAttachment.content;
+            modal.querySelector('.word-count-info').textContent = `${transcriptionAttachment.wordCount} words`;
+            modal.classList.add('visible');
+        }
+        
+        // Initialize transcription attachment handlers when DOM is ready
+        setTimeout(setupTranscriptionAttachmentHandlers, 500);
+        
         
         // Workflow variables
         let workflows = JSON.parse(localStorage.getItem('redGlassWorkflows') || '[]');
@@ -3332,7 +3924,341 @@
             window.ipcRenderer.on('opacity-changed', (event, newOpacity) => {
                 applyWindowOpacity(newOpacity);
             });
+            
+            // Listen for notification events from main process
+            window.ipcRenderer.on('show-notification', (event, data) => {
+                console.log('📩 Received notification IPC:', data);
+                addNotificationToChat(data.title, data.message, data.type);
+            });
+            console.log('✅ Notification IPC listener registered');
         }
+        
+        // ================================
+        // NOTIFICATION STICKER SYSTEM
+        // ================================
+        function addNotificationToChat(title, message, type = 'info') {
+            const chatMessages = document.querySelector('.conversation-view');
+            if (!chatMessages) {
+                console.error('Chat messages container (.conversation-view) not found');
+                return;
+            }
+            
+            // Get icon and colors based on type
+            const typeConfig = {
+                success: { icon: '✓', color: '#4ade80', bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)' },
+                error: { icon: '✕', color: '#f87171', bg: 'rgba(239, 68, 68, 0.15)', border: 'rgba(239, 68, 68, 0.3)' },
+                info: { icon: 'ℹ', color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.3)' },
+                workflow: { icon: '⚡', color: '#c084fc', bg: 'rgba(147, 51, 234, 0.15)', border: 'rgba(147, 51, 234, 0.3)' }
+            };
+            
+            const config = typeConfig[type] || typeConfig.info;
+            
+            // Create notification sticker element
+            const sticker = document.createElement('div');
+            sticker.className = 'notification-sticker';
+            sticker.style.cssText = `
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 14px 16px;
+                margin: 12px 0;
+                background: ${config.bg};
+                border: 1px solid ${config.border};
+                border-radius: 12px;
+                animation: stickerSlideIn 0.3s ease-out;
+                position: relative;
+            `;
+            
+            sticker.innerHTML = `
+                <div style="
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 10px;
+                    background: ${config.bg};
+                    border: 1px solid ${config.border};
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                    color: ${config.color};
+                    flex-shrink: 0;
+                ">${config.icon}</div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="
+                        font-weight: 600;
+                        font-size: 14px;
+                        color: ${config.color};
+                        margin-bottom: 4px;
+                    ">${escapeHtml(title)}</div>
+                    ${message ? `<div style="
+                        font-size: 13px;
+                        color: rgba(255, 255, 255, 0.7);
+                        line-height: 1.4;
+                    ">${escapeHtml(message)}</div>` : ''}
+                </div>
+                <button onclick="dismissNotification(this)" style="
+                    width: 28px;
+                    height: 28px;
+                    border: none;
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 8px;
+                    color: rgba(255, 255, 255, 0.6);
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    transition: all 0.2s ease;
+                    flex-shrink: 0;
+                " onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.color='#fff';"
+                   onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.color='rgba(255,255,255,0.6)';">✕</button>
+            `;
+            
+            chatMessages.appendChild(sticker);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            console.log(`🔔 Notification sticker added: ${title}`);
+        }
+        
+        // Dismiss notification with animation
+        function dismissNotification(button) {
+            const sticker = button.closest('.notification-sticker');
+            if (sticker) {
+                sticker.style.animation = 'stickerSlideOut 0.25s ease-in forwards';
+                setTimeout(() => sticker.remove(), 250);
+            }
+        }
+        
+        // Helper to escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Make functions globally accessible
+        window.dismissNotification = dismissNotification;
+        window.addNotificationToChat = addNotificationToChat;
+
+        // ================================
+        // CHAT-BASED WORKFLOW CREATION
+        // ================================
+        
+        // Patterns that indicate user wants to create a workflow
+        const workflowCreationPatterns = [
+            /create\s+(a\s+)?workflow/i,
+            /make\s+(a\s+)?workflow/i,
+            /set\s+up\s+(a\s+)?workflow/i,
+            /build\s+(a\s+)?workflow/i,
+            /new\s+workflow/i,
+            /automate\s+(.+)/i,
+            /when\s+I\s+say\s+["']?(.+?)["']?\s*(,\s*)?(then\s+)?(.+)/i,
+            /every\s+(day|morning|evening|night|hour|monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i,
+            /remind\s+me\s+to/i,
+            /schedule\s+(a\s+)?(.+)/i
+        ];
+        
+        // Check if message is a workflow creation request
+        function isWorkflowCreationRequest(message) {
+            return workflowCreationPatterns.some(pattern => pattern.test(message));
+        }
+        
+        // Handle workflow creation from chat
+        async function handleWorkflowCreation(message) {
+            if (!isWorkflowCreationRequest(message)) {
+                return false;
+            }
+            
+            console.log('🔧 Detected workflow creation request:', message);
+            
+            // Show generating indicator
+            const generatingEl = showWorkflowGenerating();
+            
+            try {
+                // Call AI to generate workflow
+                const result = await window.electronAPI.generateWorkflowFromText(message);
+                
+                // Remove generating indicator
+                if (generatingEl) generatingEl.remove();
+                
+                if (result.valid && result.workflow) {
+                    // Show preview card
+                    showWorkflowPreviewCard(result.workflow, result.usageHint);
+                    return true;
+                } else {
+                    // Generation failed
+                    addNotificationToChat(
+                        '❌ Could not create workflow',
+                        result.errors?.join(', ') || 'Please try describing it differently',
+                        'error'
+                    );
+                    return true; // Still handled
+                }
+            } catch (error) {
+                console.error('Workflow generation error:', error);
+                if (generatingEl) generatingEl.remove();
+                addNotificationToChat(
+                    '❌ Error creating workflow',
+                    error.message,
+                    'error'
+                );
+                return true;
+            }
+        }
+        
+        // Show "generating workflow" indicator
+        function showWorkflowGenerating() {
+            const conversationView = document.querySelector('.conversation-view');
+            if (!conversationView) return null;
+            
+            const el = document.createElement('div');
+            el.className = 'workflow-generating';
+            el.innerHTML = `
+                <div class="spinner"></div>
+                <span>🔧 Creating your workflow...</span>
+            `;
+            
+            conversationView.appendChild(el);
+            conversationView.scrollTop = conversationView.scrollHeight;
+            
+            return el;
+        }
+        
+        // Show workflow preview card
+        function showWorkflowPreviewCard(workflow, usageHint) {
+            const conversationView = document.querySelector('.conversation-view');
+            if (!conversationView) return;
+            
+            const card = document.createElement('div');
+            card.className = 'workflow-preview-card';
+            card.id = 'workflow-preview-card';
+            
+            // Format trigger for display
+            let triggerText = 'Manual (click to run)';
+            if (workflow.trigger.type === 'keyword') {
+                triggerText = `Keyword: "${workflow.trigger.keywords.join('", "')}"`;
+            } else if (workflow.trigger.type === 'schedule') {
+                const sched = workflow.trigger.schedule;
+                triggerText = `Schedule: ${sched.frequency} at ${sched.time}`;
+            }
+            
+            // Format actions for display
+            const actionsHtml = workflow.actions.map((action, i) => {
+                let actionText = '';
+                if (action.type === 'ai_prompt') {
+                    const promptPreview = action.prompt.length > 40 
+                        ? action.prompt.substring(0, 40) + '...' 
+                        : action.prompt;
+                    actionText = `AI: ${promptPreview}`;
+                } else if (action.type === 'notification') {
+                    actionText = `Notify: "${action.title}"`;
+                } else if (action.type === 'clipboard') {
+                    actionText = `Clipboard: ${action.operation}`;
+                } else if (action.type === 'http_request') {
+                    actionText = `HTTP: ${action.method} ${action.url}`;
+                } else {
+                    actionText = action.type;
+                }
+                return `<div>• ${actionText}</div>`;
+            }).join('');
+            
+            card.innerHTML = `
+                <div class="preview-header">
+                    <span class="preview-icon">🔧</span>
+                    <span class="preview-title">New Workflow</span>
+                </div>
+                <div class="preview-name">${escapeHtml(workflow.name)}</div>
+                <div class="preview-description">${escapeHtml(workflow.description || '')}</div>
+                <div class="preview-details">
+                    <div class="preview-trigger">
+                        <strong>Trigger:</strong> ${escapeHtml(triggerText)}
+                    </div>
+                    <div class="preview-actions">
+                        <strong>Actions:</strong>
+                        ${actionsHtml}
+                    </div>
+                </div>
+                <div class="preview-buttons">
+                    <button class="btn-create-workflow" onclick="confirmCreateWorkflow()">
+                        ✓ Create Workflow
+                    </button>
+                    <button class="btn-cancel-workflow" onclick="cancelWorkflowPreview()">
+                        ✕ Cancel
+                    </button>
+                </div>
+            `;
+            
+            // Store workflow for confirmation
+            window.pendingGeneratedWorkflow = workflow;
+            window.pendingWorkflowUsageHint = usageHint;
+            
+            conversationView.appendChild(card);
+            conversationView.scrollTop = conversationView.scrollHeight;
+        }
+        
+        // Confirm and create the workflow
+        async function confirmCreateWorkflow() {
+            const workflow = window.pendingGeneratedWorkflow;
+            const usageHint = window.pendingWorkflowUsageHint;
+            
+            if (!workflow) {
+                console.error('No pending workflow to create');
+                return;
+            }
+            
+            // Remove preview card
+            const card = document.getElementById('workflow-preview-card');
+            if (card) card.remove();
+            
+            try {
+                // Create the workflow
+                const result = await window.electronAPI.createGeneratedWorkflow(workflow);
+                
+                if (result.success) {
+                    addNotificationToChat(
+                        `✅ Workflow "${workflow.name}" Created!`,
+                        usageHint || 'Your workflow is ready to use',
+                        'success'
+                    );
+                } else {
+                    addNotificationToChat(
+                        '❌ Failed to create workflow',
+                        result.error || 'Please try again',
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Error creating workflow:', error);
+                addNotificationToChat(
+                    '❌ Error creating workflow',
+                    error.message,
+                    'error'
+                );
+            }
+            
+            // Clear pending
+            window.pendingGeneratedWorkflow = null;
+            window.pendingWorkflowUsageHint = null;
+        }
+        
+        // Cancel workflow preview
+        function cancelWorkflowPreview() {
+            const card = document.getElementById('workflow-preview-card');
+            if (card) {
+                card.style.animation = 'stickerSlideOut 0.25s ease-in forwards';
+                setTimeout(() => card.remove(), 250);
+            }
+            
+            window.pendingGeneratedWorkflow = null;
+            window.pendingWorkflowUsageHint = null;
+            
+            addMessage('No problem! Let me know if you need anything else.', 'ai', true);
+        }
+        
+        // Make workflow functions globally accessible
+        window.handleWorkflowCreation = handleWorkflowCreation;
+        window.confirmCreateWorkflow = confirmCreateWorkflow;
+        window.cancelWorkflowPreview = cancelWorkflowPreview;
 
         // Apply opacity, transparency, and blur on page load
         loadInitialOpacity();
@@ -3375,18 +4301,35 @@
             e.preventDefault();
             const clickedItem = e.currentTarget;
             const isAlreadyActive = clickedItem.classList.contains('active');
+            const allNavItems = document.querySelectorAll('.nav-item');
+            const allWindows = document.querySelectorAll('.window');
 
-            if (isAlreadyActive) return;
+            // If clicking on already active item, COLLAPSE it (toggle off)
+            if (isAlreadyActive) {
+                // Hide the current window
+                const targetId = clickedItem.dataset.target;
+                const targetWindow = document.getElementById(targetId);
+                if (targetWindow) {
+                    targetWindow.classList.remove('visible');
+                    targetWindow.style.display = 'none';
+                }
+                
+                // Remove active state from the clicked item
+                clickedItem.classList.remove('active');
+                const inactiveWidth = clickedItem.dataset.itemWidthInactive || '70px';
+                clickedItem.style.width = inactiveWidth;
+                
+                console.log('📦 Collapsed window:', targetId);
+                return;
+            }
 
             // Hide ALL windows including dynamically loaded ones (MCP, Workflows, etc.)
-            const allWindows = document.querySelectorAll('.window');
             allWindows.forEach(win => {
                 win.classList.remove('visible');
                 win.style.display = 'none';
             });
             
             // Update nav items: remove active from all, add to clicked
-            const allNavItems = document.querySelectorAll('.nav-item');
             allNavItems.forEach(item => {
                 const activeWidth = item.dataset.itemWidthActive || '140px';
                 const inactiveWidth = item.dataset.itemWidthInactive || '70px';
@@ -3412,20 +4355,35 @@
                 }
                 targetWindow.classList.add('visible');
                 
-                // If workflows window, ensure content is loaded
+                // If workflows window, refresh the workflow list
                 if (targetId === 'workflows-window') {
-                    // Check if workflow builder content exists
-                    const workflowBuilder = targetWindow.querySelector('.workflow-builder-container');
-                    if (!workflowBuilder) {
-                        console.log('⚠️ Workflow builder content not found, triggering reload...');
-                        // Dispatch event to reload workflow builder if needed
-                        window.dispatchEvent(new CustomEvent('workflow-window-activated'));
-                    }
+                    console.log('📂 Workflows window opened, refreshing list...');
+                    // Always dispatch event to refresh workflows when window is opened
+                    window.dispatchEvent(new CustomEvent('workflow-window-activated'));
                 }
                 
             } else {
                 console.error(`❌ Window not found: ${targetId}`);
             }
+        }
+        
+        // Helper function to collapse all windows (can be called from close buttons)
+        function collapseAllWindows() {
+            const allWindows = document.querySelectorAll('.window');
+            const allNavItems = document.querySelectorAll('.nav-item');
+            
+            allWindows.forEach(win => {
+                win.classList.remove('visible');
+                win.style.display = 'none';
+            });
+            
+            allNavItems.forEach(item => {
+                item.classList.remove('active');
+                const inactiveWidth = item.dataset.itemWidthInactive || '70px';
+                item.style.width = inactiveWidth;
+            });
+            
+            console.log('📦 All windows collapsed');
         }
 
         
@@ -3624,6 +4582,72 @@
             return messageElement;
         }
 
+        // Add workflow execution indicator to chat
+        function addWorkflowIndicator(workflowName) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('workflow-indicator-container');
+            
+            const workflowIndicator = document.createElement('div');
+            workflowIndicator.classList.add('workflow-indicator');
+            
+            // Workflow icon with spinner
+            const iconContainer = document.createElement('div');
+            iconContainer.classList.add('workflow-icon');
+            
+            const iconInner = document.createElement('span');
+            iconInner.classList.add('workflow-icon-inner');
+            iconInner.textContent = '⚡';
+            
+            const spinner = document.createElement('div');
+            spinner.classList.add('workflow-spinner');
+            
+            iconContainer.appendChild(iconInner);
+            iconContainer.appendChild(spinner);
+            
+            // Workflow info
+            const infoContainer = document.createElement('div');
+            infoContainer.classList.add('workflow-info');
+            
+            const nameElement = document.createElement('div');
+            nameElement.classList.add('workflow-name');
+            nameElement.textContent = workflowName;
+            
+            const statusElement = document.createElement('div');
+            statusElement.classList.add('workflow-status');
+            statusElement.textContent = 'Running workflow...';
+            
+            infoContainer.appendChild(nameElement);
+            infoContainer.appendChild(statusElement);
+            
+            workflowIndicator.appendChild(iconContainer);
+            workflowIndicator.appendChild(infoContainer);
+            messageElement.appendChild(workflowIndicator);
+            conversationView.appendChild(messageElement);
+            conversationView.scrollTop = conversationView.scrollHeight;
+            
+            return messageElement;
+        }
+
+        // Mark workflow indicator as complete
+        function markWorkflowComplete(indicatorElement, success = true) {
+            if (!indicatorElement) return;
+            
+            const indicator = indicatorElement.querySelector('.workflow-indicator');
+            if (indicator) {
+                indicator.classList.add('workflow-complete');
+                
+                const iconInner = indicator.querySelector('.workflow-icon-inner');
+                if (iconInner) {
+                    iconInner.textContent = success ? '✓' : '✗';
+                }
+                
+                const status = indicator.querySelector('.workflow-status');
+                if (status) {
+                    status.textContent = success ? 'Completed successfully' : 'Failed';
+                }
+            }
+        }
+
         function addToolCallingIndicator() {
             const messageElement = document.createElement('div');
             messageElement.classList.add('tool-calling-indicator-container');
@@ -3753,10 +4777,16 @@
                 window.pendingWorkflow = null;
             }
 
-            // STEP 2: Check if message triggers any workflow
-            const triggeredWorkflow = checkWorkflowTriggers(text);
+            // STEP 2: Check if user wants to CREATE a workflow
+            const isWorkflowCreation = await handleWorkflowCreation(text);
+            if (isWorkflowCreation) {
+                return; // STOP HERE - workflow creation in progress
+            }
+
+            // STEP 3: Check if message triggers any existing workflow
+            const triggeredWorkflow = await checkWorkflowTriggers(text);
             if (triggeredWorkflow) {
-                // Workflow was triggered, confirmation message shown
+                // Workflow was triggered, animation shown
                 return; // STOP HERE - don't call regular API
             }
 
@@ -3766,7 +4796,13 @@
             
             try {
                 if (!isCaptureActive) {
-                    const messageToSend = text;
+                    // Build message with transcription context if attached
+                    let messageToSend = text;
+                    
+                    if (transcriptionAttachment && transcriptionAttachment.content) {
+                        console.log('📎 Including transcription context in message');
+                        messageToSend = `[ATTACHED TRANSCRIPTION - Use this as context when answering]\n${transcriptionAttachment.content}\n[END TRANSCRIPTION]\n\nUser Question: ${text}`;
+                    }
                 
                 // Get conversation history for context (last 10 messages)
                 const history = getConversationHistory();
@@ -5309,83 +6345,12 @@
             return 'process this';
         }
         
-        // Run Workflow (called manually or after confirmation)
+        // Run Workflow (called manually via play button)
         async function runWorkflow(workflowId, messageContext = null) {
-            const workflow = workflows.find(w => w.id === workflowId);
-            if (!workflow) return;
-            
-            console.log('🔄 Running workflow:', workflow.name);
-            
-            // Get the message to process
-            let userMessage = messageContext;
-            if (!userMessage && window.pendingWorkflow && window.pendingWorkflow.id === workflowId) {
-                userMessage = window.pendingWorkflow.message;
-            }
-            
-            // If still no message, get last user message from chat
-            if (!userMessage) {
-                const messages = conversationView.querySelectorAll('.message.user');
-                if (messages.length > 0) {
-                    const lastUserMsg = messages[messages.length - 1];
-                    userMessage = lastUserMsg.querySelector('.text-content')?.textContent || '';
-                }
-            }
-            
-            // Build prompt based on action
-            let prompt = '';
-            const details = workflow.actionDetails || '';
-            
-            switch (workflow.action) {
-                case 'summarize_message':
-                    prompt = `Please provide a brief summary of this message:\n\n"${userMessage}"\n\n${details}`;
-                    break;
-                case 'elaborate':
-                    prompt = `Please elaborate on this message with more details and context:\n\n"${userMessage}"\n\n${details}`;
-                    break;
-                case 'generate_email':
-                    prompt = `Convert this message into a professional email:\n\n"${userMessage}"\n\n${details || 'Make it clear, professional, and well-structured.'}`;
-                    break;
-                case 'fix_grammar':
-                    prompt = `Please fix the grammar and improve the writing style of this message:\n\n"${userMessage}"\n\n${details}`;
-                    break;
-                case 'translate':
-                    prompt = `Translate this message:\n\n"${userMessage}"\n\nTarget language: ${details || 'Spanish'}`;
-                    break;
-                case 'extract_action_items':
-                    prompt = `Extract all action items, tasks, and to-dos from this message:\n\n"${userMessage}"\n\n${details}`;
-                    break;
-                case 'summarize_conversation':
-                    const messages = conversationView.querySelectorAll('.message');
-                    const lastMessages = Array.from(messages).slice(-5);
-                    const context = lastMessages.map(m => m.querySelector('.text-content')?.textContent || '').join('\n');
-                    prompt = `Please summarize this conversation:\n\n${context}\n\n${details}`;
-                    break;
-                case 'generate_report':
-                    const allMessages = conversationView.querySelectorAll('.message');
-                    const reportContext = Array.from(allMessages).map(m => m.querySelector('.text-content')?.textContent || '').join('\n');
-                    prompt = `Create a detailed report based on this conversation:\n\n${reportContext}\n\n${details || 'Professional report format'}`;
-                    break;
-                case 'custom_prompt':
-                    prompt = details || userMessage;
-                    break;
-                default:
-                    prompt = userMessage;
-            }
-            
-            console.log('📤 Sending prompt to API:', prompt);
-            
-            // Execute workflow through AI Text API
-            try {
-                await window.electronAPI.callAiText(prompt);
-                
-                console.log('✅ Workflow sent to Gemini Live');
-                
-                // Clear pending workflow
-                window.pendingWorkflow = null;
-            } catch (error) {
-                console.error('❌ Workflow error:', error);
-                addMessage(`❌ Sorry, I encountered an error: ${error.message || 'Unknown error'}`, 'ai', false, false);
-            }
+            // Use the new animation-enabled function
+            await runWorkflowWithAnimation(workflowId, messageContext);
+            // Clear pending workflow
+            window.pendingWorkflow = null;
         }
         
         // Delete Workflow
@@ -5398,34 +6363,224 @@
         }
         
         // Check if message triggers any workflow - returns true if workflow triggered
-        function checkWorkflowTriggers(message) {
-            for (const workflow of workflows) {
+        async function checkWorkflowTriggers(message) {
+            console.log('🔍 [Workflow Trigger] Checking message:', message);
+            const messageLower = message.toLowerCase();
+            
+            // Combine local workflows and backend workflows
+            let allWorkflows = [...workflows];
+            console.log('🔍 [Workflow Trigger] Local workflows:', workflows.length);
+            
+            // Try to get workflows from backend
+            try {
+                const result = await window.electronAPI.invoke('workflow-list');
+                const backendWorkflows = result?.workflows || [];
+                console.log('🔍 [Workflow Trigger] Backend workflows:', backendWorkflows.length);
+                if (backendWorkflows && Array.isArray(backendWorkflows)) {
+                    // Add backend workflows that aren't already in local list
+                    for (const bw of backendWorkflows) {
+                        if (!allWorkflows.find(w => w.id === bw.id)) {
+                            allWorkflows.push(bw);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.log('🔍 [Workflow Trigger] Could not fetch backend workflows:', e);
+            }
+            
+            console.log('🔍 [Workflow Trigger] Total workflows to check:', allWorkflows.length);
+            
+            for (const workflow of allWorkflows) {
+                console.log('🔍 [Workflow Trigger] Checking workflow:', workflow.name, 'enabled:', workflow.enabled, 'trigger:', JSON.stringify(workflow.trigger));
+                
                 // Skip disabled workflows
-                if (!workflow.enabled) continue;
+                if (!workflow.enabled) {
+                    console.log('🔍 [Workflow Trigger] Skipping disabled workflow:', workflow.name);
+                    continue;
+                }
                 
-                // Only check chat_message triggers
-                if (workflow.trigger !== 'chat_message') continue;
+                let keywords = [];
+                let isKeywordTrigger = false;
                 
-                // Must have criteria to trigger
-                if (!workflow.triggerCriteria || workflow.triggerCriteria.trim() === '') continue;
+                // Check NEW format from workflow-builder: trigger.type === 'keyword'
+                if (workflow.trigger && typeof workflow.trigger === 'object') {
+                    if (workflow.trigger.type === 'keyword' && workflow.trigger.keywords) {
+                        keywords = workflow.trigger.keywords;
+                        isKeywordTrigger = true;
+                        console.log('🔍 [Workflow Trigger] Found keyword trigger with keywords:', keywords);
+                    }
+                }
+                // Check OLD format: trigger === 'chat_message' with triggerCriteria
+                else if (workflow.trigger === 'chat_message' && workflow.triggerCriteria) {
+                    keywords = workflow.triggerCriteria.split(/[,\n]/).map(k => k.trim()).filter(k => k);
+                    isKeywordTrigger = true;
+                    console.log('🔍 [Workflow Trigger] Found chat_message trigger with criteria:', keywords);
+                }
                 
-                // Simple keyword matching (case-insensitive)
-                const criteria = workflow.triggerCriteria.toLowerCase();
-                const messageLower = message.toLowerCase();
+                if (!isKeywordTrigger || keywords.length === 0) {
+                    console.log('🔍 [Workflow Trigger] No keyword trigger found for:', workflow.name);
+                    continue;
+                }
                 
-                // Check if any keyword from criteria is in the message
-                const keywords = criteria.split(/[,\n]/).map(k => k.trim()).filter(k => k);
-                const matches = keywords.some(keyword => messageLower.includes(keyword));
+                // Check if any keyword matches the message
+                const matches = keywords.some(keyword => messageLower.includes(keyword.toLowerCase()));
+                console.log('🔍 [Workflow Trigger] Keyword match result:', matches, 'for message:', messageLower);
                 
                 if (matches) {
                     console.log(`✅ Workflow "${workflow.name}" triggered by keyword match`);
-                    // Ask for confirmation in chat
-                    offerWorkflowExecution(workflow.id, message);
+                    // Run workflow immediately with animation
+                    runWorkflowWithAnimation(workflow.id, message);
                     return true; // Workflow triggered - stop normal processing
                 }
             }
             
+            console.log('🔍 [Workflow Trigger] No workflow triggered');
             return false; // No workflow triggered
+        }
+        
+        // Run workflow with visual animation in chat
+        async function runWorkflowWithAnimation(workflowId, messageContext = null) {
+            // Try to find in local workflows first, then fetch from backend
+            let workflow = workflows.find(w => w.id === workflowId);
+            
+            // Also try to get from workflow executor (backend)
+            if (!workflow) {
+                try {
+                    const result = await window.electronAPI.invoke('workflow-list');
+                    const backendWorkflows = result?.workflows || [];
+                    if (backendWorkflows.length > 0) {
+                        workflow = backendWorkflows.find(w => w.id === workflowId);
+                    }
+                } catch (e) {
+                    console.log('Could not fetch from backend:', e);
+                }
+            }
+            
+            if (!workflow) {
+                console.error('Workflow not found:', workflowId);
+                return;
+            }
+            
+            console.log('🔄 Running workflow with animation:', workflow.name);
+            
+            // Show workflow indicator in chat
+            const workflowIndicator = addWorkflowIndicator(workflow.name);
+            
+            try {
+                // Get the message to process
+                let userMessage = messageContext;
+                if (!userMessage) {
+                    const messages = conversationView.querySelectorAll('.message.user-message');
+                    if (messages.length > 0) {
+                        const lastUserMsg = messages[messages.length - 1];
+                        userMessage = lastUserMsg.querySelector('.text-content')?.textContent || '';
+                    }
+                }
+                
+                let prompt = '';
+                
+                // Check if workflow has NEW format (actions array from workflow-builder)
+                if (workflow.actions && workflow.actions.length > 0) {
+                    // Execute through backend workflow executor
+                    console.log('📤 Executing workflow via backend:', workflow.name);
+                    
+                    try {
+                        const result = await window.electronAPI.invoke('workflow-execute', { id: workflowId, context: { message: userMessage } });
+                        
+                        // Mark indicator as complete
+                        markWorkflowComplete(workflowIndicator, result?.success !== false);
+                        
+                        // Show result in chat if there's an AI response
+                        const executionResults = result?.execution?.results || [];
+                        console.log('📋 Workflow execution results:', executionResults.length);
+                        
+                        for (const actionResult of executionResults) {
+                            // Check for AI prompt response
+                            if (actionResult.result?.response) {
+                                console.log('📝 Adding AI response to chat:', actionResult.result.response.substring(0, 50) + '...');
+                                const messageElement = document.createElement('div');
+                                messageElement.classList.add('message', 'ai-message');
+                                
+                                const textContent = document.createElement('span');
+                                textContent.classList.add('text-content', 'typewriter-text');
+                                textContent.innerHTML = '';
+                                messageElement.appendChild(textContent);
+                                
+                                conversationView.appendChild(messageElement);
+                                typewriterEffect(textContent, renderMarkdown(actionResult.result.response));
+                                scrollToBottom();
+                            }
+                        }
+                        
+                        console.log('✅ Workflow completed via backend');
+                        return;
+                    } catch (error) {
+                        console.error('Backend workflow execution failed:', error);
+                        // Fall through to try frontend execution
+                    }
+                }
+                
+                // OLD format: use workflow.action and workflow.actionDetails
+                const details = workflow.actionDetails || '';
+                
+                switch (workflow.action) {
+                    case 'summarize_message':
+                        prompt = `Please provide a brief summary of this message:\n\n"${userMessage}"\n\n${details}`;
+                        break;
+                    case 'elaborate':
+                        prompt = `Please elaborate on this message with more details and context:\n\n"${userMessage}"\n\n${details}`;
+                        break;
+                    case 'generate_email':
+                        prompt = `Convert this message into a professional email:\n\n"${userMessage}"\n\n${details || 'Make it clear, professional, and well-structured.'}`;
+                        break;
+                    case 'fix_grammar':
+                        prompt = `Please fix the grammar and improve the writing style of this message:\n\n"${userMessage}"\n\n${details}`;
+                        break;
+                    case 'translate':
+                        prompt = `Translate this message:\n\n"${userMessage}"\n\nTarget language: ${details || 'Spanish'}`;
+                        break;
+                    case 'extract_action_items':
+                        prompt = `Extract all action items, tasks, and to-dos from this message:\n\n"${userMessage}"\n\n${details}`;
+                        break;
+                    case 'custom_prompt':
+                        prompt = details ? details.replace('{{message}}', userMessage) : userMessage;
+                        break;
+                    default:
+                        prompt = userMessage;
+                }
+                
+                console.log('📤 Workflow sending prompt to API');
+                
+                // Mark indicator as complete before getting response
+                setTimeout(() => {
+                    markWorkflowComplete(workflowIndicator, true);
+                }, 500);
+                
+                // Execute workflow through AI Text API
+                const history = getConversationHistory();
+                const res = await window.electronAPI.callAiText(prompt, null, undefined, history);
+                
+                if (res?.success) {
+                    // Add AI response to chat
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('message', 'ai-message');
+                    
+                    const textContent = document.createElement('span');
+                    textContent.classList.add('text-content', 'typewriter-text');
+                    textContent.innerHTML = '';
+                    messageElement.appendChild(textContent);
+                    
+                    conversationView.appendChild(messageElement);
+                    typewriterEffect(textContent, renderMarkdown(res.response));
+                }
+                
+                console.log('✅ Workflow completed');
+                
+            } catch (error) {
+                console.error('❌ Workflow error:', error);
+                markWorkflowComplete(workflowIndicator, false);
+                addMessage(`❌ Workflow failed: ${error.message || 'Unknown error'}`, 'ai', false, false);
+            }
         }
         
         // Offer workflow execution with confirmation

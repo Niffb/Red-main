@@ -52,22 +52,20 @@
       },
       ".env"
     ],
+    "protocols": [
+      {
+        "name": "Red Glass Auth",
+        "schemes": [
+          "redglass"
+        ]
+      }
+    ],
     "mac": {
       "category": "public.app-category.productivity",
       "target": [
         {
           "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "zip",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
+          "arch": ["arm64"]
         }
       ],
       "icon": "public/icon.png"
@@ -151,6 +149,7 @@
     "mongodb": "^6.20.0",
     "node-fetch": "^2.6.9",
     "node-record-lpcm16": "^1.0.1",
+    "promise-polyfill": "^8.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",

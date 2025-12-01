@@ -13,10 +13,10 @@ class ProtocolHandler {
     // Register protocol as standard
     if (process.defaultApp) {
       if (process.argv.length >= 2) {
-        app.setAsDefaultProtocolClient('redai', process.execPath, [path.resolve(process.argv[1])]);
+        app.setAsDefaultProtocolClient('redglass', process.execPath, [path.resolve(process.argv[1])]);
       }
     } else {
-      app.setAsDefaultProtocolClient('redai');
+      app.setAsDefaultProtocolClient('redglass');
     }
 
     // Handle macOS protocol
@@ -33,14 +33,14 @@ class ProtocolHandler {
     } else {
       app.on('second-instance', (event, commandLine, workingDirectory) => {
         // Protocol URL is in commandLine on Windows
-        const url = commandLine.find(arg => arg.startsWith('redai://'));
+        const url = commandLine.find(arg => arg.startsWith('redglass://'));
         if (url) {
           this.handleProtocolUrl(url);
         }
       });
     }
 
-    console.log('✅ Protocol handler initialized for redai://');
+    console.log('✅ Protocol handler initialized for redglass://');
   }
 
   /**
@@ -52,18 +52,18 @@ class ProtocolHandler {
     try {
       const urlObj = new URL(url);
       
-      // Handle auth callback: redai://auth/callback?token=xyz&session=abc
-      if (urlObj.hostname === 'auth' && urlObj.pathname === '/callback') {
+      // Handle auth callback: redglass://auth?token=xyz or redglass://auth/callback?token=xyz&session=abc
+      if (urlObj.hostname === 'auth') {
         const token = urlObj.searchParams.get('token');
         const session = urlObj.searchParams.get('session');
         
-        if (token && session) {
+        if (token) {
           // Trigger all registered auth callbacks
           this.authCallbacks.forEach(callback => {
-            callback({ token, session });
+            callback({ token, session: session || null });
           });
         } else {
-          console.error('❌ Missing token or session in protocol URL');
+          console.error('❌ Missing token in protocol URL');
         }
       }
     } catch (error) {
