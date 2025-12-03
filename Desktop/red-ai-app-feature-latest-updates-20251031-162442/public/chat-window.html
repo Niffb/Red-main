@@ -1,0 +1,682 @@
+<div id="chat-window" class="window visible" style="display: flex;">
+    <div class="conversation-view"></div>
+    
+    <div class="chat-input-container">
+        <!-- Voice Active Indicator (hidden, just for status tracking) -->
+        <div id="voice-active-indicator" class="voice-active-indicator hidden">
+            <div class="voice-pulse"></div>
+        </div>
+        <!-- Message preview/feedback box -->
+        <div id="message-box" class="message-feedback-box hidden"></div>
+
+        <!-- Capture preview -->
+        <div class="capture-preview-container" style="display: none;">
+            <img id="capture-preview" class="capture-preview-image" alt="Screen capture preview">
+            <button id="remove-capture" class="remove-capture-btn" title="Remove capture">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Chat input area -->
+        <div class="chat-input-area">
+            <!-- Input mode toolbar -->
+            <div class="input-mode-toolbar">
+                <button id="voice-mode-btn" title="Voice mode" class="mode-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                    </svg>
+                </button>
+                <button id="capture-btn" title="Capture screen" class="mode-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Screen Capture Active Badge -->
+            <div id="capture-active-badge" class="capture-active-badge hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+                <span>Screen Capture</span>
+            </div>
+
+            <!-- Transcription Attachment Badge -->
+            <div id="transcription-attachment-badge" class="transcription-attachment-badge hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                </svg>
+                <span class="attachment-text">Transcription</span>
+                <span class="attachment-words" id="attachment-word-count"></span>
+                <button id="remove-attachment-btn" class="remove-attachment-btn" title="Remove transcription">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <textarea id="chat-input" 
+                rows="1" 
+                placeholder="Message Red Glass..." 
+                class="chat-input-textarea"
+            ></textarea>
+
+            <button id="send-btn" title="Send message" class="send-button">
+                <svg id="send-icon" width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19V5M5 12l7-7 7 7"/>
+                </svg>
+                <div id="voice-animation" class="voice-animation-container" style="display: none;">
+                    <div class="listening-bar"></div>
+                    <div class="listening-bar"></div>
+                    <div class="listening-bar"></div>
+                    <div class="listening-bar"></div>
+                </div>
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<style>
+/* Voice Indicator Animations */
+.voice-active-indicator {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: none; /* Hidden by default, not used anymore */
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 20px;
+    font-size: 13px;
+    color: #ef4444;
+    font-weight: 500;
+    z-index: 10;
+}
+
+.voice-active-indicator.hidden {
+    display: none;
+}
+
+/* Screen Capture Active Badge */
+.capture-active-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 12px;
+    font-size: 12px;
+    color: #ef4444;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    animation: fadeInBadge 0.3s ease-out;
+}
+
+.capture-active-badge.hidden {
+    display: none;
+}
+
+.capture-active-badge svg {
+    flex-shrink: 0;
+}
+
+/* Transcription Attachment Badge */
+.transcription-attachment-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: linear-gradient(135deg, rgba(147, 51, 234, 0.15), rgba(79, 70, 229, 0.15));
+    border: 1px solid rgba(147, 51, 234, 0.4);
+    border-radius: 12px;
+    font-size: 12px;
+    color: #c084fc;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    animation: fadeInBadge 0.3s ease-out;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.transcription-attachment-badge:hover {
+    background: linear-gradient(135deg, rgba(147, 51, 234, 0.25), rgba(79, 70, 229, 0.25));
+    border-color: rgba(147, 51, 234, 0.6);
+}
+
+.transcription-attachment-badge.hidden {
+    display: none;
+}
+
+.transcription-attachment-badge svg {
+    flex-shrink: 0;
+    color: #a78bfa;
+}
+
+.transcription-attachment-badge .attachment-text {
+    color: #c084fc;
+}
+
+.transcription-attachment-badge .attachment-words {
+    color: rgba(167, 139, 250, 0.7);
+    font-size: 11px;
+    padding-left: 4px;
+    border-left: 1px solid rgba(147, 51, 234, 0.3);
+}
+
+.transcription-attachment-badge .remove-attachment-btn {
+    background: rgba(147, 51, 234, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #c084fc;
+    margin-left: 4px;
+}
+
+.transcription-attachment-badge .remove-attachment-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+@keyframes fadeInBadge {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.voice-pulse {
+    width: 10px;
+    height: 10px;
+    background: #ef4444;
+    border-radius: 50%;
+    animation: voicePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes voicePulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.7; }
+}
+
+/* Speaking Animation */
+.speaking-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 8px;
+}
+
+.speaking-dot {
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    animation: speakingWave 1.4s ease-in-out infinite;
+}
+
+.speaking-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.speaking-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes speakingWave {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+}
+
+/* Listening Animation */
+.listening-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 8px;
+}
+
+.listening-bar {
+    width: 3px;
+    height: 12px;
+    background: #ef4444;
+    border-radius: 2px;
+    animation: listeningPulse 1.2s ease-in-out infinite;
+}
+
+.listening-bar:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.listening-bar:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.listening-bar:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.listening-bar:nth-child(4) {
+    animation-delay: 0.45s;
+}
+
+@keyframes listeningPulse {
+    0%, 100% { height: 8px; }
+    50% { height: 16px; }
+}
+
+/* Standalone Listening Animation - Hidden (voice animation now in send button) */
+.standalone-listening-animation {
+    display: none !important;
+}
+
+/* Voice Animation Inside Send Button */
+.voice-animation-container {
+    display: none;
+    align-items: center;
+    gap: 3px;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+}
+
+.voice-animation-container.fade-out {
+    opacity: 0;
+    transform: scale(0.8);
+}
+
+.voice-animation-container.fade-in {
+    animation: fadeInScale 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fadeInScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    60% {
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.voice-animation-container .listening-bar {
+    width: 3px;
+    height: 12px;
+    background: white;
+    border-radius: 2px;
+    opacity: 1;
+    transform: scaleY(1);
+}
+
+/* Listening bars always animate when container is visible */
+.voice-animation-container:not(.fade-out) .listening-bar {
+    animation: listeningPulse 1.2s ease-in-out infinite;
+}
+
+.voice-animation-container:not(.fade-out) .listening-bar:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.voice-animation-container:not(.fade-out) .listening-bar:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.voice-animation-container:not(.fade-out) .listening-bar:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.voice-animation-container:not(.fade-out) .listening-bar:nth-child(4) {
+    animation-delay: 0.45s;
+}
+
+/* Stagger the bar appearance on fade-in */
+.voice-animation-container.fade-in .listening-bar {
+    animation: listeningPulse 1.2s ease-in-out infinite, barFadeIn 0.4s ease-out forwards;
+}
+
+.voice-animation-container.fade-in .listening-bar:nth-child(1) {
+    animation-delay: 0s, 0.1s;
+}
+
+.voice-animation-container.fade-in .listening-bar:nth-child(2) {
+    animation-delay: 0.15s, 0.15s;
+}
+
+.voice-animation-container.fade-in .listening-bar:nth-child(3) {
+    animation-delay: 0.3s, 0.2s;
+}
+
+.voice-animation-container.fade-in .listening-bar:nth-child(4) {
+    animation-delay: 0.45s, 0.25s;
+}
+
+@keyframes barFadeIn {
+    0% {
+        opacity: 0;
+        transform: scaleY(0.3);
+    }
+    100% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+}
+
+/* Chat Input Container */
+.chat-input-container {
+    width: 100%;
+    padding: 12px;
+    position: relative;
+    min-height: 90px; /* Prevent jumping when animation appears */
+}
+
+/* Chat Input Area - Single row inline layout */
+.chat-input-area {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    background: rgba(26, 26, 31, 0.8);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 12px;
+}
+
+.chat-input-area.voice-active {
+    border-color: rgba(239, 68, 68, 0.5);
+    background: rgba(26, 26, 31, 0.95);
+}
+
+/* Message Feedback Box */
+.message-feedback-box {
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.message-feedback-box.hidden {
+    display: none;
+}
+
+.message-feedback-box.success {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #10b981;
+}
+
+.message-feedback-box.error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.message-feedback-box.info {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+/* Capture Preview Container */
+.capture-preview-container {
+    position: relative;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+.capture-preview-image {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    border: 2px solid rgba(239, 68, 68, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.remove-capture-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(239, 68, 68, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: white;
+}
+
+.remove-capture-btn:hover {
+    background: rgba(239, 68, 68, 1);
+    transform: scale(1.1);
+}
+
+/* Input Mode Toolbar - Inline compact toolbar */
+.input-mode-toolbar {
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.mode-btn {
+    flex-shrink: 0;
+    padding: 8px;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 36px;
+    height: 36px;
+}
+
+.mode-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.mode-btn:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.15);
+}
+
+.mode-btn.active {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.3);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+/* Send Button */
+.send-button {
+    flex-shrink: 0;
+    padding: 8px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.send-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
+}
+
+.send-button:active {
+    transform: translateY(0);
+}
+
+/* Send Icon Animations */
+#send-icon {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+}
+
+#send-icon.fade-out {
+    opacity: 0;
+    transform: scale(0.8) rotate(-90deg);
+}
+
+#send-icon.fade-in {
+    animation: fadeInRotate 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fadeInRotate {
+    0% {
+        opacity: 0;
+        transform: scale(0.8) rotate(90deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* Chat Input Textarea */
+.chat-input-textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 8px 12px;
+    color: #fff;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    resize: none;
+    overflow-y: auto;
+    max-height: 120px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chat-input-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.chat-input-textarea::-webkit-scrollbar {
+    width: 4px;
+}
+
+.chat-input-textarea::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+.chat-input-textarea::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+
+/* Fade in animation */
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(-10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* Voice Mode Activation Logo Animation */
+.voice-activation-message {
+    display: flex;
+    align-items: flex-start;
+    margin: 10px 0;
+    align-self: flex-start;
+    padding: 0;
+    background: transparent;
+}
+
+.voice-activation-logo-container {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.voice-activation-circle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    border: 3px solid transparent;
+    border-top-color: #ef4444;
+    border-right-color: #ef4444;
+    border-radius: 50%;
+    animation: voiceCircleSpin 0.8s linear infinite;
+    z-index: 1;
+}
+
+@keyframes voiceCircleSpin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.voice-activation-logo {
+    width: 28px;
+    height: 28px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    animation: voiceLogoPulse 2s ease-in-out infinite;
+}
+
+@keyframes voiceLogoPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+}
+</style>
+

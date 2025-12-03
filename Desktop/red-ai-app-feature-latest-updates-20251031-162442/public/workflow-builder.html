@@ -1,0 +1,213 @@
+<!-- Enhanced Workflow Builder - Minimal Clean Design -->
+<div class="workflow-builder-container">
+    <!-- Header -->
+    <div class="workflow-header">
+        <div class="workflow-header-content">
+            <div class="workflow-title-section">
+                <h2>Workflows</h2>
+                <p class="workflow-subtitle">Automate tasks with custom workflows</p>
+            </div>
+            <button class="workflow-create-btn" id="workflow-new-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Create Workflow
+            </button>
+        </div>
+    </div>
+    
+    <!-- Tab Navigation -->
+    <div class="workflow-tabs">
+        <button class="workflow-tab active" data-tab="all">
+            <i class="fas fa-sitemap"></i>
+            All Workflows
+        </button>
+        <button class="workflow-tab" data-tab="executions">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+            Executions
+        </button>
+    </div>
+
+    <!-- All Workflows View -->
+    <div class="workflow-content" id="all-workflows-content">
+        <div class="workflow-grid" id="workflow-grid">
+            <!-- Workflow cards will be rendered here -->
+        </div>
+    </div>
+
+    <!-- Executions View -->
+    <div class="workflow-content" id="executions-content" style="display: none;">
+        <div class="executions-list" id="executions-list">
+            <!-- Execution history will be rendered here -->
+        </div>
+    </div>
+</div>
+
+<!-- Workflow Editor Modal -->
+<div class="workflow-modal workflow-editor-modal" id="workflow-editor-modal" style="display: none;">
+    <div class="workflow-modal-overlay" onclick="closeWorkflowEditor()"></div>
+    <div class="workflow-modal-content workflow-modal-xlarge">
+        <div class="workflow-modal-header">
+            <h3 id="workflow-modal-title">Edit Workflow</h3>
+            <button class="workflow-modal-close" onclick="closeWorkflowEditor()">×</button>
+        </div>
+        <div class="workflow-modal-body">
+            <!-- Workflow Details -->
+            <div class="workflow-details">
+                <div class="workflow-field">
+                    <label>Workflow Name</label>
+                    <input type="text" id="workflow-name" class="workflow-input" placeholder="My Workflow">
+                </div>
+                <div class="workflow-field">
+                    <label>Description (optional)</label>
+                    <textarea id="workflow-description" class="workflow-textarea" rows="2" placeholder="Describe what this workflow does..."></textarea>
+                </div>
+            </div>
+
+            <!-- Trigger Section -->
+            <div class="workflow-section">
+                <div class="workflow-section-header">
+                    <h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                        Trigger
+                    </h3>
+                    <span class="workflow-section-subtitle">When should this workflow run?</span>
+                </div>
+                <div class="workflow-trigger-config">
+                    <select id="trigger-type" class="workflow-select">
+                        <option value="manual">Manual</option>
+                        <option value="keyword">Keyword Detection</option>
+                        <option value="intent">Intent Detection</option>
+                        <option value="schedule">Schedule</option>
+                    </select>
+                    <div id="trigger-config-container"></div>
+                </div>
+            </div>
+
+            <!-- Actions Section -->
+            <div class="workflow-section">
+                <div class="workflow-section-header">
+                    <h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 11 12 14 22 4"></polyline>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                        Actions
+                    </h3>
+                    <span class="workflow-section-subtitle">What should this workflow do?</span>
+                </div>
+                <div class="workflow-actions-list" id="workflow-actions-list">
+                    <!-- Actions will be added here -->
+                </div>
+                <button class="workflow-add-action-btn" id="workflow-add-action-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Add Action
+                </button>
+            </div>
+        </div>
+        <div class="workflow-modal-footer">
+            <button class="workflow-btn workflow-btn-primary workflow-btn-save-only" id="workflow-save-btn">Save Workflow</button>
+        </div>
+    </div>
+</div>
+
+<!-- Action Type Selection Modal -->
+<div class="workflow-modal" id="action-type-modal" style="display: none;">
+    <div class="workflow-modal-overlay" onclick="closeActionTypeModal()"></div>
+    <div class="workflow-modal-content">
+        <div class="workflow-modal-header">
+            <h3>Select Action Type</h3>
+            <button class="workflow-modal-close" onclick="closeActionTypeModal()">×</button>
+        </div>
+        <div class="workflow-modal-body">
+            <div class="action-type-grid">
+                <div class="action-type-card" onclick="selectActionType('mcp_tool')">
+                    <h4 class="action-type-card-title">MCP Tool</h4>
+                    <p class="action-type-card-description">Call any MCP server tool</p>
+                </div>
+                <div class="action-type-card" onclick="selectActionType('ai_prompt')">
+                    <h4 class="action-type-card-title">AI Prompt</h4>
+                    <p class="action-type-card-description">Send a prompt to Gemini</p>
+                </div>
+                <div class="action-type-card" onclick="selectActionType('notification')">
+                    <h4 class="action-type-card-title">Notification</h4>
+                    <p class="action-type-card-description">Show a notification</p>
+                </div>
+                <div class="action-type-card" onclick="selectActionType('clipboard')">
+                    <h4 class="action-type-card-title">Clipboard</h4>
+                    <p class="action-type-card-description">Copy, read, or append to clipboard</p>
+                </div>
+                <div class="action-type-card" onclick="selectActionType('http_request')">
+                    <h4 class="action-type-card-title">HTTP Request</h4>
+                    <p class="action-type-card-description">Make an HTTP request</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Configuration Modal -->
+<div class="workflow-modal" id="action-config-modal" style="display: none;">
+    <div class="workflow-modal-overlay" onclick="closeActionConfigModal()"></div>
+    <div class="workflow-modal-content workflow-modal-large">
+        <div class="workflow-modal-header">
+            <h3 id="action-config-title">Configure Action</h3>
+            <button class="workflow-modal-close" onclick="closeActionConfigModal()">×</button>
+        </div>
+        <div class="workflow-modal-body" id="action-config-body">
+            <!-- Action configuration form will be rendered here -->
+        </div>
+        <div class="workflow-modal-footer">
+            <button class="workflow-btn workflow-btn-secondary" onclick="closeActionConfigModal()">Cancel</button>
+            <button class="workflow-btn workflow-btn-primary" id="action-config-save-btn">Save Action</button>
+        </div>
+    </div>
+</div>
+
+<!-- MCP Tool Picker Modal -->
+<div class="workflow-modal" id="mcp-tool-picker-modal" style="display: none;">
+    <div class="workflow-modal-overlay" onclick="closeMcpToolPicker()"></div>
+    <div class="workflow-modal-content workflow-modal-large">
+        <div class="workflow-modal-header">
+            <h3>Select MCP Tool</h3>
+            <button class="workflow-modal-close" onclick="closeMcpToolPicker()">×</button>
+        </div>
+        <div class="workflow-modal-body">
+            <input type="text" id="mcp-tool-search" class="workflow-input" placeholder="Search tools..." style="margin-bottom: 16px;">
+            <div class="mcp-tool-list" id="mcp-tool-list">
+                <!-- MCP tools will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Workflow Modal -->
+<div class="workflow-modal" id="test-workflow-modal" style="display: none;">
+    <div class="workflow-modal-overlay" onclick="closeTestModal()"></div>
+    <div class="workflow-modal-content">
+        <div class="workflow-modal-header">
+            <h3>Test Workflow</h3>
+            <button class="workflow-modal-close" onclick="closeTestModal()">×</button>
+        </div>
+        <div class="workflow-modal-body">
+            <div class="workflow-field">
+                <label>Test Context (JSON)</label>
+                <textarea id="test-context" class="workflow-textarea" rows="8" placeholder='{"message": "test", "filePath": "/path/to/file"}'></textarea>
+            </div>
+            <div id="test-results" class="test-results" style="display: none;"></div>
+        </div>
+        <div class="workflow-modal-footer">
+            <button class="workflow-btn workflow-btn-secondary" onclick="closeTestModal()">Cancel</button>
+            <button class="workflow-btn workflow-btn-primary" id="run-test-btn">Run Test</button>
+        </div>
+    </div>
+</div>
+

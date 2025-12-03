@@ -1,0 +1,525 @@
+<!-- Workflows Window: Display Actionable Steps from Transcriptions -->
+<div id="workflows-window" class="window" style="display: none;">
+    <div class="workflows-container">
+        <!-- Header -->
+        <div class="workflows-header">
+            <h2>Actionable Workflows</h2>
+            <p class="subtitle">AI-generated action plans from your transcriptions</p>
+        </div>
+
+        <!-- Workflows List -->
+        <div class="workflows-content">
+            <div id="workflows-list" class="workflows-list">
+                <!-- Workflow cards will be rendered here -->
+            </div>
+            <div id="workflows-empty" class="workflows-empty">
+                <i class="fas fa-clipboard-list"></i>
+                <p>No workflows yet</p>
+                <span>Complete a transcription with a goal to generate your first workflow</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflow Detail Modal -->
+    <div class="modal-overlay" id="workflow-detail-modal" style="display: none;">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="workflow-detail-title">Workflow Details</h3>
+                <button class="modal-close" id="workflow-detail-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="workflow-detail-content">
+                    <!-- Workflow details will be rendered here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-btn" id="workflow-detail-close-btn">Close</button>
+                <button class="primary-btn" id="workflow-mark-complete-btn">Mark as Complete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.workflows-container {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.workflows-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.workflows-header h2 {
+    margin: 0 0 10px 0;
+    font-size: 28px;
+    color: #fff;
+    font-weight: 600;
+}
+
+.workflows-header .subtitle {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 16px;
+}
+
+.workflows-content {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    min-height: 400px;
+}
+
+.workflows-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.workflow-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.workflow-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #ef4444;
+    transform: translateY(-2px);
+}
+
+.workflow-card-header {
+    margin-bottom: 16px;
+}
+
+.workflow-card h3 {
+    margin: 0 0 8px 0;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.workflow-card .date {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.workflow-card .summary {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.workflow-card .steps-preview {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.workflow-card .steps-preview i {
+    color: #ef4444;
+    margin-right: 6px;
+}
+
+.workflow-card .status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.workflow-card .status-badge.pending {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.workflow-card .status-badge.completed {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.workflows-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    color: rgba(255, 255, 255, 0.4);
+    gap: 12px;
+}
+
+.workflows-empty i {
+    font-size: 64px;
+    margin-bottom: 8px;
+}
+
+.workflows-empty p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.workflows-empty span {
+    font-size: 14px;
+}
+
+/* Workflow Detail Styles */
+.workflow-detail-summary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+}
+
+.workflow-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.workflow-step-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+}
+
+.workflow-step-item.completed {
+    opacity: 0.6;
+}
+
+.workflow-step-number {
+    width: 40px;
+    height: 40px;
+    background: #ef4444;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.workflow-step-item.completed .workflow-step-number {
+    background: #10b981;
+}
+
+.workflow-step-content {
+    flex: 1;
+}
+
+.workflow-step-content h4 {
+    margin: 0 0 8px 0;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.workflow-step-content p {
+    margin: 0 0 8px 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.workflow-step-time {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+}
+
+.workflow-context-section {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.workflow-context-section h4 {
+    margin: 0 0 12px 0;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.workflow-context-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.workflow-context-list li {
+    padding: 8px 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.workflow-context-list li:before {
+    content: "→";
+    color: #ef4444;
+    font-weight: bold;
+    margin-right: 8px;
+}
+</style>
+
+<script>
+(function() {
+    console.log('📋 Workflows window module loading...');
+
+    let workflows = [];
+    let currentWorkflow = null;
+
+    // DOM Elements
+    let workflowsList, workflowsEmpty;
+    let detailModal, detailModalClose, detailModalCloseBtn, detailTitle, detailContent;
+    let markCompleteBtn;
+
+    // Initialize
+    function init() {
+        console.log('🔧 Initializing workflows window...');
+
+        // Get DOM elements
+        workflowsList = document.getElementById('workflows-list');
+        workflowsEmpty = document.getElementById('workflows-empty');
+        detailModal = document.getElementById('workflow-detail-modal');
+        detailModalClose = document.getElementById('workflow-detail-close');
+        detailModalCloseBtn = document.getElementById('workflow-detail-close-btn');
+        detailTitle = document.getElementById('workflow-detail-title');
+        detailContent = document.getElementById('workflow-detail-content');
+        markCompleteBtn = document.getElementById('workflow-mark-complete-btn');
+
+        // Attach event listeners
+        if (detailModalClose) {
+            detailModalClose.addEventListener('click', hideDetailModal);
+        }
+        if (detailModalCloseBtn) {
+            detailModalCloseBtn.addEventListener('click', hideDetailModal);
+        }
+        if (markCompleteBtn) {
+            markCompleteBtn.addEventListener('click', markWorkflowComplete);
+        }
+
+        // Load workflows
+        loadWorkflows();
+
+        console.log('✅ Workflows window initialized');
+    }
+
+    // Load workflows from transcriptions
+    async function loadWorkflows() {
+        console.log('📚 Loading workflows...');
+
+        try {
+            const result = await window.electronAPI.transcriptionGetAll();
+
+            if (result.success) {
+                const transcriptions = result.transcriptions;
+
+                // Filter transcriptions that have generated workflows
+                workflows = transcriptions.filter(t => t.workflow && t.workflow.steps);
+
+                console.log(`✅ Loaded ${workflows.length} workflows`);
+
+                if (workflows.length === 0) {
+                    if (workflowsList) workflowsList.style.display = 'none';
+                    if (workflowsEmpty) workflowsEmpty.style.display = 'flex';
+                } else {
+                    if (workflowsList) workflowsList.style.display = 'grid';
+                    if (workflowsEmpty) workflowsEmpty.style.display = 'none';
+
+                    renderWorkflows();
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error loading workflows:', error);
+        }
+    }
+
+    // Render workflows
+    function renderWorkflows() {
+        if (!workflowsList) return;
+
+        workflowsList.innerHTML = workflows.map(w => {
+            const workflow = w.workflow;
+            const isCompleted = w.workflowCompleted || false;
+            const stepsCount = workflow.steps ? workflow.steps.length : 0;
+
+            return `
+                <div class="workflow-card" onclick="window.showWorkflowDetail('${w._id}')">
+                    <div class="workflow-card-header">
+                        <h3>${escapeHtml(workflow.workflowTitle || w.title)}</h3>
+                        <div class="date">${formatDate(w.createdAt)}</div>
+                    </div>
+                    <div class="summary">${escapeHtml(workflow.summary || 'No summary available')}</div>
+                    <div class="steps-preview">
+                        <i class="fas fa-list-check"></i>
+                        ${stepsCount} step${stepsCount !== 1 ? 's' : ''}
+                    </div>
+                    <span class="status-badge ${isCompleted ? 'completed' : 'pending'}">
+                        ${isCompleted ? 'Completed' : 'Pending'}
+                    </span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Show workflow detail
+    window.showWorkflowDetail = function(transcriptionId) {
+        console.log('👁️ Showing workflow detail:', transcriptionId);
+
+        currentWorkflow = workflows.find(w => w._id === transcriptionId);
+        if (!currentWorkflow) {
+            console.error('Workflow not found:', transcriptionId);
+            return;
+        }
+
+        const workflow = currentWorkflow.workflow;
+
+        // Set title
+        if (detailTitle) {
+            detailTitle.textContent = workflow.workflowTitle || currentWorkflow.title;
+        }
+
+        // Build steps HTML
+        const stepsHTML = workflow.steps.map((step, i) => `
+            <div class="workflow-step-item">
+                <div class="workflow-step-number">${i + 1}</div>
+                <div class="workflow-step-content">
+                    <h4>${escapeHtml(step.title)}</h4>
+                    <p>${escapeHtml(step.description)}</p>
+                    <span class="workflow-step-time">⏱️ ${escapeHtml(step.estimatedTime || 'No time estimate')}</span>
+                </div>
+            </div>
+        `).join('');
+
+        // Build context HTML
+        let contextHTML = '';
+        if (workflow.relevantContext && workflow.relevantContext.length > 0) {
+            contextHTML = `
+                <div class="workflow-context-section">
+                    <h4>📌 Key Insights from Transcription</h4>
+                    <ul class="workflow-context-list">
+                        ${workflow.relevantContext.map(ctx => `<li>${escapeHtml(ctx)}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        // Set content
+        if (detailContent) {
+            detailContent.innerHTML = `
+                <div class="workflow-detail-summary">
+                    ${escapeHtml(workflow.summary)}
+                </div>
+                <div class="workflow-steps-list">
+                    ${stepsHTML}
+                </div>
+                ${contextHTML}
+            `;
+        }
+
+        // Show/hide complete button
+        if (markCompleteBtn) {
+            if (currentWorkflow.workflowCompleted) {
+                markCompleteBtn.textContent = 'Mark as Incomplete';
+            } else {
+                markCompleteBtn.textContent = 'Mark as Complete';
+            }
+        }
+
+        // Show modal
+        if (detailModal) {
+            detailModal.style.display = 'flex';
+        }
+    };
+
+    // Hide detail modal
+    function hideDetailModal() {
+        if (detailModal) {
+            detailModal.style.display = 'none';
+        }
+        currentWorkflow = null;
+    }
+
+    // Mark workflow complete/incomplete
+    async function markWorkflowComplete() {
+        if (!currentWorkflow) return;
+
+        try {
+            const newStatus = !currentWorkflow.workflowCompleted;
+
+            // Update in MongoDB
+            const result = await window.electronAPI.transcriptionSave({
+                ...currentWorkflow,
+                workflowCompleted: newStatus
+            });
+
+            if (result.success) {
+                console.log('✅ Workflow status updated');
+                hideDetailModal();
+                loadWorkflows();
+            } else {
+                alert('Failed to update workflow status: ' + result.error);
+            }
+        } catch (error) {
+            console.error('Error updating workflow:', error);
+            alert('Error updating workflow status');
+        }
+    }
+
+    // Utility Functions
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 60) {
+            return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+        } else if (diffHours < 24) {
+            return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+        } else if (diffDays < 7) {
+            return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+        } else {
+            return date.toLocaleDateString();
+        }
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+        setTimeout(init, 500); // Also try after delay
+    }
+
+    console.log('✅ Workflows window module loaded');
+})();
+</script>
