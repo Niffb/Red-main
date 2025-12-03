@@ -1,0 +1,14 @@
+/* Subscription Settings - Minimal */
+.subscription-nav-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.settings-panel#subscription-panel {
+  padding: 20px;
+}
+
+.subscription-settings-panel {
+  max-width: 600px;
+  margin: 0 auto;
+}

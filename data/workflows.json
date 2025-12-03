@@ -1,0 +1,19 @@
+[
+  {
+    "id": "workflow_1763236410201",
+    "name": "Daily Morning Greeting",
+    "description": "Test daily schedule trigger",
+    "enabled": true,
+    "trigger": {
+      "type": "manual"
+    },
+    "actions": [
+      {
+        "type": "ai_prompt",
+        "prompt": "Generate a motivational morning quote"
+      }
+    ],
+    "createdAt": 1763236410201,
+    "updatedAt": 1763375927326
+  }
+]

@@ -1,0 +1,696 @@
+<!-- Workflows Window: Minimal Design -->
+<div id="workflows-window" class="window" style="display: none;">
+    <div class="workflows-container">
+        <div class="workflows-header">
+            <h2>Workflows</h2>
+            <p class="hint-text">Action plans from your transcriptions</p>
+        </div>
+
+        <div id="workflows-list" class="workflows-list"></div>
+        
+        <div id="workflows-empty" class="workflows-empty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 11l3 3L22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+            <p>No workflows yet</p>
+            <span>Complete a transcription with a goal to generate your first workflow</span>
+        </div>
+    </div>
+
+    <!-- Workflow Detail Modal -->
+    <div class="modal-overlay hidden" id="workflow-detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="workflow-detail-title">Workflow Details</h3>
+                <button class="modal-close" id="workflow-detail-close">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="workflow-detail-content"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="ghost-btn" id="workflow-detail-close-btn">Close</button>
+                <button class="primary-btn" id="workflow-mark-complete-btn">Mark Complete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.workflows-container {
+    padding: 24px 32px;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.workflows-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.workflows-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.hint-text {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+}
+
+.workflows-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.workflow-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.workflow-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.workflow-card-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.workflow-card-icon svg {
+    width: 18px;
+    height: 18px;
+    color: #ef4444;
+}
+
+.workflow-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.workflow-card h3 {
+    margin: 0 0 4px 0;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.workflow-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.workflow-card-meta .dot {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.status-badge {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.status-badge.pending {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+.status-badge.completed {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+}
+
+.workflows-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 20px;
+    color: rgba(255, 255, 255, 0.3);
+    gap: 12px;
+    text-align: center;
+}
+
+.workflows-empty svg {
+    margin-bottom: 4px;
+    opacity: 0.6;
+}
+
+.workflows-empty p {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.workflows-empty span {
+    font-size: 13px;
+    max-width: 260px;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    max-width: 480px;
+    width: 90%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    animation: modalSlide 0.25s ease;
+}
+
+@keyframes modalSlide {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Detail Content */
+.workflow-detail-summary {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.workflow-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.workflow-step-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    gap: 12px;
+}
+
+.workflow-step-item.completed {
+    opacity: 0.5;
+}
+
+.workflow-step-number {
+    width: 24px;
+    height: 24px;
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.workflow-step-item.completed .workflow-step-number {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+}
+
+.workflow-step-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.workflow-step-content h4 {
+    margin: 0 0 4px 0;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.workflow-step-content p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.workflow-step-time {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 6px;
+    display: block;
+}
+
+.workflow-context-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.workflow-context-section h4 {
+    margin: 0 0 10px 0;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.workflow-context-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.workflow-context-list li {
+    padding: 6px 0;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    line-height: 1.5;
+    display: flex;
+    gap: 8px;
+}
+
+.workflow-context-list li:before {
+    content: "→";
+    color: #ef4444;
+    flex-shrink: 0;
+}
+
+/* Buttons */
+.primary-btn {
+    background: #ef4444;
+    border: none;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.primary-btn:hover {
+    background: #dc2626;
+}
+
+.ghost-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.ghost-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 600px) {
+    .workflows-container {
+        padding: 20px 16px;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 0 10px;
+    }
+}
+</style>
+
+<script>
+(function() {
+    console.log('📋 Workflows window module loading...');
+
+    let workflows = [];
+    let currentWorkflow = null;
+
+    // DOM Elements
+    let workflowsList, workflowsEmpty;
+    let detailModal, detailModalClose, detailModalCloseBtn, detailTitle, detailContent;
+    let markCompleteBtn;
+
+    // Initialize
+    function init() {
+        console.log('🔧 Initializing workflows window...');
+
+        // Get DOM elements
+        workflowsList = document.getElementById('workflows-list');
+        workflowsEmpty = document.getElementById('workflows-empty');
+        detailModal = document.getElementById('workflow-detail-modal');
+        detailModalClose = document.getElementById('workflow-detail-close');
+        detailModalCloseBtn = document.getElementById('workflow-detail-close-btn');
+        detailTitle = document.getElementById('workflow-detail-title');
+        detailContent = document.getElementById('workflow-detail-content');
+        markCompleteBtn = document.getElementById('workflow-mark-complete-btn');
+
+        // Attach event listeners
+        if (detailModalClose) {
+            detailModalClose.addEventListener('click', hideDetailModal);
+        }
+        if (detailModalCloseBtn) {
+            detailModalCloseBtn.addEventListener('click', hideDetailModal);
+        }
+        if (markCompleteBtn) {
+            markCompleteBtn.addEventListener('click', markWorkflowComplete);
+        }
+
+        // Load workflows
+        loadWorkflows();
+
+        console.log('✅ Workflows window initialized');
+    }
+
+    // Load workflows from transcriptions
+    async function loadWorkflows() {
+        console.log('📚 Loading workflows...');
+
+        try {
+            const result = await window.electronAPI.transcriptionGetAll();
+
+            if (result.success) {
+                const transcriptions = result.transcriptions;
+
+                // Filter transcriptions that have generated workflows
+                workflows = transcriptions.filter(t => t.workflow && t.workflow.steps);
+
+                console.log(`✅ Loaded ${workflows.length} workflows`);
+
+                if (workflows.length === 0) {
+                    if (workflowsList) workflowsList.style.display = 'none';
+                    if (workflowsEmpty) workflowsEmpty.style.display = 'flex';
+                } else {
+                    if (workflowsList) workflowsList.style.display = 'flex';
+                    if (workflowsEmpty) workflowsEmpty.style.display = 'none';
+
+                    renderWorkflows();
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error loading workflows:', error);
+        }
+    }
+
+    // Render workflows
+    function renderWorkflows() {
+        if (!workflowsList) return;
+
+        workflowsList.innerHTML = workflows.map(w => {
+            const workflow = w.workflow;
+            const isCompleted = w.workflowCompleted || false;
+            const stepsCount = workflow.steps ? workflow.steps.length : 0;
+
+            return `
+                <div class="workflow-card" onclick="window.showWorkflowDetail('${w._id}')">
+                    <div class="workflow-card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                        </svg>
+                    </div>
+                    <div class="workflow-card-info">
+                        <h3>${escapeHtml(workflow.workflowTitle || w.title)}</h3>
+                        <div class="workflow-card-meta">
+                            <span>${stepsCount} step${stepsCount !== 1 ? 's' : ''}</span>
+                            <span class="dot">·</span>
+                            <span>${formatDate(w.createdAt)}</span>
+                        </div>
+                    </div>
+                    <span class="status-badge ${isCompleted ? 'completed' : 'pending'}">
+                        ${isCompleted ? 'Done' : 'Active'}
+                    </span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Show workflow detail
+    window.showWorkflowDetail = function(transcriptionId) {
+        console.log('👁️ Showing workflow detail:', transcriptionId);
+
+        currentWorkflow = workflows.find(w => w._id === transcriptionId);
+        if (!currentWorkflow) {
+            console.error('Workflow not found:', transcriptionId);
+            return;
+        }
+
+        const workflow = currentWorkflow.workflow;
+
+        // Set title
+        if (detailTitle) {
+            detailTitle.textContent = workflow.workflowTitle || currentWorkflow.title;
+        }
+
+        // Build steps HTML
+        const stepsHTML = workflow.steps.map((step, i) => `
+            <div class="workflow-step-item">
+                <div class="workflow-step-number">${i + 1}</div>
+                <div class="workflow-step-content">
+                    <h4>${escapeHtml(step.title)}</h4>
+                    <p>${escapeHtml(step.description)}</p>
+                    ${step.estimatedTime ? `<span class="workflow-step-time">${escapeHtml(step.estimatedTime)}</span>` : ''}
+                </div>
+            </div>
+        `).join('');
+
+        // Build context HTML
+        let contextHTML = '';
+        if (workflow.relevantContext && workflow.relevantContext.length > 0) {
+            contextHTML = `
+                <div class="workflow-context-section">
+                    <h4>Key Insights</h4>
+                    <ul class="workflow-context-list">
+                        ${workflow.relevantContext.map(ctx => `<li>${escapeHtml(ctx)}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        // Set content
+        if (detailContent) {
+            detailContent.innerHTML = `
+                <div class="workflow-detail-summary">
+                    ${escapeHtml(workflow.summary)}
+                </div>
+                <div class="workflow-steps-list">
+                    ${stepsHTML}
+                </div>
+                ${contextHTML}
+            `;
+        }
+
+        // Show/hide complete button
+        if (markCompleteBtn) {
+            if (currentWorkflow.workflowCompleted) {
+                markCompleteBtn.textContent = 'Mark as Incomplete';
+            } else {
+                markCompleteBtn.textContent = 'Mark as Complete';
+            }
+        }
+
+        // Show modal
+        if (detailModal) {
+            detailModal.classList.remove('hidden');
+        }
+    };
+
+    // Hide detail modal
+    function hideDetailModal() {
+        if (detailModal) {
+            detailModal.classList.add('hidden');
+        }
+        currentWorkflow = null;
+    }
+
+    // Mark workflow complete/incomplete
+    async function markWorkflowComplete() {
+        if (!currentWorkflow) return;
+
+        try {
+            const newStatus = !currentWorkflow.workflowCompleted;
+
+            // Update in MongoDB
+            const result = await window.electronAPI.transcriptionSave({
+                ...currentWorkflow,
+                workflowCompleted: newStatus
+            });
+
+            if (result.success) {
+                console.log('✅ Workflow status updated');
+                hideDetailModal();
+                loadWorkflows();
+            } else {
+                alert('Failed to update workflow status: ' + result.error);
+            }
+        } catch (error) {
+            console.error('Error updating workflow:', error);
+            alert('Error updating workflow status');
+        }
+    }
+
+    // Utility Functions
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 60) {
+            return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+        } else if (diffHours < 24) {
+            return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+        } else if (diffDays < 7) {
+            return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+        } else {
+            return date.toLocaleDateString();
+        }
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+        setTimeout(init, 500); // Also try after delay
+    }
+
+    console.log('✅ Workflows window module loaded');
+})();
+</script>

@@ -1,0 +1,190 @@
+<div id="settings-window" class="window" style="display: none;">
+    <div class="account-settings-container">
+        <div class="account-settings-header">
+            <div class="account-header-content">
+                <div class="account-avatar" id="account-avatar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <div class="account-header-info">
+                    <h2 id="account-name">Not Signed In</h2>
+                    <p id="account-email">Please sign in to continue</p>
+                </div>
+            </div>
+            <div class="account-status" id="account-status">
+                <span class="status-indicator"></span>
+                <span class="status-text">Free Plan</span>
+            </div>
+        </div>
+
+        <div class="account-settings-content">
+            <div class="account-section" id="subscription-section">
+                <h3 class="account-section-title">Usage</h3>
+                <div class="subscription-card">
+                    <div class="subscription-info">
+                        <div class="subscription-tier" id="subscription-tier">Loading...</div>
+                        <div class="subscription-status" id="subscription-status">...</div>
+                    </div>
+                    <div class="subscription-details">
+                        <div class="subscription-detail">
+                            <span class="detail-label">Messages</span>
+                            <span class="detail-value" id="messages-used">...</span>
+                        </div>
+                        <div class="subscription-detail">
+                            <span class="detail-label">Transcription</span>
+                            <span class="detail-value" id="transcriptions-used">...</span>
+                        </div>
+                        <div class="subscription-detail">
+                            <span class="detail-label">Storage</span>
+                            <span class="detail-value" id="storage-used">...</span>
+                        </div>
+                    </div>
+                    <button onclick="refreshUserData()" class="refresh-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="account-section" id="account-actions-section">
+                <button class="sign-out-btn" onclick="handleOAuthLogout()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Sign Out
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadUserData);
+    } else {
+        setTimeout(loadUserData, 100);
+    }
+
+    async function loadUserData() {
+        try {
+            const response = await window.electronAPI.authGetCurrentUser();
+            
+            if (response && response.user) {
+                const user = response.user;
+                
+                document.getElementById('account-name').textContent = user.full_name || user.fullName || user.name || 'User';
+                document.getElementById('account-email').textContent = user.email || 'No email';
+                
+                const sub = user.subscription || {};
+                const usage = user.usage || {};
+                const limits = sub.limits || {};
+                
+                const tierName = (sub.tier || user.plan || 'Free').toUpperCase();
+                document.getElementById('subscription-tier').textContent = tierName;
+                
+                const statusText = (sub.status || 'active');
+                document.getElementById('subscription-status').textContent = statusText.charAt(0).toUpperCase() + statusText.slice(1);
+                
+                const msgLimit = limits.messagesPerDay;
+                const msgLimitDisplay = (msgLimit === -1 || msgLimit === undefined) ? '∞' : msgLimit;
+                document.getElementById('messages-used').textContent = `${usage.messagesUsedToday || 0} / ${msgLimitDisplay}`;
+                
+                const transcriptLimit = limits.transcriptionMinutes;
+                const transcriptUsed = usage.transcriptionMinutesUsed || 0;
+                if (transcriptLimit === -1) {
+                    document.getElementById('transcriptions-used').textContent = `${transcriptUsed} min`;
+                } else {
+                    document.getElementById('transcriptions-used').textContent = `${transcriptUsed} / ${transcriptLimit || 10} min`;
+                }
+                
+                const storageUsed = usage.storageUsed || 0;
+                document.getElementById('storage-used').textContent = storageUsed < 1024 ? `${storageUsed} MB` : `${(storageUsed / 1024).toFixed(1)} GB`;
+                
+                const avatarEl = document.getElementById('account-avatar');
+                if (avatarEl) {
+                    const displayName = user.full_name || user.fullName || user.name || user.email || 'U';
+                    if (user.avatar) {
+                        avatarEl.innerHTML = `<img src="${user.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" alt="Avatar" />`;
+                    } else {
+                        avatarEl.innerHTML = `<span style="font-size:18px; font-weight:600; color:white;">${displayName.charAt(0).toUpperCase()}</span>`;
+                    }
+                }
+                
+                const statusIndicator = document.querySelector('.status-indicator');
+                const statusTextEl = document.querySelector('.status-text');
+                if (statusIndicator && statusTextEl) {
+                    statusTextEl.textContent = tierName;
+                    if (tierName.includes('ULTIMATE')) {
+                        statusIndicator.style.background = '#f59e0b';
+                    } else if (tierName.includes('SUPER')) {
+                        statusIndicator.style.background = '#22c55e';
+                    } else {
+                        statusIndicator.style.background = '#6b7280';
+                    }
+                }
+            } else {
+                document.getElementById('account-name').textContent = 'Not Signed In';
+                document.getElementById('account-email').textContent = 'Please sign in to continue';
+            }
+        } catch (error) {
+            console.error('Error loading user data:', error);
+            document.getElementById('account-name').textContent = 'Error Loading';
+            document.getElementById('account-email').textContent = 'Please try refreshing';
+        }
+    }
+
+    async function refreshUserData() {
+        const btn = event.target.closest('button');
+        const originalContent = btn.innerHTML;
+        
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="spin" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg> Refreshing...';
+            
+            const result = await window.electronAPI.authRefreshUserData();
+            
+            if (result.success) {
+                await loadUserData();
+            } else {
+                alert('Failed to refresh: ' + (result.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error refreshing data:', error);
+            alert('Error refreshing data');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+        }
+    }
+
+    async function handleOAuthLogout() {
+        const confirmed = await window.customConfirm({
+            title: 'Sign Out',
+            message: 'Are you sure you want to sign out?',
+            confirmText: 'Sign Out',
+            type: 'info'
+        });
+        
+        if (confirmed) {
+            try {
+                const result = await window.electronAPI.authLogout();
+                if (result.success) {
+                    console.log('Logged out successfully');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Logout failed');
+            }
+        }
+    }
+
+    window.loadUserData = loadUserData;
+    window.refreshUserData = refreshUserData;
+    window.handleOAuthLogout = handleOAuthLogout;
+</script>

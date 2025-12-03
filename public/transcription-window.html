@@ -1,0 +1,1420 @@
+<!-- Transcription Window - Minimal Design -->
+<div id="transcription-window" class="window">
+    <div class="transcription-container">
+        <!-- Step 1: Ready to Record -->
+        <div class="step" id="step-ready">
+            <div class="step-content ready-step-content">
+                <!-- Record Button Area -->
+                <div class="record-area">
+                    <button class="record-circle" id="start-recording-btn">
+                        <div class="record-circle-inner">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                <line x1="12" y1="19" x2="12" y2="23"/>
+                                <line x1="8" y1="23" x2="16" y2="23"/>
+                            </svg>
+                        </div>
+                        <span class="record-label">Record</span>
+                    </button>
+                </div>
+                
+                <!-- Transcription History -->
+                <div class="history-section-new">
+                    <div class="history-list" id="transcription-history">
+                        <div class="history-empty">
+                            <p>Your transcriptions will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Recording -->
+        <div class="step hidden" id="step-recording">
+            <div class="step-content recording-step-content">
+                <div class="recording-header">
+                    <div class="recording-indicator">
+                        <div class="pulse-dot"></div>
+                        <span class="recording-label">Recording</span>
+                    </div>
+                    <div class="timer" id="timer">0:00</div>
+                    <button class="stop-btn-compact" id="stop-recording-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="4" y="4" width="16" height="16" rx="2"/>
+                        </svg>
+                        Stop
+                    </button>
+                </div>
+
+                <div class="transcript-area" id="live-transcript">
+                    <div class="transcript-placeholder">
+                        <span>Listening...</span>
+                    </div>
+                    <div class="transcript-content" id="transcript-text"></div>
+                </div>
+
+                <div class="recording-meta">
+                    <span id="word-count">0 words</span>
+                    <span class="meta-dot">·</span>
+                    <span id="confidence-indicator">
+                        <span id="confidence-text">Ready</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2.5: Post-Transcription Options -->
+        <div class="step hidden" id="step-options">
+            <div class="step-content options-step-content">
+                <div class="options-header">
+                    <span id="options-word-count" class="word-badge-inline"></span>
+                </div>
+
+                <div class="transcript-preview-minimal" id="transcription-preview-box">
+                    <div class="preview-text-minimal" id="options-preview-text"></div>
+                </div>
+
+                <div class="options-actions">
+                    <button class="option-btn primary" id="attach-to-chat-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                        </svg>
+                        Attach to Chat
+                    </button>
+
+                    <button class="option-btn secondary" id="create-workflow-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                        </svg>
+                        Create Workflow
+                    </button>
+                </div>
+
+                <button class="link-btn-minimal" id="dismiss-options-btn">
+                    New Recording
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Goal Input -->
+        <div class="step hidden" id="step-goal">
+            <div class="step-content goal-step-content">
+                <div class="goal-header-compact">
+                    <h3>What's your goal?</h3>
+                    <span id="final-word-count" class="word-count-subtle"></span>
+                </div>
+
+                <div class="transcript-preview-compact" id="final-transcript-summary">
+                    <div class="preview-content-compact" id="summary-text"></div>
+                    <button class="view-full-btn" id="view-full-transcript-btn">View all</button>
+                </div>
+
+                <textarea 
+                    id="goal-input" 
+                    class="goal-textarea"
+                    placeholder="e.g., Summarise key points and create action items..."
+                    rows="2"
+                ></textarea>
+
+                <div class="goal-actions">
+                    <button class="ghost-btn-sm" id="back-to-record-btn">Back</button>
+                    <button class="primary-btn" id="generate-workflow-btn">Generate</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Workflow Results -->
+        <div class="step hidden" id="step-workflow">
+            <div class="step-content workflow-step-content">
+                <div class="workflow-header-compact">
+                    <h3>Generated Workflow</h3>
+                </div>
+
+                <div class="workflow-container" id="workflow-container">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <span>Generating...</span>
+                    </div>
+                </div>
+
+                <div class="workflow-actions">
+                    <button class="ghost-btn-sm" id="new-transcription-btn">New</button>
+                    <button class="primary-btn" id="save-workflow-btn">Save Workflow</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Full Transcript -->
+    <div class="modal-overlay hidden" id="transcript-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Full Transcript</h3>
+                <button class="modal-close" id="close-transcript-modal">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="full-transcript" id="full-transcript-text"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="ghost-btn" id="copy-transcript-btn">
+                    Copy
+                </button>
+                <button class="primary-btn" id="close-transcript-btn">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Minimal Transcription Window */
+.transcription-container {
+    padding: 12px 20px;
+    max-width: 640px;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.step {
+    animation: fadeIn 0.3s ease;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.step.hidden {
+    display: none;
+}
+
+#step-recording {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.step-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+}
+
+.step-content.recording-step-content {
+    flex: 1;
+    height: 100%;
+    gap: 12px;
+}
+
+/* Typography */
+h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+    letter-spacing: -0.02em;
+}
+
+h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+}
+
+.hint-text {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+}
+
+/* Record Area - New Design */
+.record-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0 16px;
+}
+
+.record-circle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+}
+
+.record-circle-inner {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+    position: relative;
+}
+
+.record-circle-inner::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid rgba(239, 68, 68, 0.2);
+    transition: all 0.3s ease;
+}
+
+.record-circle:hover .record-circle-inner {
+    transform: scale(1.05);
+    box-shadow: 0 6px 28px rgba(239, 68, 68, 0.5);
+}
+
+.record-circle:hover .record-circle-inner::before {
+    border-color: rgba(239, 68, 68, 0.4);
+    inset: -6px;
+}
+
+.record-circle:active .record-circle-inner {
+    transform: scale(0.98);
+}
+
+.record-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.02em;
+}
+
+.record-circle:hover .record-label {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.record-circle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.record-circle:disabled .record-circle-inner {
+    transform: none;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2);
+}
+
+.stop-btn {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.stop-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+.primary-btn {
+    background: #ef4444;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.primary-btn:hover:not(:disabled) {
+    background: #dc2626;
+}
+
+.primary-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ghost-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.ghost-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.link-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 6px;
+    transition: color 0.2s ease;
+    font-family: inherit;
+}
+
+.link-btn:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.button-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+}
+
+/* Recording State - Compact Header */
+
+.recording-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.recording-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    animation: pulseDot 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.recording-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #ef4444;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.timer {
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.02em;
+}
+
+.stop-btn-compact {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #ef4444;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.stop-btn-compact:hover {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* Transcript Area */
+.transcript-area {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 14px;
+    width: 100%;
+    min-height: 200px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.transcript-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.transcript-area::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.transcript-area::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.transcript-placeholder {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 24px;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 14px;
+}
+
+.transcript-content {
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.transcript-line {
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.transcript-line.final {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.transcript-line.interim {
+    color: rgba(255, 255, 255, 0.4);
+    font-style: italic;
+}
+
+.recording-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 13px;
+}
+
+.meta-dot {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+#confidence-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Options Step - Minimal Design */
+.options-step-content {
+    padding-top: 8px;
+    gap: 14px;
+}
+
+.options-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.word-badge-inline {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.transcript-preview-minimal {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 14px;
+    width: 100%;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.transcript-preview-minimal::-webkit-scrollbar {
+    width: 4px;
+}
+
+.transcript-preview-minimal::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.transcript-preview-minimal::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.preview-text-minimal {
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.options-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.option-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.option-btn.primary {
+    background: #ef4444;
+    border: none;
+    color: white;
+}
+
+.option-btn.primary:hover {
+    background: #dc2626;
+}
+
+.option-btn.secondary {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.option-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.option-btn svg {
+    opacity: 0.9;
+}
+
+.link-btn-minimal {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 12px;
+    transition: color 0.2s ease;
+    font-family: inherit;
+}
+
+.link-btn-minimal:hover {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Legacy word-badge for other sections */
+.word-badge {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* Goal Step - Compact */
+.goal-step-content {
+    gap: 12px;
+    padding-top: 8px;
+}
+
+.goal-header-compact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.goal-header-compact h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.word-count-subtle {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.transcript-preview-compact {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 10px 12px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.preview-content-compact {
+    flex: 1;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.view-full-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.view-full-btn:hover {
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.goal-textarea {
+    width: 100%;
+    min-height: 60px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+    line-height: 1.5;
+    font-family: inherit;
+    resize: none;
+    transition: border-color 0.2s ease;
+}
+
+.goal-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.goal-textarea:focus {
+    outline: none;
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.goal-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.ghost-btn-sm {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.ghost-btn-sm:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.goal-actions .primary-btn {
+    flex: 1;
+}
+
+/* Workflow Container */
+/* Workflow Step - Compact */
+.workflow-step-content {
+    gap: 12px;
+    padding-top: 8px;
+}
+
+.workflow-header-compact {
+    width: 100%;
+}
+
+.workflow-header-compact h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.workflow-container {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 120px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.workflow-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.workflow-actions .primary-btn {
+    flex: 1;
+}
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    min-height: 160px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+}
+
+.loading-compact {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #ef4444;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.spinner-sm {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #ef4444;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Compact Workflow Result */
+.workflow-result-compact {
+    width: 100%;
+}
+
+.workflow-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.workflow-actions-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.action-item-compact {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.action-num {
+    width: 18px;
+    height: 18px;
+    background: rgba(239, 68, 68, 0.15);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: #ef4444;
+    flex-shrink: 0;
+}
+
+.action-label {
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    flex-shrink: 0;
+}
+
+.action-detail {
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+.more-actions {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    padding: 4px 0;
+    text-align: center;
+}
+
+/* Compact Saved State */
+.workflow-saved-compact {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: 8px;
+}
+
+.saved-check {
+    width: 32px;
+    height: 32px;
+    background: rgba(34, 197, 94, 0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.saved-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.saved-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.saved-subtitle {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Compact Error State */
+.workflow-error-compact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+}
+
+.workflow-error-compact svg {
+    flex-shrink: 0;
+}
+
+.workflow-error-compact .error-msg {
+    flex: 1;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.retry-btn {
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.retry-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* Workflow Result (legacy) */
+.workflow-result {
+    width: 100%;
+}
+
+.workflow-result.generated {
+    animation: fadeIn 0.3s ease;
+}
+
+.workflow-header {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.workflow-icon-badge {
+    width: 40px;
+    height: 40px;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.workflow-header-text h3 {
+    font-size: 16px;
+    margin: 0 0 4px 0;
+}
+
+.workflow-header-text p {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+}
+
+.workflow-trigger-info {
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.workflow-trigger-info strong {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.workflow-actions-list {
+    margin-bottom: 12px;
+}
+
+.workflow-actions-list h4 {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 10px 0;
+}
+
+.workflow-action-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    margin-bottom: 6px;
+}
+
+.action-number {
+    width: 20px;
+    height: 20px;
+    background: rgba(239, 68, 68, 0.15);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #ef4444;
+    flex-shrink: 0;
+}
+
+.action-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.action-description {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    flex: 1;
+}
+
+.workflow-usage-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(34, 197, 94, 0.05);
+    border-radius: 8px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.workflow-usage-hint i {
+    color: #4ade80;
+}
+
+/* Workflow Error State */
+.workflow-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 32px;
+    gap: 12px;
+}
+
+.workflow-error .error-icon {
+    font-size: 32px;
+}
+
+.workflow-error h3 {
+    color: #f87171;
+    font-size: 16px;
+    margin: 0;
+}
+
+.workflow-error p {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    margin: 0;
+}
+
+/* Workflow Success State */
+.workflow-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 32px;
+    gap: 12px;
+}
+
+.workflow-success .success-icon {
+    font-size: 40px;
+}
+
+.workflow-success h3 {
+    color: #4ade80;
+    font-size: 18px;
+    margin: 0;
+}
+
+.workflow-success p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    margin: 0;
+}
+
+.workflow-success .usage-hint {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 12px;
+}
+
+.workflow-success .success-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    max-width: 480px;
+    width: 90%;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    animation: modalSlide 0.25s ease;
+}
+
+@keyframes modalSlide {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.modal-body {
+    padding: 16px 18px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.modal-footer {
+    padding: 12px 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.full-transcript {
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    white-space: pre-wrap;
+    font-size: 13px;
+}
+
+/* Ready Step with History */
+.ready-step-content {
+    gap: 0;
+    justify-content: flex-start;
+}
+
+/* History Section - New Design */
+.history-section-new {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 12px;
+}
+
+.history-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.history-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.history-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.history-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 12px;
+}
+
+.history-empty p {
+    margin: 0;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.history-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.history-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.history-item-preview {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 3px;
+    line-height: 1.4;
+}
+
+.history-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.history-item-meta .meta-dot {
+    color: rgba(255, 255, 255, 0.15);
+}
+
+.history-item-delete {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.2);
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+}
+
+.history-item:hover .history-item-delete {
+    opacity: 1;
+}
+
+.history-item-delete:hover {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .transcription-container {
+        padding: 16px 14px;
+    }
+    
+    h2 {
+        font-size: 18px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .button-row {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .button-row button {
+        width: 100%;
+    }
+}
+</style>
+

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red AI - Authenticating...</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .auth-container {
+            background: rgba(45, 45, 45, 0.75);
+            backdrop-filter: blur(25px) saturate(180%) brightness(110%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 48px;
+            text-align: center;
+            max-width: 420px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
+        }
+
+        .logo i {
+            font-size: 36px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .spinner-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+        }
+
+        .spinner-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-top-color: #ef4444;
+            border-radius: 50%;
+            animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        }
+
+        .spinner-ring:nth-child(2) {
+            border-top-color: rgba(239, 68, 68, 0.5);
+            animation-delay: 0.15s;
+        }
+
+        .spinner-ring:nth-child(3) {
+            border-top-color: rgba(239, 68, 68, 0.3);
+            animation-delay: 0.3s;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 16px;
+        }
+
+        .error-message {
+            display: none;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">
+            <i class="fas fa-brain"></i>
+        </div>
+        
+        <h1>Authenticating with Red AI</h1>
+        <p>Please complete sign-in in your browser</p>
+        
+        <div class="spinner-container">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+        </div>
+        
+        <div class="status-text" id="status-text">
+            Opening browser...
+        </div>
+        
+        <div class="error-message" id="error-message"></div>
+    </div>
+
+    <script>
+        // Listen for auth errors
+        if (window.electronAPI) {
+            window.electronAPI.on('auth-error', (data) => {
+                const errorEl = document.getElementById('error-message');
+                const statusEl = document.getElementById('status-text');
+                
+                errorEl.textContent = data.error || 'Authentication failed. Retrying...';
+                errorEl.style.display = 'block';
+                statusEl.textContent = 'Retrying...';
+            });
+        }
+
+        // Update status text
+        setTimeout(() => {
+            document.getElementById('status-text').textContent = 'Waiting for sign-in...';
+        }, 2000);
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
