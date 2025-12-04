@@ -50,9 +50,20 @@ const elements = {
 };
 
 // Initialize
-function init() {
+async function init() {
     setupEventListeners();
     setupTranscriptionListeners();
+    
+    // Seed demo transcriptions if not already done
+    try {
+        const result = await window.electronAPI.transcriptionSeedDemo();
+        if (result.success && result.count > 0) {
+            console.log(`✅ Seeded ${result.count} demo transcriptions`);
+        }
+    } catch (error) {
+        console.warn('Could not seed demo transcriptions:', error);
+    }
+    
     loadTranscriptionHistory();
 }
 
@@ -516,10 +527,21 @@ function formatDate(dateStr) {
 function attachTranscriptionToChat() {
     console.log('📎 Attaching transcription to chat...');
     
+    // Generate a title from the first sentence or first few words
+    const generateTitle = (text) => {
+        if (!text) return 'Transcription';
+        // Get first sentence or first 50 chars
+        const firstLine = text.split(/[.!?\n]/)[0].trim();
+        if (firstLine.length <= 50) return firstLine || 'Transcription';
+        return firstLine.substring(0, 47) + '...';
+    };
+    
     // Create the attachment object
     const attachment = {
         type: 'transcription',
         content: fullTranscript,
+        text: fullTranscript,
+        title: generateTitle(fullTranscript),
         wordCount: wordCount,
         timestamp: new Date().toISOString(),
         preview: fullTranscript.length > 100 

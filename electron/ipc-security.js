@@ -105,6 +105,7 @@ const ALLOWED_IPC_CHANNELS = new Set([
   'transcription-get-all',
   'transcription-generate-workflow',
   'transcription-delete',
+  'transcription-seed-demo',
 
   // Environment variables
   'get-env-var',

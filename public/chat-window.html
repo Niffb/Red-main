@@ -66,24 +66,6 @@
                 <span>Screen Capture</span>
             </div>
 
-            <!-- Transcription Attachment Badge -->
-            <div id="transcription-attachment-badge" class="transcription-attachment-badge hidden">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path
-                        d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
-                    </path>
-                </svg>
-                <span class="attachment-text">Transcription</span>
-                <span class="attachment-words" id="attachment-word-count"></span>
-                <button id="remove-attachment-btn" class="remove-attachment-btn" title="Remove transcription">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                            d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-
             <textarea id="chat-input" rows="1" placeholder="Message RED AI..."
                 class="chat-input-textarea"></textarea>
 
@@ -97,6 +79,33 @@
                     <div class="listening-bar"></div>
                     <div class="listening-bar"></div>
                 </div>
+            </button>
+        </div>
+
+        <!-- Transcription Attachment Card (below input) -->
+        <div id="transcription-attachment-card" class="attachment-card hidden">
+            <div class="attachment-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+            </div>
+            <div class="attachment-card-content">
+                <div class="attachment-card-title" id="attachment-card-title">Meeting Transcription</div>
+                <div class="attachment-card-meta">
+                    <span class="attachment-card-type">Transcription</span>
+                    <span class="attachment-card-separator">•</span>
+                    <span class="attachment-card-words" id="attachment-card-words">0 words</span>
+                </div>
+            </div>
+            <button id="remove-attachment-btn" class="attachment-card-remove" title="Remove transcription">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
             </button>
         </div>
 
@@ -152,68 +161,117 @@
         flex-shrink: 0;
     }
 
-    /* Transcription Attachment Badge */
-    .transcription-attachment-badge {
+    /* Transcription Attachment Card */
+    .attachment-card {
         display: flex;
         align-items: center;
-        gap: 6px;
-        padding: 6px 10px;
-        background: rgba(239, 68, 68, 0.12);
-        border: 1px solid rgba(239, 68, 68, 0.35);
+        gap: 12px;
+        padding: 12px 16px;
+        margin-top: 12px;
+        background: rgba(50, 50, 55, 0.9);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
-        font-size: 12px;
-        color: #ef4444;
-        font-weight: 500;
-        white-space: nowrap;
-        flex-shrink: 0;
-        animation: fadeInBadge 0.3s ease-out;
+        animation: slideUpFadeIn 0.3s ease-out;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
         cursor: pointer;
         transition: all 0.2s ease;
     }
 
-    .transcription-attachment-badge:hover {
-        background: rgba(239, 68, 68, 0.2);
-        border-color: rgba(239, 68, 68, 0.5);
+    .attachment-card:hover {
+        background: rgba(60, 60, 65, 0.95);
+        border-color: rgba(255, 255, 255, 0.15);
     }
 
-    .transcription-attachment-badge.hidden {
+    .attachment-card.hidden {
         display: none;
     }
 
-    .transcription-attachment-badge svg {
-        flex-shrink: 0;
-        color: #ef4444;
+    @keyframes slideUpFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
-    .transcription-attachment-badge .attachment-text {
-        color: #ef4444;
-    }
-
-    .transcription-attachment-badge .attachment-words {
-        color: rgba(239, 68, 68, 0.7);
-        font-size: 11px;
-        padding-left: 4px;
-        border-left: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    .transcription-attachment-badge .remove-attachment-btn {
-        background: rgba(239, 68, 68, 0.2);
-        border: none;
-        border-radius: 50%;
-        width: 18px;
-        height: 18px;
+    .attachment-card-icon {
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s;
-        color: #ef4444;
-        margin-left: 4px;
+        width: 40px;
+        height: 40px;
+        background: rgba(239, 68, 68, 0.15);
+        border-radius: 10px;
+        flex-shrink: 0;
     }
 
-    .transcription-attachment-badge .remove-attachment-btn:hover {
-        background: rgba(239, 68, 68, 0.4);
-        color: #fff;
+    .attachment-card-icon svg {
+        color: #ef4444;
+    }
+
+    .attachment-card-content {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .attachment-card-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.95);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 2px;
+    }
+
+    .attachment-card-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .attachment-card-type {
+        color: #ef4444;
+        font-weight: 500;
+    }
+
+    .attachment-card-separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .attachment-card-words {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .attachment-card-remove {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: rgba(255, 255, 255, 0.5);
+        flex-shrink: 0;
+    }
+
+    .attachment-card-remove:hover {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: rgba(239, 68, 68, 0.4);
+        color: #ef4444;
     }
 
     @keyframes fadeInBadge {
@@ -454,20 +512,18 @@
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
-        background: rgba(50, 50, 50, 0.5);
-        backdrop-filter: blur(30px) saturate(180%) brightness(1.1);
-        -webkit-backdrop-filter: blur(30px) saturate(180%) brightness(1.1);
+        background: rgba(60, 60, 65, 0.8);
+        backdrop-filter: blur(30px) saturate(150%);
+        -webkit-backdrop-filter: blur(30px) saturate(150%);
         border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.15);
         padding: 8px 12px;
-        box-shadow: 
-            0 2px 8px rgba(0, 0, 0, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        box-shadow: none;
     }
 
     .chat-input-area.voice-active {
         border-color: rgba(239, 68, 68, 0.5);
-        background: rgba(60, 30, 30, 0.35);
+        background: rgba(70, 50, 55, 0.85);
     }
 
     /* Message Feedback Box */
@@ -514,7 +570,7 @@
         max-height: 300px;
         border-radius: 8px;
         border: 2px solid rgba(239, 68, 68, 0.3);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        box-shadow: none;
     }
 
     .remove-capture-btn {
@@ -592,14 +648,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        box-shadow: none;
         position: relative;
         overflow: hidden;
     }
 
     .send-button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
+        box-shadow: none;
     }
 
     .send-button:active {
@@ -641,7 +697,7 @@
         padding: 8px 12px;
         color: rgba(255, 255, 255, 0.9);
         font-size: 15px;
-        line-height: 1.4;
+        line-height: normal;
         font-family: inherit;
         outline: none;
         resize: none;

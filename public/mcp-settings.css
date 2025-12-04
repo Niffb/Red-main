@@ -27,7 +27,7 @@
 
 .mcp-header {
     padding: 18px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     flex-shrink: 0;
 }
 
@@ -98,7 +98,7 @@
     display: flex;
     gap: 2px;
     padding: 0 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     flex-shrink: 0;
 }
 
@@ -244,8 +244,8 @@
 
 /* Inline Add Server Form */
 .mcp-add-server-inline {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 10px;
     margin-bottom: 16px;
     overflow: hidden;
@@ -415,15 +415,15 @@
 }
 
 .mcp-server-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     padding: 16px;
     transition: border-color 0.2s;
 }
 
 .mcp-server-card:hover {
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .mcp-server-header {
@@ -608,8 +608,8 @@
 }
 
 .mcp-tool-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     padding: 14px;
     cursor: pointer;
@@ -617,7 +617,7 @@
 }
 
 .mcp-tool-card:hover {
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .mcp-tool-header {
@@ -659,15 +659,15 @@
 }
 
 .mcp-template-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     padding: 14px;
     transition: border-color 0.2s;
 }
 
 .mcp-template-card:hover {
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .mcp-template-card h3 {
@@ -754,8 +754,10 @@
     width: 90%;
     max-width: 480px;
     max-height: 90vh;
-    background: rgba(30, 30, 30, 0.98);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(50, 50, 55, 0.95);
+    backdrop-filter: blur(40px) saturate(150%);
+    -webkit-backdrop-filter: blur(40px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 12px;
     overflow: hidden;
     display: flex;

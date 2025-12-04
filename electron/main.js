@@ -1409,13 +1409,13 @@ function toggleWindow() {
   }
 }
 
-// Screenshot capture system
+// Screenshot capture system - optimized for speed
 async function captureScreenshot(quality = 'medium') {
   const startTime = Date.now();
   try {
-    // Rate limiting - max 1 screenshot per 500ms for faster response
+    // Faster rate limiting - 150ms between captures for responsive feel
     const now = Date.now();
-    if (now - lastScreenshotTime < 500) {
+    if (now - lastScreenshotTime < 150) {
       const cacheKey = `screenshot_${quality}`;
       const cached = screenshotCache.get(cacheKey);
       if (cached) {
@@ -1428,10 +1428,10 @@ async function captureScreenshot(quality = 'medium') {
     lastScreenshotTime = now;
     screenshotRequestCount++;
 
-    // Check cache first (valid for 30 seconds for faster pre-capture)
+    // Short cache (5 seconds) for fresh captures while avoiding redundant work
     const cacheKey = `screenshot_${quality}`;
     const cached = screenshotCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < 30000) {
+    if (cached && Date.now() - cached.timestamp < 5000) {
       console.log(`📸 Using cached screenshot (${Date.now() - startTime}ms, age: ${((Date.now() - cached.timestamp) / 1000).toFixed(1)}s)`);
       return cached.data;
     }
@@ -1495,19 +1495,19 @@ async function captureScreenshotMacOS() {
 
 async function captureScreenshotElectron() {
   try {
-    // Request very small thumbnail for ultra-fast capture
+    // Optimized thumbnail size - good quality for AI analysis while staying fast
     const sources = await desktopCapturer.getSources({
       types: ['screen'],
-      thumbnailSize: { width: 384, height: 288 }
+      thumbnailSize: { width: 640, height: 480 }
     });
 
     if (sources.length === 0) {
       throw new Error('No screen sources available');
     }
 
-    // Use the first (primary) screen and get JPEG with low quality for speed
+    // Use the first (primary) screen and get JPEG with balanced quality
     const source = sources[0];
-    const screenshot = source.thumbnail.toJPEG(60);
+    const screenshot = source.thumbnail.toJPEG(70);
 
     return screenshot;
 
@@ -1519,21 +1519,22 @@ async function captureScreenshotElectron() {
 
 async function processScreenshot(imageData, quality = 'medium') {
   try {
+    // Balanced settings - good quality for AI analysis while keeping fast
     const qualitySettings = {
-      low: { height: 192, quality: 55 }, // Ultra-low for pre-capture speed
-      medium: { height: 240, quality: 60 }, // Reduced for speed
-      high: { height: 288, quality: 70 }
+      low: { height: 320, quality: 65 },    // Quick preview
+      medium: { height: 480, quality: 75 }, // Balanced - good for most uses
+      high: { height: 600, quality: 80 }    // Better detail for complex screens
     };
 
     const settings = qualitySettings[quality] || qualitySettings.medium;
 
-    // Use JPEG with fast compression settings for speed
+    // Use JPEG with fast compression - skip Sharp resize if image already small
     const processedBuffer = await sharp(imageData, { failOnError: false })
       .resize({ height: settings.height, fit: 'inside', withoutEnlargement: true })
       .jpeg({
         quality: settings.quality,
-        mozjpeg: false, // Disable mozjpeg for faster processing
-        progressive: false // Disable progressive for faster encoding
+        mozjpeg: false, // Faster compression
+        progressive: false
       })
       .toBuffer();
 
@@ -5301,6 +5302,38 @@ ipcMain.handle('transcription-generate-workflow', async (event, { transcriptionI
     return { success: true, workflow: workflowSuggestion };
   } catch (error) {
     console.error('Error generating workflow:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Seed demo transcriptions (for testing/demo purposes)
+ipcMain.handle('transcription-seed-demo', async (event) => {
+  try {
+    const sampleDataPath = path.join(__dirname, '..', 'data', 'sample-transcriptions.json');
+    
+    if (!fs.existsSync(sampleDataPath)) {
+      return { success: false, error: 'Sample transcriptions file not found' };
+    }
+    
+    const sampleData = JSON.parse(fs.readFileSync(sampleDataPath, 'utf8'));
+    const existingTranscriptions = loadLocalTranscriptions();
+    
+    // Check if demo data already exists
+    const demoIds = sampleData.map(t => t.id);
+    const alreadySeeded = existingTranscriptions.some(t => demoIds.includes(t.id));
+    
+    if (alreadySeeded) {
+      return { success: true, message: 'Demo data already seeded', count: 0 };
+    }
+    
+    // Add demo transcriptions to the beginning
+    const merged = [...sampleData, ...existingTranscriptions];
+    saveLocalTranscriptions(merged);
+    
+    console.log(`✅ Seeded ${sampleData.length} demo transcriptions`);
+    return { success: true, count: sampleData.length };
+  } catch (error) {
+    console.error('Error seeding demo transcriptions:', error);
     return { success: false, error: error.message };
   }
 });

@@ -155,6 +155,7 @@ window.electronAPI = {
   transcriptionSave: (data) => ipcRenderer.invoke('transcription-save', data),
   transcriptionGetAll: () => ipcRenderer.invoke('transcription-get-all'),
   transcriptionDelete: (id) => ipcRenderer.invoke('transcription-delete', id),
+  transcriptionSeedDemo: () => ipcRenderer.invoke('transcription-seed-demo'),
 
 };
 

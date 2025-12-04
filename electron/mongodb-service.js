@@ -9,7 +9,7 @@ const SUBSCRIPTION_TIERS = {
     messagesPerDay: 20,
     workflows: { max: 2, complexity: 'simple', maxSteps: 1 },
     mcpConnections: 0,
-    transcriptionHours: 0,
+    transcriptionHours: 10, // TEMP: enabled for testing
     features: [
       'Basic chat functionality',
       'Up to 2 simple workflows',
@@ -20,7 +20,7 @@ const SUBSCRIPTION_TIERS = {
       workflows: 2,
       workflow_steps: 1,
       mcp_connections: 0,
-      transcription_hours: 0
+      transcription_hours: 10 // TEMP: enabled for testing
     }
   },
   'super-red': {

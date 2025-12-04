@@ -9,16 +9,16 @@
     <style>
         /* CSS Variables */
         :root {
-            --window-bg-opacity: 0.55;
-            --frosted-bg: rgba(40, 40, 40, 0.25);
-            --frosted-backdrop-filter: blur(80px) saturate(200%) brightness(1.1);
-            --glassmorphism-bg: rgba(40, 40, 40, 0.25);
-            --glassmorphism-border: rgba(255, 255, 255, 0.15);
-            --glassmorphism-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            --enhanced-blur: blur(80px) saturate(200%) brightness(1.1);
-            --text-primary: rgba(255, 255, 255, 0.95);
-            --text-secondary: rgba(255, 255, 255, 0.75);
-            --text-muted: rgba(255, 255, 255, 0.55);
+            --window-bg-opacity: 0.7;
+            --frosted-bg: rgba(60, 60, 65, 0.75);
+            --frosted-backdrop-filter: blur(40px) saturate(150%);
+            --glassmorphism-bg: rgba(60, 60, 65, 0.75);
+            --glassmorphism-border: rgba(255, 255, 255, 0.3);
+            --glassmorphism-shadow: none;
+            --enhanced-blur: blur(40px) saturate(150%);
+            --text-primary: rgba(255, 255, 255, 1);
+            --text-secondary: rgba(255, 255, 255, 0.9);
+            --text-muted: rgba(255, 255, 255, 0.7);
         }
 
         /* Basic styles for the body */
@@ -49,10 +49,7 @@
             backdrop-filter: blur(40px) saturate(200%) brightness(105%) !important;
             -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(105%) !important;
             border: 1px solid rgba(255, 255, 255, 0.5) !important;
-            box-shadow:
-                0 8px 32px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.6),
-                inset 0 -1px 0 rgba(255, 255, 255, 0.2) !important;
+            box-shadow: none !important;
             overflow: hidden;
         }
 
@@ -143,19 +140,16 @@
         .navigation {
             position: relative;
             height: 70px;
-            background: rgba(45, 45, 45, 0.6) !important;
-            backdrop-filter: blur(40px) saturate(180%) brightness(1.1) !important;
-            -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.1) !important;
+            background: rgba(50, 50, 55, 0.85) !important;
+            backdrop-filter: blur(40px) saturate(150%) !important;
+            -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
             border: 1px solid rgba(255, 255, 255, 0.2) !important;
             border-radius: 35px;
             display: flex;
             justify-content: flex-start;
             align-items: center;
             padding: 0 10px;
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                inset 0 -1px 0 rgba(255, 255, 255, 0.05) !important;
+            box-shadow: none !important;
             user-select: none;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             width: auto;
@@ -191,9 +185,9 @@
         }
 
         .navigation:hover {
-            background: rgba(50, 50, 50, 0.7) !important;
+            background: rgba(60, 60, 65, 0.9) !important;
             border-color: rgba(255, 255, 255, 0.25) !important;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5) !important;
+            box-shadow: none !important;
         }
 
         /* Drag handle - inline button in navigation */
@@ -317,22 +311,19 @@
 
         .window {
             position: relative;
-            background: rgba(45, 45, 45, 0.6) !important;
-            backdrop-filter: blur(40px) saturate(180%) brightness(1.1) !important;
-            -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.1) !important;
+            background: rgba(50, 50, 55, 0.85) !important;
+            backdrop-filter: blur(40px) saturate(150%) !important;
+            -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
             border: 1px solid rgba(255, 255, 255, 0.2) !important;
             border-radius: 20px;
             padding: 8px;
             display: none;
-            color: rgba(255, 255, 255, 0.95);
+            color: rgba(255, 255, 255, 1);
             max-height: calc(100vh - 140px);
             overflow-y: auto;
             scrollbar-width: none;
             box-sizing: border-box;
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                inset 0 -1px 0 rgba(255, 255, 255, 0.05) !important;
+            box-shadow: none !important;
         }
 
         .window::before {
@@ -407,52 +398,51 @@
         /* Typing indicator container - enhanced with status text */
         .typing-indicator-container {
             display: flex;
+            flex-direction: row;
             align-items: center;
-            margin: 10px 0;
-            align-self: flex-start;
-            padding: 0;
-            gap: 12px;
+            margin: 8px 0;
+            padding: 4px 0;
+            gap: 10px;
         }
 
         /* Typing indicator styles - Red logo with circular spinner */
         .typing-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
             position: relative;
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             flex-shrink: 0;
         }
 
         .typing-logo {
-            width: 28px;
-            height: 28px;
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             z-index: 2;
         }
 
         .typing-logo svg {
-            width: 100%;
-            height: 100%;
+            width: 18px;
+            height: 18px;
         }
 
         .typing-spinner {
             position: absolute;
             top: 0;
             left: 0;
-            width: 40px;
-            height: 40px;
-            border: 3px solid transparent;
+            width: 32px;
+            height: 32px;
+            border: 2px solid transparent;
             border-top-color: #ef4444;
             border-right-color: #ef4444;
             border-radius: 50%;
             animation: spinLoader 0.8s linear infinite;
             z-index: 1;
+            box-sizing: border-box;
         }
 
         @keyframes spinLoader {
@@ -465,20 +455,18 @@
             }
         }
 
-        /* Thinking status text - inline layout */
+        /* Thinking status text - clean minimal layout */
         .thinking-status {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 6px;
         }
 
         .thinking-text {
             font-size: 14px;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.8);
-            display: flex;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.85);
+            display: inline-flex;
             align-items: center;
-            gap: 1px;
         }
 
         .thinking-text-word {
@@ -498,106 +486,67 @@
             }
         }
 
-        .thinking-dots {
+        /* Hide dots, separator, and hint for cleaner look */
+        .thinking-dots,
+        .thinking-separator,
+        .thinking-hint {
+            display: none;
+        }
+
+        /* Screen capture indicator - uses same thinking animation styles */
+
+        /* Screen capture response badge */
+        .screen-capture-context-badge {
             display: inline-flex;
             align-items: center;
-            gap: 3px;
-            margin-left: 2px;
+            gap: 5px;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.06));
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(239, 68, 68, 0.9);
+            margin-bottom: 10px;
+            animation: badgeFadeIn 0.3s ease-out;
         }
 
-        .thinking-dot {
-            width: 3px;
-            height: 3px;
-            background: #ef4444;
-            border-radius: 50%;
-            animation: thinkingDotPulse 1.4s ease-in-out infinite;
-        }
-
-        .thinking-dot:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        .thinking-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .thinking-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes thinkingDotPulse {
-            0%, 60%, 100% {
-                opacity: 0.3;
-                transform: scale(1);
-            }
-            30% {
-                opacity: 1;
-                transform: scale(1.3);
-            }
-        }
-
-        .thinking-separator {
-            width: 1px;
+        .screen-capture-context-badge svg {
+            width: 12px;
             height: 12px;
-            background: rgba(255, 255, 255, 0.15);
-            margin: 0 4px;
+            opacity: 0.9;
         }
 
-        .thinking-hint {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.4);
-            animation: thinkingHintFade 0.5s ease-out 0.2s forwards;
-            opacity: 0;
-        }
-
-        @keyframes thinkingHintFade {
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* Screen capture indicator styles */
-        .capture-indicator {
-            display: flex;
+        /* Transcription attached tag for user messages */
+        .transcription-attached-tag {
+            display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 2px 0;
+            gap: 5px;
+            padding: 3px 8px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+            color: rgba(239, 68, 68, 0.85);
+            margin-bottom: 6px;
+            animation: badgeFadeIn 0.3s ease-out;
         }
 
-        .capture-square {
+        .transcription-attached-tag svg {
             width: 10px;
             height: 10px;
-            border: 2px solid #ef4444;
-            background-color: transparent;
-            animation: captureExpand 1.5s infinite ease-in-out;
+            opacity: 0.9;
         }
 
-        .capture-square:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        .capture-square:nth-child(2) {
-            animation-delay: 0.3s;
-        }
-
-        .capture-square:nth-child(3) {
-            animation-delay: 0.6s;
-        }
-
-        @keyframes captureExpand {
-
-            0%,
-            60%,
-            100% {
-                transform: scale(1) rotate(0deg);
-                opacity: 0.4;
-                border-color: #ef4444;
+        @keyframes badgeFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
             }
-
-            30% {
-                transform: scale(1.3) rotate(90deg);
+            to {
                 opacity: 1;
-                border-color: #f87171;
+                transform: translateY(0);
             }
         }
 
@@ -847,10 +796,10 @@
         }
 
         .transcription-modal-content {
-            background: rgba(30, 30, 30, 0.98);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(50, 50, 55, 0.92);
+            backdrop-filter: blur(40px) saturate(150%);
+            -webkit-backdrop-filter: blur(40px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
             width: 90%;
             max-width: 480px;
@@ -858,7 +807,7 @@
             display: flex;
             flex-direction: column;
             animation: slideInUp 0.25s ease;
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+            box-shadow: none;
             pointer-events: auto;
         }
 
@@ -879,7 +828,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 14px 18px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .transcription-modal-content .modal-header h3 {
@@ -1266,9 +1215,9 @@
         }
 
         .user-message {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 1);
             align-self: flex-end;
             border-bottom-right-radius: 4px;
             padding: 12px 16px;
@@ -1295,7 +1244,130 @@
         }
 
         .ai-message .text-content {
-            padding: 10px 0;
+            padding: 6px 0;
+            line-height: 1.5;
+        }
+        
+        .ai-message .text-content br {
+            display: block;
+            content: "";
+            margin: 4px 0;
+        }
+
+        /* Markdown Rendering Styles - Compact */
+        .md-h1 {
+            font-size: 1.4em;
+            font-weight: 700;
+            margin: 8px 0 4px 0;
+            color: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 4px;
+        }
+
+        .md-h2 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin: 6px 0 3px 0;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .md-h3 {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin: 4px 0 2px 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .md-hr {
+            border: none;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.15);
+            margin: 8px 0;
+        }
+
+        .md-link {
+            color: #ef4444;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(239, 68, 68, 0.3);
+            transition: all 0.2s;
+        }
+
+        .md-link:hover {
+            color: #f87171;
+            border-bottom-color: rgba(239, 68, 68, 0.6);
+        }
+
+        .md-list {
+            margin: 2px 0;
+            padding-left: 20px;
+            list-style-position: outside;
+        }
+
+        .md-list li {
+            margin: 2px 0;
+            line-height: 1.4;
+        }
+
+        ol.md-list {
+            list-style-type: decimal;
+        }
+
+        ul.md-list {
+            list-style-type: disc;
+        }
+
+        .md-list li.md-indent-1 {
+            margin-left: 12px;
+        }
+
+        .md-list li.md-indent-2 {
+            margin-left: 24px;
+        }
+
+        .md-list li.md-indent-3 {
+            margin-left: 36px;
+        }
+
+        .md-list li.md-indent-4 {
+            margin-left: 48px;
+        }
+
+        .md-indent {
+            margin-left: 20px;
+            padding: 1px 0;
+        }
+
+        .md-indent-sm {
+            margin-left: 12px;
+            padding: 1px 0;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin: 6px 0;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .code-block code {
+            background: none;
+            padding: 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .inline-code {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 0.9em;
+            color: #f87171;
         }
 
         /* 🆕 MCP TOOL USAGE INDICATORS */
@@ -1598,13 +1670,13 @@
             width: 500px;
             max-width: 90vw;
             height: 320px;
-            background: rgba(25, 25, 25, 0.98);
-            backdrop-filter: blur(30px) saturate(180%);
-            -webkit-backdrop-filter: blur(30px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(50, 50, 55, 0.92);
+            backdrop-filter: blur(40px) saturate(150%);
+            -webkit-backdrop-filter: blur(40px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-bottom: none;
             border-radius: 16px 16px 0 0;
-            box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6);
+            box-shadow: none;
             overflow: hidden;
             pointer-events: none;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -1630,12 +1702,12 @@
             padding: 14px 16px 12px;
             font-size: 12px;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.8);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
             letter-spacing: 0.5px;
             text-transform: uppercase;
             flex-shrink: 0;
-            background: rgba(35, 35, 35, 0.8);
+            background: rgba(40, 40, 45, 0.6);
         }
         
         /* Hide the default content when showing history */
@@ -2645,7 +2717,7 @@
             background: linear-gradient(135deg, rgba(74, 74, 74, 0.6), rgba(58, 58, 58, 0.8));
             border-color: rgba(239, 68, 68, 0.3);
             transform: translateX(4px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: none;
         }
 
         .workflow-item-content {
@@ -3128,7 +3200,7 @@
             max-height: 90vh;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: none;
             overflow-y: auto;
         }
 
@@ -3380,7 +3452,7 @@
             border-radius: 50%;
             display: inline-block;
             position: relative;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+            box-shadow: none;
         }
 
         .status-indicator.active {
@@ -3831,7 +3903,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 16px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             flex-shrink: 0;
         }
 
@@ -3935,8 +4007,8 @@
         }
 
         .subscription-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             padding: 12px 14px;
         }
@@ -4119,7 +4191,7 @@
             width: 90%;
             max-width: 380px;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            box-shadow: none;
             transform: scale(0.95) translateY(-10px);
             transition: transform 0.2s ease;
         }
@@ -4409,32 +4481,44 @@
                 showTranscriptionAttachmentBadge();
             });
 
-            // Show transcription attachment badge
+            // Show transcription attachment card
             function showTranscriptionAttachmentBadge() {
-                const badge = document.getElementById('transcription-attachment-badge');
-                const wordCount = document.getElementById('attachment-word-count');
+                const card = document.getElementById('transcription-attachment-card');
+                const titleEl = document.getElementById('attachment-card-title');
+                const wordsEl = document.getElementById('attachment-card-words');
 
-                if (badge && transcriptionAttachment) {
-                    badge.classList.remove('hidden');
-                    if (wordCount) {
-                        wordCount.textContent = `${transcriptionAttachment.wordCount} words`;
+                if (card && transcriptionAttachment) {
+                    card.classList.remove('hidden');
+                    
+                    // Set title - use first line or preview of the transcription
+                    if (titleEl) {
+                        const title = transcriptionAttachment.title || 
+                            (transcriptionAttachment.text ? 
+                                transcriptionAttachment.text.split('\n')[0].substring(0, 50) + 
+                                (transcriptionAttachment.text.length > 50 ? '...' : '') :
+                                'Meeting Transcription');
+                        titleEl.textContent = title;
                     }
-                    console.log('✅ Transcription attachment badge shown');
+                    
+                    if (wordsEl) {
+                        wordsEl.textContent = `${transcriptionAttachment.wordCount || 0} words`;
+                    }
+                    console.log('✅ Transcription attachment card shown');
                 }
             }
 
-            // Hide transcription attachment badge
+            // Hide transcription attachment card
             function hideTranscriptionAttachmentBadge() {
-                const badge = document.getElementById('transcription-attachment-badge');
-                if (badge) {
-                    badge.classList.add('hidden');
+                const card = document.getElementById('transcription-attachment-card');
+                if (card) {
+                    card.classList.add('hidden');
                 }
                 transcriptionAttachment = null;
                 window.chatAttachment = null;
                 console.log('❌ Transcription attachment removed');
             }
 
-            // Setup transcription attachment badge click handlers
+            // Setup transcription attachment card click handlers
             function setupTranscriptionAttachmentHandlers() {
                 const removeBtn = document.getElementById('remove-attachment-btn');
                 if (removeBtn) {
@@ -4444,10 +4528,10 @@
                     });
                 }
 
-                const badge = document.getElementById('transcription-attachment-badge');
-                if (badge) {
-                    badge.addEventListener('click', (e) => {
-                        if (e.target.closest('.remove-attachment-btn')) return;
+                const card = document.getElementById('transcription-attachment-card');
+                if (card) {
+                    card.addEventListener('click', (e) => {
+                        if (e.target.closest('.attachment-card-remove')) return;
                         // Show transcription preview on click
                         if (transcriptionAttachment) {
                             showTranscriptionPreviewModal();
@@ -5077,24 +5161,170 @@
 
             function renderMarkdown(text) {
                 if (!text) return '';
-                return text
+                
+                // Escape HTML first
+                let html = text
                     .replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-                    .replace(/\n/g, '<br />');
+                    .replace(/>/g, '&gt;');
+                
+                // Handle code blocks first (```)
+                html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, (match, lang, code) => {
+                    return `<pre class="code-block"><code>${code.trim()}</code></pre>`;
+                });
+                
+                // Handle inline code (`)
+                html = html.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+                
+                // Handle headers (### Header)
+                html = html.replace(/^### (.+)$/gm, '<h3 class="md-h3">$1</h3>');
+                html = html.replace(/^## (.+)$/gm, '<h2 class="md-h2">$1</h2>');
+                html = html.replace(/^# (.+)$/gm, '<h1 class="md-h1">$1</h1>');
+                
+                // Handle horizontal rules (---)
+                html = html.replace(/^---+$/gm, '<hr class="md-hr">');
+                
+                // Handle links [text](url)
+                html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="md-link">$1</a>');
+                
+                // Handle bold (**text** or __text__)
+                html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+                
+                // Handle italic (*text* or _text_) - but not in the middle of words
+                html = html.replace(/(?<!\w)\*([^*\n]+)\*(?!\w)/g, '<em>$1</em>');
+                html = html.replace(/(?<!\w)_([^_\n]+)_(?!\w)/g, '<em>$1</em>');
+                
+                // Process lines for lists and paragraphs
+                const lines = html.split('\n');
+                let result = [];
+                let inList = false;
+                let listType = null;
+                let lastWasEmpty = false;
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    
+                    // Check for numbered list (1. item, 2. item, etc.)
+                    const numberedMatch = line.match(/^(\d+)\.\s+(.+)$/);
+                    // Check for bullet list (* item or - item)
+                    const bulletMatch = line.match(/^[\*\-]\s+(.+)$/);
+                    // Check for indented bullet list (    * item or    - item)
+                    const indentedBulletMatch = line.match(/^(\s{2,})[\*\-]\s+(.+)$/);
+                    
+                    if (numberedMatch) {
+                        lastWasEmpty = false;
+                        if (listType !== 'ol') {
+                            if (inList) {
+                                result.push(listType === 'ul' ? '</ul>' : '</ol>');
+                            }
+                            result.push('<ol class="md-list">');
+                            listType = 'ol';
+                            inList = true;
+                        }
+                        result.push(`<li>${numberedMatch[2]}</li>`);
+                    } else if (bulletMatch) {
+                        lastWasEmpty = false;
+                        if (listType !== 'ul') {
+                            if (inList) {
+                                result.push(listType === 'ol' ? '</ol>' : '</ul>');
+                            }
+                            result.push('<ul class="md-list">');
+                            listType = 'ul';
+                            inList = true;
+                        }
+                        result.push(`<li>${bulletMatch[1]}</li>`);
+                    } else if (indentedBulletMatch) {
+                        lastWasEmpty = false;
+                        const indent = indentedBulletMatch[1].length;
+                        const content = indentedBulletMatch[2];
+                        if (!inList) {
+                            result.push('<ul class="md-list">');
+                            listType = 'ul';
+                            inList = true;
+                        }
+                        result.push(`<li class="md-indent-${Math.min(Math.floor(indent / 2), 4)}">${content}</li>`);
+                    } else {
+                        // Close any open list
+                        if (inList && line.trim() !== '') {
+                            result.push(listType === 'ol' ? '</ol>' : '</ul>');
+                            inList = false;
+                            listType = null;
+                        }
+                        
+                        // Handle empty lines - collapse multiple into one small break
+                        if (line.trim() === '') {
+                            if (!inList && !lastWasEmpty) {
+                                result.push('<br>');
+                                lastWasEmpty = true;
+                            }
+                            // Skip additional empty lines
+                        } else if (line.startsWith('<h') || line.startsWith('<hr') || line.startsWith('<pre')) {
+                            lastWasEmpty = false;
+                            result.push(line);
+                        } else {
+                            lastWasEmpty = false;
+                            // Check for indented content
+                            const indentMatch = line.match(/^(\s{4,})(.+)$/);
+                            if (indentMatch) {
+                                result.push(`<span class="md-indent">${indentMatch[2]}</span>`);
+                            } else {
+                                result.push(line);
+                            }
+                        }
+                    }
+                }
+                
+                // Close any remaining open list
+                if (inList) {
+                    result.push(listType === 'ol' ? '</ol>' : '</ul>');
+                }
+                
+                return result.join('');
             }
 
             function addMessage(text, type, useTypewriter = false, options = {}) {
                 const showScreenCaptureIcon = options.showScreenCaptureIcon || false;
+                const isScreenCapture = options.isScreenCapture || false;
                 const toolsUsed = options.toolsUsed || [];
+                const hasTranscription = options.hasTranscription || false;
+                const transcriptionWords = options.transcriptionWords || 0;
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', `${type}-message`);
 
                 // Create content wrapper for all messages
                 const contentWrapper = document.createElement('div');
                 contentWrapper.style.flex = '1';
+
+                // Add transcription attached tag for user messages
+                if (type === 'user' && hasTranscription) {
+                    const transcriptionTag = document.createElement('div');
+                    transcriptionTag.classList.add('transcription-attached-tag');
+                    transcriptionTag.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                        <span>Transcription${transcriptionWords ? ` • ${transcriptionWords} words` : ''}</span>
+                    `;
+                    contentWrapper.appendChild(transcriptionTag);
+                }
+
+                // Add screen capture context badge for vision responses
+                if (type === 'ai' && isScreenCapture) {
+                    const contextBadge = document.createElement('div');
+                    contextBadge.classList.add('screen-capture-context-badge');
+                    contextBadge.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                        <span>Screen Analysis</span>
+                    `;
+                    contentWrapper.appendChild(contextBadge);
+                }
 
                 // Add red icon for AI messages
                 if (type === 'ai') {
@@ -5441,22 +5671,93 @@
 
             function addCaptureIndicator() {
                 const messageElement = document.createElement('div');
-                messageElement.classList.add('message', 'ai-message');
+                messageElement.classList.add('typing-indicator-container');
 
-                const captureIndicator = document.createElement('div');
-                captureIndicator.classList.add('capture-indicator');
+                const typingIndicator = document.createElement('div');
+                typingIndicator.classList.add('typing-indicator');
 
-                for (let i = 0; i < 3; i++) {
-                    const square = document.createElement('div');
-                    square.classList.add('capture-square');
-                    captureIndicator.appendChild(square);
-                }
+                // Create red logo (same as thinking animation)
+                const logoElement = document.createElement('div');
+                logoElement.classList.add('typing-logo');
+                logoElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 375 374.999991" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="clip1"><path d="M 45.136719 88 L 330 88 L 330 307 L 45.136719 307 Z M 45.136719 88 " clip-rule="nonzero"/></clipPath><clipPath id="clip2"><path d="M 45.136719 68 L 330 68 L 330 286.890625 L 45.136719 286.890625 Z M 45.136719 68 " clip-rule="nonzero"/></clipPath></defs><g clip-path="url(#clip1)"><path fill="#921e1e" d="M 193.53125 97.371094 L 193.53125 124.734375 C 193.53125 129.769531 197.617188 133.855469 202.652344 133.855469 L 226.242188 133.855469 L 261.578125 169.183594 C 261.570312 169.421875 261.507812 169.660156 261.507812 169.894531 L 261.507812 210.941406 C 261.507812 211.1875 261.5625 211.417969 261.578125 211.652344 L 234.570312 238.664062 C 234.332031 238.652344 234.105469 238.589844 233.859375 238.589844 L 192.8125 238.589844 C 192.566406 238.589844 192.335938 238.644531 192.101562 238.664062 L 178.453125 225.015625 C 178.855469 223.519531 179.128906 221.96875 179.128906 220.347656 L 179.128906 165.617188 C 179.128906 155.539062 170.964844 147.375 160.886719 147.375 L 106.15625 147.375 C 96.078125 147.375 87.914062 155.539062 87.914062 165.617188 L 87.914062 220.347656 C 87.914062 221.96875 88.195312 223.519531 88.589844 225.015625 L 77.890625 235.714844 L 54.300781 235.714844 C 49.265625 235.714844 45.179688 239.804688 45.179688 244.839844 L 45.179688 272.203125 C 45.179688 277.238281 49.265625 281.324219 54.300781 281.324219 L 81.664062 281.324219 C 86.699219 281.324219 90.785156 277.238281 90.785156 272.203125 L 90.785156 248.625 L 101.496094 237.914062 C 102.992188 238.316406 104.535156 238.589844 106.15625 238.589844 L 160.886719 238.589844 C 162.511719 238.589844 164.050781 238.308594 165.546875 237.914062 L 179.195312 251.5625 C 179.183594 251.796875 179.121094 252.027344 179.121094 252.273438 L 179.121094 293.320312 C 179.121094 300.871094 185.25 307 192.804688 307 L 233.851562 307 C 241.402344 307 247.53125 300.871094 247.53125 293.320312 L 247.53125 252.273438 C 247.53125 252.027344 247.476562 251.796875 247.460938 251.5625 L 274.46875 224.550781 C 274.707031 224.5625 274.933594 224.625 275.179688 224.625 L 316.226562 224.625 C 323.78125 224.625 329.910156 218.496094 329.910156 210.941406 L 329.910156 169.894531 C 329.910156 162.34375 323.78125 156.214844 316.226562 156.214844 L 275.179688 156.214844 C 274.933594 156.214844 274.707031 156.269531 274.46875 156.285156 L 239.132812 120.957031 L 239.132812 97.371094 C 239.132812 92.335938 235.046875 88.25 230.011719 88.25 L 202.644531 88.25 C 197.609375 88.25 193.523438 92.335938 193.523438 97.371094 Z M 193.53125 97.371094 " fill-opacity="1" fill-rule="nonzero"/></g><g clip-path="url(#clip2)"><path fill="#ed3030" d="M 193.53125 77.257812 L 193.53125 104.621094 C 193.53125 109.65625 197.617188 113.746094 202.652344 113.746094 L 226.242188 113.746094 L 261.578125 149.070312 C 261.570312 149.308594 261.507812 149.546875 261.507812 149.785156 L 261.507812 190.832031 C 261.507812 191.078125 261.5625 191.304688 261.578125 191.542969 L 234.570312 218.550781 C 234.332031 218.542969 234.105469 218.476562 233.859375 218.476562 L 192.8125 218.476562 C 192.566406 218.476562 192.335938 218.53125 192.101562 218.550781 L 178.453125 204.90625 C 178.855469 203.410156 179.128906 201.859375 179.128906 200.234375 L 179.128906 145.503906 C 179.128906 135.425781 170.964844 127.261719 160.886719 127.261719 L 106.15625 127.261719 C 96.078125 127.261719 87.914062 135.425781 87.914062 145.503906 L 87.914062 200.234375 C 87.914062 201.859375 88.195312 203.410156 88.589844 204.90625 L 77.890625 215.605469 L 54.300781 215.605469 C 49.265625 215.605469 45.179688 219.691406 45.179688 224.726562 L 45.179688 252.089844 C 45.179688 257.125 49.265625 261.210938 54.300781 261.210938 L 81.664062 261.210938 C 86.699219 261.210938 90.785156 257.125 90.785156 252.089844 L 90.785156 228.511719 L 101.496094 217.804688 C 102.992188 218.203125 104.535156 218.476562 106.15625 218.476562 L 160.886719 218.476562 C 162.511719 218.476562 164.050781 218.195312 165.546875 217.804688 L 179.195312 231.449219 C 179.183594 231.6875 179.121094 231.914062 179.121094 232.160156 L 179.121094 273.207031 C 179.121094 280.761719 185.25 286.890625 192.804688 286.890625 L 233.851562 286.890625 C 241.402344 286.890625 247.53125 280.761719 247.53125 273.207031 L 247.53125 232.160156 C 247.53125 231.914062 247.476562 231.6875 247.460938 231.449219 L 274.46875 204.441406 C 274.707031 204.449219 274.933594 204.511719 275.179688 204.511719 L 316.226562 204.511719 C 323.78125 204.511719 329.910156 198.382812 329.910156 190.832031 L 329.910156 149.785156 C 329.910156 142.230469 323.78125 136.101562 316.226562 136.101562 L 275.179688 136.101562 C 274.933594 136.101562 274.707031 136.15625 274.46875 136.175781 L 239.132812 100.847656 L 239.132812 77.257812 C 239.132812 72.222656 235.046875 68.136719 230.011719 68.136719 L 202.644531 68.136719 C 197.609375 68.136719 193.523438 72.222656 193.523438 77.257812 Z M 193.53125 77.257812 " fill-opacity="1" fill-rule="nonzero"/></g></svg>`;
 
-                messageElement.appendChild(captureIndicator);
+                // Create circular spinner (same as thinking animation)
+                const spinnerElement = document.createElement('div');
+                spinnerElement.classList.add('typing-spinner');
+
+                typingIndicator.appendChild(logoElement);
+                typingIndicator.appendChild(spinnerElement);
+                messageElement.appendChild(typingIndicator);
+
+                // Create thinking status text - inline layout (same structure as thinking animation)
+                const thinkingStatus = document.createElement('div');
+                thinkingStatus.classList.add('thinking-status');
+
+                const thinkingText = document.createElement('div');
+                thinkingText.classList.add('thinking-text');
+
+                const thinkingWord = document.createElement('span');
+                thinkingWord.classList.add('thinking-text-word');
+                thinkingWord.textContent = 'Capturing';
+
+                const thinkingDots = document.createElement('span');
+                thinkingDots.classList.add('thinking-dots');
+                thinkingDots.innerHTML = '<span class="thinking-dot"></span><span class="thinking-dot"></span><span class="thinking-dot"></span>';
+
+                thinkingText.appendChild(thinkingWord);
+                thinkingText.appendChild(thinkingDots);
+
+                const separator = document.createElement('span');
+                separator.classList.add('thinking-separator');
+
+                const thinkingHint = document.createElement('span');
+                thinkingHint.classList.add('thinking-hint');
+                thinkingHint.textContent = 'Taking screenshot';
+
+                thinkingStatus.appendChild(thinkingText);
+                thinkingStatus.appendChild(separator);
+                thinkingStatus.appendChild(thinkingHint);
+                messageElement.appendChild(thinkingStatus);
+
                 conversationView.appendChild(messageElement);
                 conversationView.scrollTop = conversationView.scrollHeight;
 
+                // Cycle through capture states (same timing as thinking animation - 2500ms)
+                const captureStates = [
+                    { text: 'Capturing', hint: 'Taking screenshot' },
+                    { text: 'Analyzing', hint: 'Processing image' },
+                    { text: 'Thinking', hint: 'Understanding context' },
+                    { text: 'Generating', hint: 'Crafting response' }
+                ];
+                let stateIndex = 0;
+
+                // Change state every 2500ms to match thinking animation
+                messageElement.captureInterval = setInterval(() => {
+                    stateIndex = (stateIndex + 1) % captureStates.length;
+                    const state = captureStates[stateIndex];
+                    
+                    // Animate text change (same as thinking animation)
+                    thinkingWord.style.opacity = '0';
+                    thinkingWord.style.transform = 'translateY(-4px)';
+                    
+                    setTimeout(() => {
+                        thinkingWord.textContent = state.text;
+                        thinkingHint.textContent = state.hint;
+                        thinkingWord.style.opacity = '1';
+                        thinkingWord.style.transform = 'translateY(0)';
+                    }, 200);
+                }, 2500);
+
                 return messageElement;
+            }
+
+            function removeCaptureIndicator(indicatorElement) {
+                if (indicatorElement) {
+                    if (indicatorElement.captureInterval) {
+                        clearInterval(indicatorElement.captureInterval);
+                    }
+                    indicatorElement.remove();
+                }
             }
 
             function getConversationHistory() {
@@ -5581,8 +5882,15 @@
                 if (text === '') return;
 
                 const isCaptureActive = currentCapturedScreenshot !== null;
+                
+                // Track if transcription was attached for this message
+                const hasTranscriptionAttached = transcriptionAttachment !== null;
+                const transcriptionWordCount = transcriptionAttachment?.wordCount || 0;
 
-                addMessage(text, 'user', isCaptureActive, false);
+                addMessage(text, 'user', isCaptureActive, { 
+                    hasTranscription: hasTranscriptionAttached,
+                    transcriptionWords: transcriptionWordCount
+                });
                 chatInput.value = '';
                 chatInput.placeholder = 'Message RED AI...';
 
@@ -5641,6 +5949,12 @@
                             console.log('📎 Including transcription context in message');
                             messageToSend = `[ATTACHED TRANSCRIPTION - Use this as context when answering]\n${transcriptionAttachment.content}\n[END TRANSCRIPTION]\n\nUser Question: ${text}`;
                         }
+                        
+                        // Clear transcription attachment after using it
+                        if (hasTranscriptionAttached) {
+                            hideTranscriptionAttachmentBadge();
+                            console.log('✅ Transcription detached after sending');
+                        }
 
                         // Get conversation history for context (last 10 messages)
                         const history = getConversationHistory();
@@ -5681,7 +5995,7 @@
                         if (!screenshot) {
                             console.log('⚠️ No captured screenshot available, capturing now...');
                             const captureStart = performance.now();
-                            screenshot = await window.electronAPI.captureScreenshot('high');
+                            screenshot = await window.electronAPI.captureScreenshot('medium');
                             console.log(`📸 Screenshot captured in ${(performance.now() - captureStart).toFixed(0)}ms`);
                         }
 
@@ -5692,21 +6006,12 @@
                         const totalTime = performance.now() - apiStart;
                         console.log(`🤖 Total response time: ${totalTime.toFixed(0)}ms`);
 
-                        removeTypingIndicator(loadingMessage);
+                        // Remove the capture indicator (uses same structure as typing indicator)
+                        removeCaptureIndicator(loadingMessage);
 
                         if (res?.success) {
-                            const messageElement = document.createElement('div');
-                            messageElement.classList.add('message', 'ai-message');
-
-                            const iconElement = document.createElement('span');
-                            iconElement.classList.add('capture-success-icon');
-                            iconElement.innerHTML = `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="m1.75 9.75 2.5 2.5m3.5-4 2.5-2.5m-4.5 4 2.5 2.5 6-6.5"/></svg>`;
-
-                            messageElement.appendChild(iconElement);
-                            conversationView.appendChild(messageElement);
-                            conversationView.scrollTop = conversationView.scrollHeight;
-
-                            addMessage(res.result || '', 'ai', true, { showScreenCaptureIcon: true });
+                            // Add the response with screen capture context badge
+                            addMessage(res.result || '', 'ai', true, { showScreenCaptureIcon: true, isScreenCapture: true });
                         } else if (res?.rateLimited) {
                             const limitMessage = res?.error || 'Daily message limit reached';
                             addMessage(`⏱️ **Limit Reached**\n\n${limitMessage}\n\nYour limit resets at midnight. Upgrade your plan for unlimited messages.`, 'ai', false, false);
@@ -5725,8 +6030,13 @@
 
                 } catch (error) {
                     console.error('Error getting Gemini Live response:', error);
-                    removeTypingIndicator(loadingMessage);
-                    addMessage("Sorry, I encountered an error with Gemini Live. Please try again.", 'ai', true);
+                    // Remove indicator properly based on type
+                    if (isCaptureActive) {
+                        removeCaptureIndicator(loadingMessage);
+                    } else {
+                        removeTypingIndicator(loadingMessage);
+                    }
+                    addMessage("Sorry, I encountered an error. Please try again.", 'ai', true);
                 }
             }
 
