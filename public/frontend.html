@@ -1554,78 +1554,12 @@
             line-height: 1.6;
         }
 
-        #chat-window .chat-input-area {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            position: relative;
-            padding: 8px 16px;
-            width: 100%;
-            box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px) saturate(150%) brightness(110%);
-            -webkit-backdrop-filter: blur(10px) saturate(150%) brightness(110%);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-        }
-
-        /* When dropdown is active, modify the window appearance for seamless extension */
-        #chat-window.dropdown-active {
-            border-radius: 20px;
-            transition: border-radius 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        #chat-window.dropdown-active .chat-input-area {
-            border-radius: 24px;
-        }
-
-        /* Smooth transition for window border radius when dropdown closes */
-        #chat-window {
-            transition: border-radius 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        #chat-window input,
-        #chat-window textarea {
-            flex-grow: 1;
-            background: transparent;
-            border: none;
-            padding: 0 12px;
-            color: #fff;
-            font-size: 15px;
-            line-height: 40px;
-            height: 40px;
-            outline: none;
-            resize: none;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        #chat-window input::placeholder,
-        #chat-window textarea::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
+        /* Chat window input styling moved to chat-window.html */
         
         #chat-window input:disabled,
         #chat-window textarea:disabled {
-            text-align: center;
             cursor: not-allowed;
-        }
-        
-        #chat-window input:disabled::placeholder,
-        #chat-window textarea:disabled::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-            text-align: center;
-        }
-
-        #chat-window .chat-input-area:focus-within {
-            border-color: rgba(239, 68, 68, 0.6);
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(15px) saturate(180%) brightness(115%);
-            -webkit-backdrop-filter: blur(15px) saturate(180%) brightness(115%);
-            box-shadow:
-                0 0 0 3px rgba(239, 68, 68, 0.15),
-                0 4px 12px rgba(0, 0, 0, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            opacity: 0.6;
         }
 
         /* Premium Send Button with Icon */
@@ -6764,7 +6698,7 @@
             // Close dropdown and extended options when clicking outside
             document.addEventListener('click', (e) => {
                 const extendedOptions = document.getElementById('extended-options');
-                const chatInputArea = document.querySelector('.chat-input-area');
+                const chatInputArea = document.getElementById('chat-input-area') || document.querySelector('.input-card');
 
                 // Close dropdown - with null checks
                 if (chatDropdown && menuBtn && quickActionButtons &&

@@ -1,4 +1,52 @@
 <div id="chat-window" class="window visible" style="display: flex;">
+    <!-- Top Navigation Bar -->
+    <div class="unified-nav-bar">
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-view="chat">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span>Chat</span>
+            </button>
+            <button class="nav-tab" data-view="workflows">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                <span>Workflows</span>
+            </button>
+            <button class="nav-tab" data-view="transcribe">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                    <line x1="12" y1="19" x2="12" y2="23"/>
+                    <line x1="8" y1="23" x2="16" y2="23"/>
+                </svg>
+                <span>Transcribe</span>
+            </button>
+            <button class="nav-tab" data-view="settings">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span>Settings</span>
+            </button>
+        </div>
+        <div class="nav-actions">
+            <button id="chat-history-btn" class="nav-action-btn" title="History">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+            </button>
+            <button id="chat-clear-btn" class="nav-action-btn" title="New Chat">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
     <!-- Conversation Area -->
     <div class="conversation-view"></div>
 
@@ -8,19 +56,30 @@
         <div id="message-box" class="message-feedback-box hidden"></div>
 
         <!-- Main Input Card -->
-        <div class="input-card">
-            <!-- Search/Command Icon -->
-            <div class="input-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                </svg>
+        <div class="input-card" id="chat-input-area">
+            <!-- Action Buttons (left side) -->
+            <div class="input-actions-left">
+                <button id="capture-btn" class="input-action-btn" title="Capture Screen (⌘+Shift+S)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                </button>
+                <button id="voice-mode-btn" class="input-action-btn" title="Voice Mode (⌘+M)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                        <line x1="12" y1="19" x2="12" y2="23"/>
+                        <line x1="8" y1="23" x2="16" y2="23"/>
+                    </svg>
+                </button>
             </div>
 
             <!-- Text Input -->
-            <textarea id="chat-input" rows="1" placeholder="Ask anything..." class="minimal-input"></textarea>
+            <textarea id="chat-input" rows="1" placeholder="Ask anything... (/ for commands)" class="minimal-input"></textarea>
 
-            <!-- Inline Attachment Indicator (shows icon in input when attached) -->
+            <!-- Inline Attachment Indicator -->
             <div id="inline-attachment-indicator" class="inline-attachment hidden">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <rect x="2" y="3" width="20" height="14" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/>
@@ -29,11 +88,20 @@
                 </svg>
             </div>
 
+            <!-- Screen Capture Active Badge -->
+            <div id="capture-active-badge" class="capture-badge hidden">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                </svg>
+                <span>Screen</span>
+                <button id="remove-capture-inline" class="badge-remove" title="Remove">×</button>
+            </div>
+
             <!-- Send Button -->
-            <button id="send-btn" title="Send" class="send-btn">
+            <button id="send-btn" title="Send (Enter)" class="send-btn">
                 <svg id="send-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 2 11 13"></path>
-                    <path d="m22 2-7 20-4-9-9-4 20-7z"></path>
+                    <path d="M22 2 11 13"/>
+                    <path d="m22 2-7 20-4-9-9-4 20-7z"/>
                 </svg>
                 <div id="voice-animation" class="voice-animation-container" style="display: none;">
                     <div class="listening-bar"></div>
@@ -92,60 +160,24 @@
         </div>
     </div>
 
-    <!-- Hidden elements for compatibility -->
+    <!-- Hidden compatibility elements -->
     <div id="voice-active-indicator" class="hidden"></div>
-    <div id="capture-active-badge" class="hidden"></div>
     <div class="capture-preview-container" style="display: none;">
         <img id="capture-preview" alt="Screen capture preview">
         <button id="remove-capture" class="hidden"></button>
-    </div>
-
-    <!-- Quick Actions (floating, appears on focus) -->
-    <div id="quick-actions" class="quick-actions hidden">
-        <button id="capture-btn" class="quick-action-btn" title="Capture Screen">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                <line x1="8" y1="21" x2="16" y2="21"/>
-                <line x1="12" y1="17" x2="12" y2="21"/>
-            </svg>
-            <span>Capture</span>
-        </button>
-        <button id="voice-mode-btn" class="quick-action-btn" title="Voice Mode">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                <line x1="12" y1="19" x2="12" y2="23"/>
-                <line x1="8" y1="23" x2="16" y2="23"/>
-            </svg>
-            <span>Voice</span>
-        </button>
-        <button id="chat-history-btn" class="quick-action-btn" title="History">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-            </svg>
-            <span>History</span>
-        </button>
-        <button id="chat-clear-btn" class="quick-action-btn" title="Clear">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6"/>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-            </svg>
-            <span>Clear</span>
-        </button>
     </div>
 </div>
 
 <style>
     /* ========================================
-       MINIMAL LIGHT THEME - Chat Interface
+       UNIFIED MINIMAL CHAT INTERFACE
        ======================================== */
     
-    /* Base Variables */
     :root {
         --bg-primary: #F8F6F3;
         --bg-card: #FFFFFF;
         --bg-hover: #F0EEEB;
+        --bg-active: #E8E6E3;
         --text-primary: #1A1A1A;
         --text-secondary: #6B6B6B;
         --text-muted: #9CA3AF;
@@ -154,6 +186,8 @@
         --accent-blue-light: #EBF4FF;
         --accent-green: #10B981;
         --accent-green-light: #ECFDF5;
+        --accent-red: #EF4444;
+        --accent-red-light: #FEE2E2;
         --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
         --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
         --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -163,14 +197,93 @@
         --radius-full: 9999px;
     }
 
-    /* Chat Window Container */
     #chat-window {
         background: var(--bg-primary) !important;
         flex-direction: column;
         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+        height: 100%;
     }
 
-    /* Conversation View */
+    /* ========================================
+       TOP NAVIGATION BAR
+       ======================================== */
+    
+    .unified-nav-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: var(--bg-card);
+        border-bottom: 1px solid var(--border-color);
+        flex-shrink: 0;
+    }
+
+    .nav-tabs {
+        display: flex;
+        gap: 4px;
+    }
+
+    .nav-tab {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        background: transparent;
+        border: none;
+        border-radius: var(--radius-md);
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .nav-tab:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+    }
+
+    .nav-tab.active {
+        background: var(--text-primary);
+        color: white;
+    }
+
+    .nav-tab.active svg {
+        stroke: white;
+    }
+
+    .nav-tab svg {
+        flex-shrink: 0;
+    }
+
+    .nav-actions {
+        display: flex;
+        gap: 4px;
+    }
+
+    .nav-action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: transparent;
+        border: none;
+        border-radius: var(--radius-md);
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .nav-action-btn:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+    }
+
+    /* ========================================
+       CONVERSATION VIEW
+       ======================================== */
+    
     .conversation-view {
         flex: 1;
         overflow-y: auto;
@@ -180,21 +293,14 @@
         gap: 16px;
     }
 
-    /* Messages */
     .message {
         max-width: 85%;
         animation: messageSlideIn 0.3s ease-out;
     }
 
     @keyframes messageSlideIn {
-        from {
-            opacity: 0;
-            transform: translateY(8px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .user-message {
@@ -221,22 +327,26 @@
         line-height: 1.6;
     }
 
-    /* Unified Input Container */
+    /* ========================================
+       INPUT CONTAINER
+       ======================================== */
+    
     .unified-input-container {
-        padding: 16px 24px 24px;
+        padding: 16px 20px 20px;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
+        background: var(--bg-primary);
+        border-top: 1px solid var(--border-color);
     }
 
-    /* Main Input Card */
     .input-card {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 8px;
         background: var(--bg-card);
         border-radius: var(--radius-lg);
-        padding: 12px 16px;
+        padding: 8px 12px;
         box-shadow: var(--shadow-md);
         border: 1px solid var(--border-color);
         transition: all 0.2s ease;
@@ -244,24 +354,61 @@
 
     .input-card:focus-within {
         box-shadow: var(--shadow-lg);
-        border-color: #D1D5DB;
+        border-color: var(--accent-blue);
     }
 
-    /* Input Icon */
-    .input-icon {
+    .input-card.voice-active {
+        border-color: var(--accent-red);
+        box-shadow: 0 0 0 3px var(--accent-red-light);
+    }
+
+    /* Input Action Buttons */
+    .input-actions-left {
+        display: flex;
+        gap: 2px;
+    }
+
+    .input-action-btn {
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 34px;
+        height: 34px;
+        background: transparent;
+        border: none;
+        border-radius: var(--radius-md);
         color: var(--text-muted);
-        flex-shrink: 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
     }
 
-    /* Minimal Input */
+    .input-action-btn:hover {
+        background: var(--bg-hover);
+        color: var(--text-secondary);
+    }
+
+    .input-action-btn.active {
+        background: var(--accent-blue-light);
+        color: var(--accent-blue);
+    }
+
+    .input-action-btn.voice-active {
+        background: var(--accent-red-light);
+        color: var(--accent-red);
+        animation: voicePulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes voicePulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    /* Text Input */
     .minimal-input {
         flex: 1;
         border: none;
         background: transparent;
-        font-size: 16px;
+        font-size: 15px;
         color: var(--text-primary);
         outline: none;
         resize: none;
@@ -269,27 +416,47 @@
         max-height: 120px;
         line-height: 1.5;
         font-family: inherit;
+        padding: 5px 0;
     }
 
     .minimal-input::placeholder {
         color: var(--text-muted);
     }
 
-    /* Inline Attachment Indicator */
-    .inline-attachment {
+    /* Inline Attachment & Capture Badge */
+    .inline-attachment,
+    .capture-badge {
         display: flex;
         align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
+        gap: 6px;
+        padding: 4px 10px;
         background: var(--accent-blue-light);
         border-radius: var(--radius-sm);
         color: var(--accent-blue);
+        font-size: 12px;
+        font-weight: 500;
         flex-shrink: 0;
     }
 
-    .inline-attachment.hidden {
+    .inline-attachment.hidden,
+    .capture-badge.hidden {
         display: none;
+    }
+
+    .badge-remove {
+        background: none;
+        border: none;
+        color: var(--accent-blue);
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        padding: 0;
+        margin-left: 2px;
+        opacity: 0.7;
+    }
+
+    .badge-remove:hover {
+        opacity: 1;
     }
 
     /* Send Button */
@@ -297,8 +464,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 40px;
-        height: 40px;
+        width: 38px;
+        height: 38px;
         background: transparent;
         border: none;
         border-radius: var(--radius-full);
@@ -328,7 +495,7 @@
     .voice-animation-container .listening-bar {
         width: 3px;
         height: 12px;
-        background: var(--accent-blue);
+        background: currentColor;
         border-radius: 2px;
         animation: listeningPulse 1.2s ease-in-out infinite;
     }
@@ -342,7 +509,10 @@
         50% { height: 16px; }
     }
 
-    /* Attachments Area */
+    /* ========================================
+       ATTACHMENTS AREA
+       ======================================== */
+    
     .attachments-area {
         display: flex;
         flex-direction: column;
@@ -353,14 +523,13 @@
         display: none;
     }
 
-    /* Attachment Card */
     .attachment-card {
         display: flex;
         align-items: center;
         gap: 12px;
         background: var(--bg-card);
         border-radius: var(--radius-md);
-        padding: 12px 16px;
+        padding: 12px 14px;
         box-shadow: var(--shadow-sm);
         border: 1px solid var(--border-color);
         animation: slideUpFadeIn 0.3s ease-out;
@@ -377,23 +546,16 @@
     }
 
     @keyframes slideUpFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(8px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Attachment Icon */
     .attachment-icon {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 44px;
-        height: 44px;
+        width: 40px;
+        height: 40px;
         border-radius: var(--radius-md);
         flex-shrink: 0;
     }
@@ -408,7 +570,6 @@
         color: var(--accent-green);
     }
 
-    /* Attachment Content */
     .attachment-content {
         flex: 1;
         min-width: 0;
@@ -427,16 +588,11 @@
         display: flex;
         align-items: center;
         gap: 6px;
-        font-size: 13px;
+        font-size: 12px;
         color: var(--text-secondary);
         margin-top: 2px;
     }
 
-    .attachment-meta .meta-separator {
-        color: var(--text-muted);
-    }
-
-    /* Attachment Remove Button */
     .attachment-remove {
         display: flex;
         align-items: center;
@@ -453,113 +609,29 @@
     }
 
     .attachment-remove:hover {
-        background: #FEE2E2;
-        color: #EF4444;
+        background: var(--accent-red-light);
+        color: var(--accent-red);
     }
 
-    /* Quick Actions */
-    .quick-actions {
-        position: absolute;
-        bottom: 100%;
-        left: 24px;
-        right: 24px;
-        display: flex;
-        gap: 8px;
-        padding: 12px;
-        background: var(--bg-card);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-lg);
-        border: 1px solid var(--border-color);
-        margin-bottom: 8px;
-        animation: fadeInUp 0.2s ease-out;
-    }
-
-    .quick-actions.hidden {
-        display: none;
-    }
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(8px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .quick-action-btn {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 16px;
-        background: var(--bg-hover);
-        border: none;
-        border-radius: var(--radius-md);
-        color: var(--text-secondary);
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .quick-action-btn:hover {
-        background: #E5E7EB;
-        color: var(--text-primary);
-    }
-
-    .quick-action-btn svg {
-        color: var(--text-muted);
-    }
-
-    .quick-action-btn:hover svg {
-        color: var(--accent-blue);
-    }
-
-    /* Message Feedback Box */
+    /* ========================================
+       MESSAGE FEEDBACK & MISC
+       ======================================== */
+    
     .message-feedback-box {
         padding: 12px 16px;
         border-radius: var(--radius-md);
         font-size: 14px;
     }
 
-    .message-feedback-box.hidden {
-        display: none;
-    }
-
-    .message-feedback-box.success {
-        background: var(--accent-green-light);
-        color: var(--accent-green);
-    }
-
-    .message-feedback-box.error {
-        background: #FEE2E2;
-        color: #EF4444;
-    }
+    .message-feedback-box.hidden { display: none; }
+    .message-feedback-box.success { background: var(--accent-green-light); color: var(--accent-green); }
+    .message-feedback-box.error { background: var(--accent-red-light); color: var(--accent-red); }
 
     /* Scrollbar */
-    .conversation-view::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .conversation-view::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .conversation-view::-webkit-scrollbar-thumb {
-        background: var(--border-color);
-        border-radius: 3px;
-    }
-
-    .conversation-view::-webkit-scrollbar-thumb:hover {
-        background: var(--text-muted);
-    }
-
-    /* Hidden Elements */
-    .hidden {
-        display: none !important;
-    }
+    .conversation-view::-webkit-scrollbar { width: 6px; }
+    .conversation-view::-webkit-scrollbar-track { background: transparent; }
+    .conversation-view::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+    .conversation-view::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
     /* Typing Indicator */
     .typing-indicator {
@@ -591,8 +663,7 @@
         30% { transform: translateY(-4px); }
     }
 
-    /* Capture Preview (hidden but functional) */
-    .capture-preview-container {
-        display: none;
-    }
+    /* Hidden */
+    .hidden { display: none !important; }
+    .capture-preview-container { display: none; }
 </style>
