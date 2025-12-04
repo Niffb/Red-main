@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en" class="loading">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="RED AI Dashboard - Manage your AI tasks, view analytics, and control your account">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>RED AI - Dashboard</title>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=20241216001">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <style>
+        /* Dashboard-specific styles */
+        .dashboard-container {
+            min-height: 100vh;
+            background: #ffffff;
+            padding-top: 80px;
+        }
+
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            border-radius: 16px;
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 8px 32px rgba(239, 68, 68, 0.15),
+                        0 0 0 1px rgba(239, 68, 68, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent,
+                rgba(239, 68, 68, 0.4) 20%,
+                rgba(239, 68, 68, 0.6) 50%,
+                rgba(239, 68, 68, 0.4) 80%,
+                transparent
+            );
+        }
+
+        .dashboard-header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-secondary);
+            margin: 4px 0 0 0;
+            font-size: 1rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .dashboard-btn {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1.5px solid rgba(239, 68, 68, 0.25);
+            color: var(--text-primary);
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .dashboard-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+            color: var(--text-primary);
+            text-decoration: none;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .dashboard-btn.danger {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #dc2626;
+        }
+
+        .dashboard-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #b91c1c;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 2px solid rgba(239, 68, 68, 0.25);
+            border-radius: 12px;
+            padding: 16px;
+            padding-bottom: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(239, 68, 68, 0.1),
+                        0 0 0 1px rgba(239, 68, 68, 0.05),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, 
+                transparent,
+                rgba(239, 68, 68, 0.3) 20%,
+                rgba(239, 68, 68, 0.5) 50%,
+                rgba(239, 68, 68, 0.3) 80%,
+                transparent
+            );
+        }
+
+        .metric-action {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric-action-btn {
+            width: 100%;
+            padding: 8px 12px;
+            background: transparent;
+            border: 1.5px solid rgba(239, 68, 68, 0.3);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .metric-action-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .metric-action-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(239, 68, 68, 0.4);
+            box-shadow: 0 12px 40px rgba(239, 68, 68, 0.2),
+                        0 0 0 1px rgba(239, 68, 68, 0.15),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .metric-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        .metric-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.25));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-color);
+            backdrop-filter: blur(10px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                        0 2px 8px rgba(239, 68, 68, 0.15);
+        }
+        
+        .metric-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .metric-description {
+            color: var(--text-secondary);
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .metric-progress {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .metric-progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #f87171, #ef4444);
+            border-radius: 4px;
+            transition: width 0.8s ease;
+            position: relative;
+        }
+
+        .metric-progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .metric-percentage {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .usage-chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(239, 68, 68, 0.15),
+                        0 0 0 1px rgba(239, 68, 68, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+        
+        .usage-chart-container::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent,
+                rgba(239, 68, 68, 0.4) 20%,
+                rgba(239, 68, 68, 0.6) 50%,
+                rgba(239, 68, 68, 0.4) 80%,
+                transparent
+            );
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .chart-timeframe {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .timeframe-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .timeframe-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-style: italic;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-placeholder::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 255, 255, 0.03) 10px,
+                rgba(255, 255, 255, 0.03) 20px
+            );
+        }
+
+        .account-info-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .account-info, .billing-info {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(239, 68, 68, 0.15),
+                        0 0 0 1px rgba(239, 68, 68, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .account-info::before, .billing-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, 
+                transparent,
+                rgba(239, 68, 68, 0.3) 20%,
+                rgba(239, 68, 68, 0.5) 50%,
+                rgba(239, 68, 68, 0.3) 80%,
+                transparent
+            );
+        }
+
+        .info-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .info-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--accent-color);
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+        }
+
+        .user-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 4px 0;
+        }
+
+        .user-email {
+            color: var(--text-secondary);
+            margin: 0 0 16px 0;
+        }
+
+        .user-since {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .plan-badge {
+            display: inline-block;
+            background: rgba(248, 113, 113, 0.15);
+            color: #ef4444;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            margin-bottom: 16px;
+        }
+
+        .plan-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 8px 0;
+        }
+
+        .plan-details {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0;
+        }
+
+        .plan-details li {
+            padding: 6px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .plan-details li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+            width: 16px;
+        }
+
+        .next-billing {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 16px;
+        }
+
+        .next-billing-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 4px 0;
+        }
+
+        .next-billing-date {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1280px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding-top: 100px;
+            }
+            
+            .dashboard-header {
+                padding: 20px 24px;
+                margin-bottom: 24px;
+            }
+            
+            .dashboard-header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .dashboard-title {
+                font-size: 1.75rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .metric-card {
+                padding: 16px;
+            }
+            
+            .usage-chart-container,
+            .account-info,
+            .billing-info {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-header {
+                padding: 16px 20px;
+            }
+            
+            .dashboard-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .dashboard-btn {
+                flex: 1;
+                justify-content: center;
+            }
+            
+            .metric-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body class="loading">
+    <!-- Sidebar Navigation -->
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-logo">
+                <img src="images/RED ICON.svg" alt="Red AI Logo" width="24" height="24">
+                <span class="logo-text">Red AI</span>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="/dashboard" class="nav-link active">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"/>
+                            <rect x="14" y="3" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/>
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/payment" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                        <span>Plans & Upgrade</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/settings.html" class="nav-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                        </svg>
+                        <span>Account Information</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-info-card">
+                <div class="user-info-avatar" id="sidebar-user-avatar">JD</div>
+                <div class="user-info-name" id="sidebar-user-name">Loading...</div>
+                <div class="user-info-email" id="sidebar-user-email">Loading...</div>
+            </div>
+            <button class="logout-btn" id="logoutBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Dashboard Main Content -->
+    <main class="dashboard-main">
+        <div class="dashboard-content">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header" data-aos="fade-up">
+                <div class="dashboard-header-content">
+                    <div>
+                        <h1 class="dashboard-title">Welcome back, <span id="user-name-header">Loading...</span></h1>
+                        <p class="dashboard-subtitle">Here's what's happening with your RED AI account today</p>
+                    </div>
+                    </div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="metric-header">
+                        <h3 class="metric-title">Current Plan</h3>
+                        <div class="metric-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="metric-value" id="current-plan">Loading...</div>
+                    <p class="metric-description">subscription plan</p>
+                    <div class="metric-progress">
+                        <div class="metric-progress-bar" id="plan-progress" style="width: 100%"></div>
+                    </div>
+                    <div class="metric-percentage" id="plan-status">Active</div>
+                    <div class="metric-action">
+                        <button class="metric-action-btn" id="upgrade-plan-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                            <span>Upgrade Plan</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="metric-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="metric-header">
+                        <h3 class="metric-title">Monthly Bill</h3>
+                        <div class="metric-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"/>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="metric-value" id="monthly-bill">Loading...</div>
+                    <p class="metric-description">monthly subscription cost</p>
+                    <div class="metric-progress">
+                        <div class="metric-progress-bar" id="bill-progress" style="width: 0%"></div>
+                    </div>
+                    <div class="metric-percentage" id="bill-status">Current</div>
+                </div>
+
+                <div class="metric-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="metric-header">
+                        <h3 class="metric-title">Payment Method</h3>
+                        <div class="metric-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                <line x1="1" y1="10" x2="23" y2="10"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="metric-value" id="payment-method">Loading...</div>
+                    <p class="metric-description">primary payment method</p>
+                    <div class="metric-progress">
+                        <div class="metric-progress-bar" id="payment-progress" style="width: 100%"></div>
+                    </div>
+                    <div class="metric-percentage" id="payment-status">Valid</div>
+                    <div class="metric-action">
+                        <button class="metric-action-btn" id="payment-method-action-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            <span id="payment-method-action-text">Manage Billing</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="metric-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="metric-header">
+                        <h3 class="metric-title">Next Billing</h3>
+                        <div class="metric-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="metric-value" id="next-billing">Loading...</div>
+                    <p class="metric-description">next billing date</p>
+                    <div class="metric-progress">
+                        <div class="metric-progress-bar" id="billing-progress" style="width: 0%"></div>
+                    </div>
+                    <div class="metric-percentage" id="billing-days">Loading</div>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <div class="usage-chart-container" data-aos="fade-up" data-aos-delay="500">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Billing History</h3>
+                        <div class="chart-timeframe">
+                            <button class="timeframe-btn active">6M</button>
+                            <button class="timeframe-btn">1Y</button>
+                            <button class="timeframe-btn">All</button>
+                        </div>
+                    </div>
+                    <div class="chart-placeholder">
+                        <span>Billing history chart will be displayed here</span>
+                    </div>
+                </div>
+
+                <div class="account-info-container">
+                    <div class="account-info" data-aos="fade-up" data-aos-delay="600">
+                        <div class="info-header">
+                            <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            <h3 class="info-title">Account Information</h3>
+                        </div>
+                        <div class="user-avatar" id="user-avatar">L</div>
+                        <h4 class="user-name" id="user-name">Loading...</h4>
+                        <p class="user-email" id="user-email">Loading...</p>
+                        <p class="user-since">Member since <span id="user-join-date">---</span></p>
+                    </div>
+
+                    <div class="billing-info" data-aos="fade-up" data-aos-delay="700">
+                        <div class="info-header">
+                            <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                <line x1="1" y1="10" x2="23" y2="10"/>
+                            </svg>
+                            <h3 class="info-title">Billing & Plan</h3>
+                        </div>
+                        <div class="plan-badge" id="plan-name">Loading...</div>
+                        <div class="plan-price">$<span id="plan-price">--</span>/month</div>
+                        <ul class="plan-details" id="plan-features">
+                            <li>Loading plan features...</li>
+                        </ul>
+                        <div class="next-billing">
+                            <p class="next-billing-label">Next Billing</p>
+                            <p class="next-billing-date" id="next-billing-date">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        // Global user data
+        let userData = null;
+
+        // Initialize AOS
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remove loading classes
+            setTimeout(function() {
+                document.documentElement.classList.remove('loading');
+                document.body.classList.remove('loading');
+            }, 100);
+            
+            // Initialize AOS
+            if (typeof AOS !== 'undefined') {
+                AOS.init({
+                    easing: "ease-out-cubic",
+                    duration: 600,
+                    once: true,
+                    offset: 120,
+                    delay: 0,
+                    disable: false
+                });
+            }
+
+            // Add event listeners for buttons
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', logout);
+            }
+
+            const upgradePlanBtn = document.getElementById('upgrade-plan-btn');
+            if (upgradePlanBtn) {
+                upgradePlanBtn.addEventListener('click', function() {
+                    window.location.href = '/payment?referrer=dashboard';
+                });
+            }
+
+            const paymentMethodActionBtn = document.getElementById('payment-method-action-btn');
+            if (paymentMethodActionBtn) {
+                paymentMethodActionBtn.addEventListener('click', handlePaymentMethodAction);
+            }
+
+            // Load user data
+            loadUserData();
+        });
+
+        // Load user data from API
+        async function loadUserData() {
+            try {
+                console.log('🔄 Fetching user dashboard data...');
+                const response = await fetch('/api/user/dashboard-data', {
+                    credentials: 'same-origin'
+                });
+                
+                console.log('📡 Response status:', response.status);
+                
+                if (response.ok) {
+                    userData = await response.json();
+                    console.log('✅ User data received:', userData);
+                    console.log('📋 Plan:', userData.plan);
+                    console.log('💰 Price:', userData.planPrice);
+                    console.log('📅 Next Billing:', userData.nextBilling);
+                    populateDashboard(userData);
+                } else {
+                    console.error('Failed to load user data:', response.status);
+                    showError('Failed to load your dashboard data. Please refresh the page.');
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showError('Network error while loading dashboard. Please check your connection and refresh.');
+            }
+        }
+        
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(239, 68, 68, 0.95);
+                color: white;
+                padding: 16px 20px;
+                border-radius: 12px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+                z-index: 10000;
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                max-width: 400px;
+            `;
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        // Populate dashboard with real user data
+        function populateDashboard(user) {
+            // Update header
+            document.getElementById('user-name-header').textContent = user.name.split(' ')[0];
+
+            // Update sidebar user info
+            document.getElementById('sidebar-user-avatar').textContent = user.name.split(' ').map(n => n[0]).join('');
+            document.getElementById('sidebar-user-name').textContent = user.name;
+            document.getElementById('sidebar-user-email').textContent = user.email;
+
+            // Update account info
+            const userAvatarElement = document.getElementById('user-avatar');
+            if (userAvatarElement) {
+                userAvatarElement.textContent = user.name.split(' ').map(n => n[0]).join('');
+            }
+            
+            const userNameElement = document.getElementById('user-name');
+            if (userNameElement) {
+                userNameElement.textContent = user.name;
+            }
+            
+            const userEmailElement = document.getElementById('user-email');
+            if (userEmailElement) {
+                userEmailElement.textContent = user.email;
+            }
+            
+            const userJoinDateElement = document.getElementById('user-join-date');
+            if (userJoinDateElement && user.joinDate) {
+                userJoinDateElement.textContent = formatDate(user.joinDate);
+            }
+
+            // Update plan info
+            const planNameElement = document.getElementById('plan-name');
+            if (planNameElement) {
+                planNameElement.textContent = user.plan;
+            }
+            
+            const planPriceElement = document.getElementById('plan-price');
+            if (planPriceElement) {
+                planPriceElement.textContent = user.planPrice === 0 ? '0' : user.planPrice;
+            }
+            
+            const nextBillingDateElement = document.getElementById('next-billing-date');
+            if (nextBillingDateElement) {
+                nextBillingDateElement.textContent = user.nextBilling ? formatDate(user.nextBilling) : 'N/A';
+            }
+
+            // Update plan features based on plan type
+            const planFeaturesElement = document.getElementById('plan-features');
+            if (planFeaturesElement) {
+                const features = getPlanFeatures(user.plan);
+                planFeaturesElement.innerHTML = features.map(feature => `<li>${feature}</li>`).join('');
+            }
+
+            // Update metrics
+            updateMetrics(user);
+
+            // Animate progress bars
+            setTimeout(() => {
+                animateProgressBars(user);
+            }, 500);
+        }
+
+        // Get plan features based on plan type (updated with actual plans)
+        function getPlanFeatures(planType) {
+            const features = {
+                'Free': [
+                    `${userData.tasksLimit || 100} AI tasks/month`,
+                    'Basic screen capture & ask',
+                    'Simple workflows (3 max)',
+                    'Community support',
+                    '1 user'
+                ],
+                'Super Red': [
+                    '5,000 AI tasks/month',
+                    'Advanced screen capture & ask',
+                    'Unlimited agentic workflows',
+                    'Audio transcription (10 hours/month)',
+                    'Pre-built MCP servers',
+                    'Priority support',
+                    'Up to 5 team members'
+                ],
+                'Ultimate Red': [
+                    'Unlimited AI tasks',
+                    'Advanced screen capture & ask',
+                    'Unlimited agentic workflows',
+                    'Unlimited audio transcription',
+                    'Custom MCP servers',
+                    'Smart Activity Learning (beta)',
+                    'Unlimited team members'
+                ],
+                // Legacy plans for backward compatibility
+                'Starter': [
+                    '1,000 AI tasks/month',
+                    'Workflow automation',
+                    'Email support',
+                    '5 team members'
+                ],
+                'Professional': [
+                    '10,000 AI tasks/month',
+                    'Advanced automation',
+                    'Priority support',
+                    '25 team members',
+                    'Custom integrations'
+                ],
+                'Enterprise': [
+                    'Unlimited tasks',
+                    'Enterprise automation',
+                    '24/7 support',
+                    'Unlimited members',
+                    'Security & compliance'
+                ]
+            };
+            return features[planType] || ['Plan features loading...'];
+        }
+
+        // Update metrics with real user data
+        function updateMetrics(user) {
+            console.log('📊 Updating metrics with user data...');
+            console.log('User data in updateMetrics:', user);
+            
+            // Current Plan
+            const currentPlanEl = document.getElementById('current-plan');
+            if (currentPlanEl) {
+                currentPlanEl.textContent = user.plan;
+                console.log('✅ Updated current-plan to:', user.plan);
+            }
+            
+            // Monthly Bill
+            const monthlyBillElement = document.getElementById('monthly-bill');
+            if (monthlyBillElement) {
+                if (user.planPrice === 0) {
+                    monthlyBillElement.textContent = '$0';
+                } else {
+                    monthlyBillElement.textContent = `$${user.planPrice}/month`;
+                }
+                console.log('✅ Updated monthly-bill to:', monthlyBillElement.textContent);
+            }
+            
+            // Payment Method
+            const paymentMethodEl = document.getElementById('payment-method');
+            if (paymentMethodEl) {
+                const paymentMethod = user.paymentMethod || 'No payment method';
+                paymentMethodEl.textContent = paymentMethod;
+                console.log('✅ Updated payment-method to:', paymentMethod);
+            }
+            
+            // Next Billing Date
+            const nextBillingEl = document.getElementById('next-billing');
+            if (nextBillingEl) {
+                if (user.nextBilling) {
+                    nextBillingEl.textContent = formatDate(user.nextBilling);
+                } else {
+                    nextBillingEl.textContent = 'N/A';
+                }
+                console.log('✅ Updated next-billing to:', nextBillingEl.textContent);
+            }
+        }
+
+        // Animate progress bars with real data
+        function animateProgressBars(user) {
+            // Plan progress - based on subscription status
+            const planStatusElement = document.getElementById('plan-status');
+            if (user.subscriptionStatus === 'active') {
+                document.getElementById('plan-progress').style.width = '100%';
+                planStatusElement.textContent = 'Active';
+            } else if (user.subscriptionStatus === 'past_due') {
+                document.getElementById('plan-progress').style.width = '50%';
+                planStatusElement.textContent = 'Past Due';
+            } else {
+                document.getElementById('plan-progress').style.width = '0%';
+                planStatusElement.textContent = user.subscriptionStatus || 'Pending';
+            }
+
+            // Bill progress (based on billing cycle)
+            if (user.nextBilling) {
+                const billDate = new Date(user.nextBilling);
+                const currentDate = new Date();
+                const cycleStart = new Date(billDate);
+                cycleStart.setMonth(cycleStart.getMonth() - 1);
+                
+                const totalDays = (billDate - cycleStart) / (1000 * 60 * 60 * 24);
+                const daysElapsed = (currentDate - cycleStart) / (1000 * 60 * 60 * 24);
+                const billPercentage = Math.min(Math.max((daysElapsed / totalDays) * 100, 0), 100);
+                
+                document.getElementById('bill-progress').style.width = billPercentage + '%';
+                document.getElementById('bill-status').textContent = 'Current';
+                
+                // Next billing progress and days remaining
+                const daysRemaining = Math.max(0, Math.ceil((billDate - currentDate) / (1000 * 60 * 60 * 24)));
+                const billingPercentage = Math.max(0, 100 - (daysRemaining / 30) * 100);
+                
+                document.getElementById('billing-progress').style.width = billingPercentage + '%';
+                document.getElementById('billing-days').textContent = `${daysRemaining} days`;
+            } else {
+                // No billing date for free users
+                document.getElementById('bill-progress').style.width = '0%';
+                document.getElementById('bill-status').textContent = 'N/A';
+                document.getElementById('billing-progress').style.width = '0%';
+                document.getElementById('billing-days').textContent = 'N/A';
+            }
+
+            // Payment progress - based on payment method availability
+            if (user.paymentMethod && user.paymentMethod !== 'No payment method') {
+                document.getElementById('payment-progress').style.width = '100%';
+                document.getElementById('payment-status').textContent = 'Valid';
+            } else {
+                document.getElementById('payment-progress').style.width = '0%';
+                document.getElementById('payment-status').textContent = 'None';
+            }
+            
+            // Update payment method button text and action
+            updatePaymentMethodButton(user.paymentMethod && user.paymentMethod !== 'No payment method');
+            
+            // Update upgrade button text based on plan
+            updateUpgradeButton(user.plan);
+        }
+
+        // Update payment method button based on whether user has payment method
+        function updatePaymentMethodButton(hasPaymentMethod) {
+            const btn = document.getElementById('payment-method-action-btn');
+            const textSpan = document.getElementById('payment-method-action-text');
+            
+            if (!hasPaymentMethod) {
+                textSpan.textContent = 'Add Payment';
+                // Update icon to plus sign
+                btn.querySelector('svg').innerHTML = '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>';
+            } else {
+                textSpan.textContent = 'Manage Billing';
+            }
+        }
+
+        // Update upgrade button based on current plan
+        function updateUpgradeButton(plan) {
+            const btn = document.getElementById('upgrade-plan-btn');
+            const btnSpan = btn.querySelector('span');
+            
+            if (plan === 'Ultimate Red') {
+                btnSpan.textContent = 'Current Plan';
+                btn.style.cursor = 'default';
+                btn.onclick = null;
+                btn.style.opacity = '0.6';
+            } else if (plan === 'Super Red') {
+                btnSpan.textContent = 'Upgrade to Ultimate';
+            } else {
+                btnSpan.textContent = 'Upgrade Plan';
+            }
+        }
+
+        // Handle payment method action button click
+        function handlePaymentMethodAction() {
+            const paymentMethodText = document.getElementById('payment-method').textContent;
+            
+            if (paymentMethodText === 'No payment method' || paymentMethodText === 'N/A' || paymentMethodText === 'Loading...') {
+                // Redirect to payment page to add card
+                window.location.href = '/payment?referrer=dashboard';
+            } else {
+                // Open Stripe Billing Portal to manage existing payment
+                openBillingPortal();
+            }
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+
+        // Open Stripe Billing Portal
+        async function openBillingPortal() {
+            try {
+                console.log('🔄 Opening billing portal...');
+                
+                const response = await fetch('/api/billing-portal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin'
+                });
+                
+                console.log('📡 Response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Portal URL received:', data.url);
+                    
+                    if (data.url) {
+                        // Redirect to Stripe Billing Portal
+                        window.location.href = data.url;
+                    } else {
+                        throw new Error('No portal URL returned');
+                    }
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('❌ Error response:', errorData);
+                    
+                    // Handle free users gracefully
+                    if (errorData.isFreeUser || (errorData.error && errorData.error.includes('Free plan'))) {
+                        alert('Billing portal is only available for paid plans.\n\nYou are currently on the Free plan. Click "Plans & Upgrade" to upgrade.');
+                    } else {
+                        // Show the detailed error message
+                        const errorMsg = errorData.details || errorData.error || 'Failed to open billing portal';
+                        alert('Unable to open billing portal:\n\n' + errorMsg);
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Billing portal error:', error);
+                alert('Unable to open billing portal:\n\n' + error.message);
+            }
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                console.log('Logout button clicked - attempting logout...');
+                const response = await fetch('/api/logout', {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                });
+                
+                console.log('Logout response status:', response.status);
+                
+                if (response.ok) {
+                    console.log('Logout successful, redirecting to home...');
+                    window.location.href = '/';
+                } else {
+                    console.error('Logout failed with status:', response.status);
+                    // Redirect anyway in case of server issues
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+                // Redirect anyway in case of network issues
+                window.location.href = '/';
+            }
+        }
+
+        // Timeframe button handlers
+        document.querySelectorAll('.timeframe-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.timeframe-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // Here you would update the chart based on the selected timeframe
+                console.log('Timeframe changed to:', this.textContent);
+            });
+        });
+    </script>
+</body>
+</html>
