@@ -7,18 +7,24 @@
     <title>Floating Assistant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* CSS Variables */
+        /* CSS Variables - Light Minimal Theme */
         :root {
-            --window-bg-opacity: 0.7;
-            --frosted-bg: rgba(60, 60, 65, 0.75);
-            --frosted-backdrop-filter: blur(40px) saturate(150%);
-            --glassmorphism-bg: rgba(60, 60, 65, 0.75);
-            --glassmorphism-border: rgba(255, 255, 255, 0.3);
-            --glassmorphism-shadow: none;
-            --enhanced-blur: blur(40px) saturate(150%);
-            --text-primary: rgba(255, 255, 255, 1);
-            --text-secondary: rgba(255, 255, 255, 0.9);
-            --text-muted: rgba(255, 255, 255, 0.7);
+            --window-bg-opacity: 0.98;
+            --frosted-bg: rgba(248, 246, 243, 0.95);
+            --frosted-backdrop-filter: blur(40px) saturate(120%);
+            --glassmorphism-bg: rgba(255, 255, 255, 0.95);
+            --glassmorphism-border: rgba(0, 0, 0, 0.08);
+            --glassmorphism-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            --enhanced-blur: blur(40px) saturate(120%);
+            --text-primary: #1A1A1A;
+            --text-secondary: #4A4A4A;
+            --text-muted: #9CA3AF;
+            --bg-primary: #F8F6F3;
+            --bg-card: #FFFFFF;
+            --bg-hover: #F0EEEB;
+            --border-color: #E5E5E5;
+            --accent-blue: #3B82F6;
+            --accent-red: #EF4444;
         }
 
         /* Basic styles for the body */
@@ -140,14 +146,15 @@
         .navigation {
             position: relative;
             height: 70px;
-            background: rgba(50, 50, 55, 0.85) !important;
-            backdrop-filter: blur(40px) saturate(150%) !important;
-            -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            background: var(--bg-card) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid var(--border-color) !important;
             border-radius: 35px;
             display: flex;
             justify-content: flex-start;
             align-items: center;
+            box-shadow: var(--glassmorphism-shadow) !important;
             padding: 0 10px;
             box-shadow: none !important;
             user-select: none;
@@ -257,7 +264,7 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-secondary);
             font-size: 1rem;
             font-weight: 500;
             transition: color 0.3s ease;
@@ -291,6 +298,10 @@
             color: #fff;
         }
 
+        .nav-item:not(.active):hover .nav-link {
+            color: var(--text-primary);
+        }
+
         .nav-item.active .nav-text {
             opacity: 1;
             max-width: 150px;
@@ -311,19 +322,19 @@
 
         .window {
             position: relative;
-            background: rgba(50, 50, 55, 0.85) !important;
-            backdrop-filter: blur(40px) saturate(150%) !important;
-            -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            background: var(--bg-primary) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid var(--border-color) !important;
             border-radius: 20px;
-            padding: 8px;
+            padding: 0;
             display: none;
-            color: rgba(255, 255, 255, 1);
+            color: var(--text-primary);
             max-height: calc(100vh - 140px);
             overflow-y: auto;
             scrollbar-width: none;
             box-sizing: border-box;
-            box-shadow: none !important;
+            box-shadow: var(--glassmorphism-shadow) !important;
         }
 
         .window::before {
@@ -1172,15 +1183,24 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            padding: 12px 12px 4px 12px;
-            scrollbar-width: none;
-            /* For Firefox */
+            gap: 16px;
+            padding: 24px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) transparent;
         }
 
-        /* Hide scrollbar for Chrome, Safari and Opera */
+        /* Scrollbar styling */
         .conversation-view::-webkit-scrollbar {
             width: 6px;
+        }
+
+        .conversation-view::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .conversation-view::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
         }
 
         .conversation-view::-webkit-scrollbar-track {
@@ -1215,20 +1235,25 @@
         }
 
         .user-message {
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: rgba(255, 255, 255, 1);
+            background: var(--text-primary);
+            border: none;
+            color: #fff;
             align-self: flex-end;
+            border-radius: 16px;
             border-bottom-right-radius: 4px;
             padding: 12px 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
         .ai-message {
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.95);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
             align-self: flex-start;
-            padding: 0;
+            padding: 16px;
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
 
         .ai-message-icon {
@@ -4486,9 +4511,16 @@
                 const card = document.getElementById('transcription-attachment-card');
                 const titleEl = document.getElementById('attachment-card-title');
                 const wordsEl = document.getElementById('attachment-card-words');
+                const attachmentsArea = document.getElementById('attachments-area');
+                const inlineIndicator = document.getElementById('inline-attachment-indicator');
 
                 if (card && transcriptionAttachment) {
+                    // Show the attachments area
+                    if (attachmentsArea) attachmentsArea.classList.remove('hidden');
                     card.classList.remove('hidden');
+                    
+                    // Show inline indicator in input
+                    if (inlineIndicator) inlineIndicator.classList.remove('hidden');
                     
                     // Set title - use first line or preview of the transcription
                     if (titleEl) {
@@ -4510,9 +4542,24 @@
             // Hide transcription attachment card
             function hideTranscriptionAttachmentBadge() {
                 const card = document.getElementById('transcription-attachment-card');
+                const attachmentsArea = document.getElementById('attachments-area');
+                const inlineIndicator = document.getElementById('inline-attachment-indicator');
+                
                 if (card) {
                     card.classList.add('hidden');
                 }
+                
+                // Hide inline indicator
+                if (inlineIndicator) inlineIndicator.classList.add('hidden');
+                
+                // Check if we should hide the attachments area (if no other attachments)
+                const screenCaptureCard = document.getElementById('screen-capture-card');
+                const hasScreenCapture = screenCaptureCard && !screenCaptureCard.classList.contains('hidden');
+                
+                if (attachmentsArea && !hasScreenCapture) {
+                    attachmentsArea.classList.add('hidden');
+                }
+                
                 transcriptionAttachment = null;
                 window.chatAttachment = null;
                 console.log('❌ Transcription attachment removed');
@@ -4531,7 +4578,7 @@
                 const card = document.getElementById('transcription-attachment-card');
                 if (card) {
                     card.addEventListener('click', (e) => {
-                        if (e.target.closest('.attachment-card-remove')) return;
+                        if (e.target.closest('.attachment-remove')) return;
                         // Show transcription preview on click
                         if (transcriptionAttachment) {
                             showTranscriptionPreviewModal();

@@ -808,6 +808,50 @@
             }
         });
     }
+
+    // ========================================
+    // MINIMAL INTERFACE - Quick Actions
+    // ========================================
+    
+    const quickActions = document.getElementById('quick-actions');
+    
+    // Show quick actions on "/" key or when input is focused with empty content
+    if (chatInput && quickActions) {
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === '/' && this.value === '') {
+                e.preventDefault();
+                quickActions.classList.toggle('hidden');
+            } else if (e.key === 'Escape') {
+                quickActions.classList.add('hidden');
+            }
+        });
+        
+        // Hide quick actions when typing
+        chatInput.addEventListener('input', function() {
+            if (this.value.length > 0) {
+                quickActions.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Update send button appearance based on input
+    function updateSendButtonAppearance() {
+        if (!sendBtn || !chatInput) return;
+        
+        const hasContent = chatInput.value.trim().length > 0;
+        const hasAttachment = document.getElementById('inline-attachment-indicator') && 
+                             !document.getElementById('inline-attachment-indicator').classList.contains('hidden');
+        
+        if (hasContent || hasAttachment) {
+            sendBtn.classList.add('active');
+        } else {
+            sendBtn.classList.remove('active');
+        }
+    }
+    
+    if (chatInput) {
+        chatInput.addEventListener('input', updateSendButtonAppearance);
+    }
     
     // Clean up on page unload
     window.addEventListener('beforeunload', () => {
